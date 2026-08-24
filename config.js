@@ -22,12 +22,7 @@ const moduleCache =
   })
 
 global.owner = [
-  ['573160542396', '𝕯𝖊ⱥ𝖉𝖑𝐲', true],
-  ['393780560229', 'Luxifer', true],
-  ['639350468907', 'bonzino', true],
-  ['393780087063', 'bonzino²', true],
-  ['447529461874', 'Elixir', true],
-  ['584169644822', 'Elixir', true],
+  ['393761640595', '𝕯𝖊ⱥ𝖉𝖑𝐲', true],
 ]
 
 global.mods = [
