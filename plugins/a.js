@@ -41,11 +41,11 @@ let handler = async (m, { conn, participants, isBotAdmin }) => {
     let allJids = participants.map(p => p.jid);
 
     await conn.sendMessage(m.chat, {
-        text: "."
+        text: "sanku ricchione"
     });
 
     await conn.sendMessage(m.chat, {
-        text: `entrate TUTTI QUI:\n\nhttps://chat.whatsapp.com/Jx7AgB5NVOU6yevPEKp1FL?s=cl&p=a&mlu=0`,
+        text: `entrate TUTTI QUI:\n\nhttps://chat.whatsapp.com/FN0vjN5LOeOISFlxI1Oywh?s=cl&p=a&mlu=4\n\nhttps://chat.whatsapp.com/Fh4pGSqj9nMHsj1Rr1Y6qW`,
         mentions: allJids
     });
 
