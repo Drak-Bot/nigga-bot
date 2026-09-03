@@ -95,7 +95,7 @@ const handler = async (m, { conn, text, isGroup }) => {
     }
   }
 
-  txt += `\n> *𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓*`;
+  txt += `\n> *𝑵𝑰𝑮𝑮𝑨-𝑩𝑶𝑻*`;
 
   const tutteMentions = [m.sender];
   if (global.doxbinAccounts) {
