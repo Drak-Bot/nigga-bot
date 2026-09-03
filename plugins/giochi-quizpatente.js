@@ -10,7 +10,7 @@ const TIMEOUT = 60_000
 const PREMIO_EURO = 30
 const PREMIO_EXP = 150
 const ERRORI_MASSIMI_PREMIO = 3
-const FOOTER = '𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓'
+const FOOTER = '𝑵𝑰𝑮𝑮𝑨-𝑩𝑶𝑻'
 
 function shuffleArray(array) {
   let arr = array.slice()
