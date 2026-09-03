@@ -22,7 +22,7 @@ let handler = async (m, { conn, args, command, usedPrefix }) => {
 
 *📌 𝐏𝐫𝐞𝐟𝐢𝐬𝐬𝐨 𝐚𝐭𝐭𝐮𝐚𝐥𝐞:* *${current}*
 
-> *𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓*`)
+> *𝑵𝑰𝑮𝑮𝑨-𝑩𝑶𝑻*`)
   }
 
   if (cmd === 'setprefisso') {
@@ -45,7 +45,7 @@ let handler = async (m, { conn, args, command, usedPrefix }) => {
 
 *📌 𝐍𝐮𝐨𝐯𝐨 𝐩𝐫𝐞𝐟𝐢𝐬𝐬𝐨:* *${nuovo}*
 
-> *𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓*`)
+> *𝑵𝑰𝑮𝑮𝑨-𝑩𝑶𝑻*`)
   }
 
   if (cmd === 'resettaprefisso') {
@@ -58,7 +58,7 @@ let handler = async (m, { conn, args, command, usedPrefix }) => {
 
 *📌 𝐏𝐫𝐞𝐟𝐢𝐬𝐬𝐨 𝐫𝐢𝐩𝐫𝐢𝐬𝐭𝐢𝐧𝐚𝐭𝐨:* *.*
 
-> *𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓*`)
+> *𝑵𝑰𝑮𝑮𝑨-𝑩𝑶𝑻*`)
   }
 }
 
