@@ -1,7 +1,7 @@
 // owner-godmode by Bonzino
 
 const sleep=ms=>new Promise(resolve=>setTimeout(resolve,ms))
-const footer=`\n\n> *𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓*`
+const footer=`\n\n> *𝑵𝑰𝑮𝑮𝑨-𝑩𝑶𝑻*`
 
 async function withTimeout(p,ms=30000){
   return Promise.race([p,new Promise((_,reject)=>setTimeout(()=>reject(new Error(`timeout_${ms}`)),ms))])
