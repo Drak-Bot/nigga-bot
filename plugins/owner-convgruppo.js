@@ -15,7 +15,7 @@ if(!input)return conn.reply(m.chat,`*╭━━━━━━━🔗━━━━━
 *📌 𝐈𝐃 → 𝐋𝐢𝐧𝐤*
 *${usedPrefix}idtolink 1203630xxxxxxxxx@g.us*
 
-> *𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓*`,m)
+> *𝑵𝑰𝑮𝑮𝑨-𝑩𝑶𝑻*`,m)
 
 if(isLinkToId){
 const match=input.match(/chat\.whatsapp\.com\/([A-Za-z0-9]+)/i)
@@ -25,7 +25,7 @@ if(!match)return conn.reply(m.chat,`*╭━━━━━━━❌━━━━━�
 
 *𝐈𝐥 𝐥𝐢𝐧𝐤 𝐢𝐧𝐯𝐢𝐚𝐭𝐨 𝐧𝐨𝐧 è 𝐮𝐧 𝐥𝐢𝐧𝐤 𝐠𝐫𝐮𝐩𝐩𝐨 𝐖𝐡𝐚𝐭𝐬𝐀𝐩𝐩 𝐯𝐚𝐥𝐢𝐝𝐨.*
 
-> *𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓*`,m)
+> *𝑵𝑰𝑮𝑮𝑨-𝑩𝑶𝑻*`,m)
 
 try{
 const info=await conn.groupGetInviteInfo(match[1])
@@ -48,7 +48,7 @@ return conn.reply(m.chat,`*╭━━━━━━━⚠️━━━━━━━�
 *𝐍𝐨𝐧 𝐬𝐨𝐧𝐨 𝐫𝐢𝐮𝐬𝐜𝐢𝐭𝐨 𝐚 𝐫𝐢𝐜𝐚𝐯𝐚𝐫𝐞 𝐥'𝐈𝐃 𝐝𝐚 𝐪𝐮𝐞𝐬𝐭𝐨 𝐥𝐢𝐧𝐤.*
 *𝐈𝐥 𝐥𝐢𝐧𝐤 𝐩𝐨𝐭𝐫𝐞𝐛𝐛𝐞 𝐞𝐬𝐬𝐞𝐫𝐞 𝐬𝐜𝐚𝐝𝐮𝐭𝐨 𝐨 𝐧𝐨𝐧 𝐯𝐚𝐥𝐢𝐝𝐨.*
 
-> *𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓*`,m)
+> *𝑵𝑰𝑮𝑮𝑨-𝑩𝑶𝑻*`,m)
 }
 }
 
@@ -60,7 +60,7 @@ if(!/@g\.us$/i.test(input))return conn.reply(m.chat,`*╭━━━━━━━�
 *𝐃𝐞𝐯𝐢 𝐢𝐧𝐯𝐢𝐚𝐫𝐞 𝐮𝐧 𝐈𝐃 𝐠𝐫𝐮𝐩𝐩𝐨 𝐯𝐚𝐥𝐢𝐝𝐨.*
 *𝐄𝐬𝐞𝐦𝐩𝐢𝐨:* \`1203630xxxxxxxxx@g.us\`
 
-> *𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓*`,m)
+> *𝑵𝑰𝑮𝑮𝑨-𝑩𝑶𝑻*`,m)
 
 try{
 const code=await conn.groupInviteCode(input)
@@ -85,7 +85,7 @@ return conn.reply(m.chat,`*╭━━━━━━━⚠️━━━━━━━�
 *𝐍𝐨𝐧 𝐬𝐨𝐧𝐨 𝐫𝐢𝐮𝐬𝐜𝐢𝐭𝐨 𝐚 𝐫𝐢𝐜𝐚𝐯𝐚𝐫𝐞 𝐢𝐥 𝐥𝐢𝐧𝐤 𝐝𝐚 𝐪𝐮𝐞𝐬𝐭𝐨 𝐈𝐃.*
 *𝐈𝐥 𝐛𝐨𝐭 𝐩𝐨𝐭𝐫𝐞𝐛𝐛𝐞 𝐧𝐨𝐧 𝐞𝐬𝐬𝐞𝐫𝐞 𝐧𝐞𝐥 𝐠𝐫𝐮𝐩𝐩𝐨 𝐨 𝐧𝐨𝐧 𝐚𝐯𝐞𝐫𝐞 𝐢 𝐩𝐞𝐫𝐦𝐞𝐬𝐬𝐢 𝐧𝐞𝐜𝐞𝐬𝐬𝐚𝐫𝐢.*
 
-> *𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓*`,m)
+> *𝑵𝑰𝑮𝑮𝑨-𝑩𝑶𝑻*`,m)
 }
 }
 }
