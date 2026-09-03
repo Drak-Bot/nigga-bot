@@ -31,7 +31,7 @@ let handler = async (m, { conn, text, usedPrefix, command, isAdmin, isOwner, isR
         m.chat,
 `*❌ 𝐒𝐨𝐥𝐨 𝐚𝐝𝐦𝐢𝐧 𝐨 𝐨𝐰𝐧𝐞𝐫 𝐩𝐨𝐬𝐬𝐨𝐧𝐨 𝐢𝐦𝐩𝐨𝐬𝐭𝐚𝐫𝐞 𝐥𝐞 𝐫𝐞𝐠𝐨𝐥𝐞.*
 
-> *𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓*`,
+> *𝑵𝑰𝑮𝑮𝑨-𝑩𝑶𝑻*`,
         m
       )
     }
@@ -45,13 +45,13 @@ let handler = async (m, { conn, text, usedPrefix, command, isAdmin, isOwner, isR
 *𝐄𝐬𝐞𝐦𝐩𝐢𝐨:*  
 *${usedPrefix}setregole 1203630xxxxxxxxx@g.us 1. No spam 2. No link 3. Rispetto per tutti*
 
-> *𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓*`
+> *𝑵𝑰𝑮𝑮𝑨-𝑩𝑶𝑻*`
           : `*⚠️ 𝐃𝐞𝐯𝐢 𝐢𝐧𝐬𝐞𝐫𝐢𝐫𝐞 𝐝𝐞𝐥𝐥𝐞 𝐫𝐞𝐠𝐨𝐥𝐞.*
 
 *𝐄𝐬𝐞𝐦𝐩𝐢𝐨:*  
 *${usedPrefix}setregole 1. No spam 2. No link 3. Rispetto per tutti*
 
-> *𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓*`,
+> *𝑵𝑰𝑮𝑮𝑨-𝑩𝑶𝑻*`,
         m
       )
     }
@@ -69,7 +69,7 @@ let handler = async (m, { conn, text, usedPrefix, command, isAdmin, isOwner, isR
         targetChat !== m.chat ? `\n*🎯 𝐆𝐫𝐮𝐩𝐩𝐨:* *${targetChat}*` : ''
       }
 
-> *𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓*`,
+> *𝑵𝑰𝑮𝑮𝑨-𝑩𝑶𝑻*`,
       m
     )
   }
@@ -84,7 +84,7 @@ let handler = async (m, { conn, text, usedPrefix, command, isAdmin, isOwner, isR
 
   const msg = `${rules}
 
-> *𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓*`
+> *𝑵𝑰𝑮𝑮𝑨-𝑩𝑶𝑻*`
 
   await conn.reply(m.chat, msg, m)
 }
