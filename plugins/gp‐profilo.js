@@ -34,7 +34,7 @@ const text=`╭━━━━━━━✨━━━━━━━╮
 *🐾 𝐀𝐧𝐢𝐦𝐚𝐥𝐞 𝐃𝐨𝐦𝐞𝐬𝐭𝐢𝐜𝐨:* ${animaleDomestico}
 *📸 𝐈𝐧𝐬𝐭𝐚𝐠𝐫𝐚𝐦:* ${instagram}
 
-> *𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓*`
+> *𝑵𝑰𝑮𝑮𝑨-𝑩𝑶𝑻*`
 await conn.sendMessage(m.chat,{text,mentions:[target],contextInfo:{...(global.rcanal?.contextInfo||{}),mentionedJid:[target],externalAdReply:{title:nome,body:' ',thumbnail:thumbnailBuffer,mediaType:1,renderLargerThumbnail:false,showAdAttribution:false}}},{quoted:m})
 await conn.sendMessage(m.chat,{text:'*𝐒𝐄𝐋𝐄𝐙𝐈𝐎𝐍𝐀 𝐔𝐍’𝐎𝐏𝐙𝐈𝐎𝐍𝐄:*',footer:'> *𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓*',buttons:[{buttonId:'.wallet',buttonText:{displayText:'💰 Portafoglio'},type:1},{buttonId:'.posizione',buttonText:{displayText:'🏆 Posizione'},type:1}],headerType:1},{quoted:m})
 }
