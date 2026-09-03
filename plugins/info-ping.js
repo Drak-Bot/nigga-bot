@@ -36,7 +36,7 @@ const handler = async (m, { conn, usedPrefix }) => {
 *⏱️ 𝐔𝐩𝐭𝐢𝐦𝐞:* ${uptime}
 *✅ 𝐒𝐭𝐚𝐭𝐮𝐬:* Online
 
-> *𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓*
+> *𝑵𝑰𝑮𝑮𝑨-𝑩𝑶𝑻*
 `.trim()
 
   const buttons = [
