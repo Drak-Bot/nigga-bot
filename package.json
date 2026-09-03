@@ -41,7 +41,7 @@
     "qr": "node main.js qr"
   },
   "dependencies": {
-    "@realvare/baileys": "latest",
+    "@realvare/baileys": "file:/opt/baileys",
     "api-dylux": "^1.8.6",
     "awesome-phonenumber": "^3.4.0",
     "axios": "^1.12.2",
