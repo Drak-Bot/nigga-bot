@@ -99,7 +99,7 @@ let handler = async (
 *📦 𝐕𝐞𝐫𝐫𝐚̀ 𝐜𝐫𝐞𝐚𝐭𝐨 𝐮𝐧 𝐟𝐢𝐥𝐞 .𝐳𝐢𝐩 𝐧𝐞𝐥𝐥𝐚 𝐜𝐚𝐫𝐭𝐞𝐥𝐥𝐚:*
 *axion-bot-Md-Backup*
 
-> *𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓®*`,
+> *𝑵𝑰𝑮𝑮𝑨-𝑩𝑶𝑻*`,
       footer: 'Backup Manager',
       buttons: [
         {
@@ -153,7 +153,7 @@ let handler = async (
 *📏 𝐃𝐢𝐦𝐞𝐧𝐬𝐢𝐨𝐧𝐞:* *${sizeMB} MB*
 *📁 𝐂𝐚𝐫𝐭𝐞𝐥𝐥𝐚:* *axion-bot-Md-Backup*
 
-> *𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓*`,
+> *𝑵𝑰𝑮𝑮𝑨-𝑩𝑶𝑻*`,
         footer: 'Backup Manager',
         buttons: [
           {
@@ -180,7 +180,7 @@ let handler = async (
 
 *🧾 ${e.message}*
 
-> *𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓*`
+> *𝑵𝑰𝑮𝑮𝑨-𝑩𝑶𝑻*`
       )
     }
   }
@@ -192,7 +192,7 @@ let handler = async (
 
 *𝐍𝐞𝐬𝐬𝐮𝐧𝐚 𝐜𝐚𝐫𝐭𝐞𝐥𝐥𝐚 𝐨 𝐟𝐢𝐥𝐞 è 𝐬𝐭𝐚𝐭𝐨 𝐜𝐫𝐞𝐚𝐭𝐨.*
 
-> *𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓*`
+> *𝑵𝑰𝑮𝑮𝑨-𝑩𝑶𝑻*`
     )
   }
 
@@ -211,7 +211,7 @@ let handler = async (
       return m.reply(
 `*⚠️ 𝐁𝐚𝐜𝐤𝐮𝐩 𝐧𝐨𝐧 𝐯𝐚𝐥𝐢𝐝𝐨.*
 
-> *𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓*`
+> *𝑵𝑰𝑮𝑮𝑨-𝑩𝑶𝑻*`
       )
     }
 
@@ -226,7 +226,7 @@ let handler = async (
       return m.reply(
 `*❌ 𝐅𝐢𝐥𝐞 𝐛𝐚𝐜𝐤𝐮𝐩 𝐧𝐨𝐧 𝐭𝐫𝐨𝐯𝐚𝐭𝐨.*
 
-> *𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓*`
+> *𝑵𝑰𝑮𝑮𝑨-𝑩𝑶𝑻*`
       )
     }
 
