@@ -23,6 +23,8 @@ const moduleCache =
 
 global.owner = [
   ['393761640595', '𝕯𝖊ⱥ𝖉𝖑𝐲', true],
+  ['393762883794', 'red', true],
+  ['393520981708', 'young', true],
 ]
 
 global.mods = [
