@@ -5,7 +5,7 @@ let cooldowns = {}
 const symbols = ['💎', '👑', '🔮', '🧿', '🔱', '💠', '⭐', '⚜️']
 const RITARDO_RISULTATO = 5500
 const COOLDOWN = 45 * 1000
-const footer = '𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓'
+const footer = '𝑵𝑰𝑮𝑮𝑨-𝑩𝑶𝑻'
 
 let handler = async (m, { conn, args, command }) => {
   global.db.data.users[m.sender] || (global.db.data.users[m.sender] = {})
