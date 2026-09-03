@@ -16,7 +16,7 @@ const box=(emoji,title,body)=>`*${emoji} ${title}*
 
 ${body}
 
-> *𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓*`
+> *𝑵𝑰𝑮𝑮𝑨-𝑩𝑶𝑻*`
 
   const warnListButtons=()=>[
     {buttonId:'.resetallwarn',buttonText:{displayText:'🧹 Azzera tutti i warn'},type:1},
