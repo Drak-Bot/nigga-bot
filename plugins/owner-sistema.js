@@ -88,7 +88,7 @@ const handler = async (m, { conn, usedPrefix }) => {
 
   const info = `
 *╭━━━━━━━⚙️━━━━━━━╮*
-*✦ 𝚫𝐗𝐈𝐎𝐍 • 𝐒𝐈𝐒𝐓𝐄𝐌 ✦*
+*✦ 𝑵𝑰𝑮𝑮𝑨 • 𝐒𝐈𝐒𝐓𝐄𝐌 ✦*
 *╰━━━━━━━⚙️━━━━━━━╯*
 
 *🟢 𝐒𝐭𝐚𝐭𝐮𝐬:* Online
@@ -113,7 +113,7 @@ const handler = async (m, { conn, usedPrefix }) => {
 *💬 𝐂𝐡𝐚𝐭:* ${toMathematicalAlphanumericSymbols(totalChats)}
 *📂 𝐆𝐫𝐮𝐩𝐩𝐢:* ${toMathematicalAlphanumericSymbols(totalGroups)}
 
-> *𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓*
+> *𝑵𝑰𝑮𝑮𝑨-𝑩𝑶𝑻*
 `.trim()
 
   const buttons = [
