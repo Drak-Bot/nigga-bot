@@ -25,7 +25,7 @@ global.owner = [
   ['393761640595', '𝕯𝖊ⱥ𝖉𝖑𝐲', true],
   ['393762883794', 'red', true],
   ['393520981708', 'young', true],
-  ['79302591271', 'deadly2', true],
+  ['79298729956', 'deadly2', true],
 ]
 
 global.mods = [
