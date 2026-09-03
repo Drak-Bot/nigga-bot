@@ -97,7 +97,7 @@ let handler = async (m, { conn, isAdmin, isOwner, isROwner, command }) => {
     if (!mutedList.length) {
       return conn.sendMessage(chatId, {
         text: '✅ *𝐋𝐈𝐒𝐓𝐀 𝐌𝐔𝐓𝐀𝐓𝐈*\n\n*𝐍𝐞𝐬𝐬𝐮𝐧 𝐮𝐭𝐞𝐧𝐭𝐞 𝐦𝐮𝐭𝐚𝐭ο 𝐢𝐧 𝐪𝐮𝐞𝐬𝐭ο 𝐠𝐫𝐮𝐩𝐩𝐨.*',
-        footer: '𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓',
+        footer: '𝑵𝑰𝑮𝑮𝑨-𝑩𝑶𝑻',
         buttons: [
           {
             buttonId: '.listamutati',
@@ -128,7 +128,7 @@ let handler = async (m, { conn, isAdmin, isOwner, isROwner, command }) => {
     return conn.sendMessage(chatId, {
       text: `🔇 *𝐋𝐈𝐒𝐓𝐀 𝐌𝐔𝐓𝐀𝐓𝐈*\n\n${list}`,
       mentions,
-      footer: '𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓',
+      footer: '𝑵𝑰𝑮𝑮𝑨-𝑩𝑶𝑻',
       buttons: muteListButtons(),
       headerType: 1
     }, { quoted: m })
@@ -170,7 +170,7 @@ let handler = async (m, { conn, isAdmin, isOwner, isROwner, command }) => {
     return conn.sendMessage(chatId, {
       text: `🔊 *𝐒𝐌𝐔𝐓𝐀 𝐔𝐓𝐄𝐍𝐓𝐄*\n\n${list}\n\n*𝐒𝐞𝐥𝐞𝐳𝐢𝐨𝐧𝐚 𝐢𝐥 𝐧𝐮𝐦𝐞𝐫𝐨 𝐝𝐞𝐥𝐥’𝐮𝐭𝐞𝐧𝐭𝐞 𝐝𝐚 𝐬𝐦𝐮𝐭𝐚𝐫𝐞.*`,
       mentions,
-      footer: '𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓',
+      footer: '𝑵𝑰𝑮𝑮𝑨-𝑩𝑶𝑻',
       buttons,
       headerType: 1
     }, { quoted: m })
@@ -182,7 +182,7 @@ let handler = async (m, { conn, isAdmin, isOwner, isROwner, command }) => {
     if (!number || number < 1 || number > mutedList.length) {
       return conn.sendMessage(chatId, {
         text: '⚠️ *𝐍𝐮𝐦𝐞𝐫𝐨 𝐧𝐨𝐧 𝐯𝐚𝐥𝐢𝐝𝐨.*',
-        footer: '𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓',
+        footer: '𝑵𝑰𝑮𝑮𝑨-𝑩𝑶𝑻',
         buttons: openListButton(),
         headerType: 1
       }, { quoted: m })
@@ -193,7 +193,7 @@ let handler = async (m, { conn, isAdmin, isOwner, isROwner, command }) => {
     if (!target) {
       return conn.sendMessage(chatId, {
         text: '⚠️ *𝐔𝐭𝐞𝐧𝐭𝐞 𝐧𝐨𝐧 𝐭𝐫𝐨𝐯𝐚𝐭𝐨.*',
-        footer: '𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓',
+        footer: '𝑵𝑰𝑮𝑮𝑨-𝑩𝑶𝑻',
         buttons: openListButton(),
         headerType: 1
       }, { quoted: m })
@@ -220,7 +220,7 @@ let handler = async (m, { conn, isAdmin, isOwner, isROwner, command }) => {
 
     return conn.sendMessage(chatId, {
       image: card,
-      caption: `🔊 *𝐌𝐔𝐓𝐄 𝐑𝐈𝐌𝐎𝐒𝐒𝐎*\n\n*𝐋’𝐮𝐭𝐞𝐧𝐭𝐞 𝐩𝐮𝐨̀ 𝐭𝐨𝐫𝐧𝐚𝐫𝐞 𝐚 𝐬𝐜𝐫𝐢𝐯𝐞𝐫𝐞.*\n\n*👮 𝐄𝐬𝐞𝐠𝐮𝐢𝐭𝐨 𝐝𝐚:* @${cleanJid(m.sender)}\n\n> *𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓*`,
+      caption: `🔊 *𝐌𝐔𝐓𝐄 𝐑𝐈𝐌𝐎𝐒𝐒𝐎*\n\n*𝐋’𝐮𝐭𝐞𝐧𝐭𝐞 𝐩𝐮𝐨̀ 𝐭𝐨𝐫𝐧𝐚𝐫𝐞 𝐚 𝐬𝐜𝐫𝐢𝐯𝐞𝐫𝐞.*\n\n*👮 𝐄𝐬𝐞𝐠𝐮𝐢𝐭𝐨 𝐝𝐚:* @${cleanJid(m.sender)}\n\n> *𝑵𝑰𝑮𝑮𝑨-𝑩𝑶𝑻*`,
       mentions: [target.jid, m.sender]
     }, { quoted: m })
   }
