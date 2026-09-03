@@ -20,7 +20,7 @@ const box = (emoji, title, body) => `╭━━━━━━━${emoji}━━━�
 
 ${body}
 
-> *𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓*`
+> *𝑵𝑰𝑮𝑮𝑨-𝑩𝑶𝑻*`
 
 function formatNumber(num) {
   return new Intl.NumberFormat('it-IT').format(num)
