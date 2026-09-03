@@ -7,7 +7,7 @@ m.chat,
 aperto?'not_announcement':'announcement'
 )
 await global.box(conn,m.chat,{
-text:'\n> 𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓',
+text:'\n> 𝑵𝑰𝑮𝑮𝑨-𝑩𝑶𝑻',
 title:aperto
 ?'ㅤ𝐂𝐡𝐚𝐭 𝐚𝐩𝐞𝐫𝐭𝐚 𝐚 𝐭𝐮𝐭𝐭𝐢 🟢'
 :'ㅤ𝐂𝐡𝐚𝐭 𝐬𝐨𝐥𝐨 𝐩𝐞𝐫 𝐚𝐝𝐦𝐢𝐧 🔴',
