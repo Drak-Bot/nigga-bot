@@ -16,7 +16,7 @@ let handler = async (m, { conn, text, usedPrefix }) => {
 `*⚠️ 𝐔𝐬𝐨 𝐜𝐨𝐫𝐫𝐞𝐭𝐭𝐨:*
 *${usedPrefix}eliminaplugin nomeplugin*
 
-> *𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓*`)
+> *𝑵𝑰𝑮𝑮𝑨-𝑩𝑶𝑻*`)
   }
 
   const pluginName = text
@@ -28,7 +28,7 @@ let handler = async (m, { conn, text, usedPrefix }) => {
     return m.reply(
 `*❌ 𝐍𝐨𝐦𝐞 𝐩𝐥𝐮𝐠𝐢𝐧 𝐧𝐨𝐧 𝐯𝐚𝐥𝐢𝐝𝐨.*
 
-> *𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓*`)
+> *𝑵𝑰𝑮𝑮𝑨-𝑩𝑶𝑻*`)
   }
 
   const pluginPath = path.join(
@@ -40,7 +40,7 @@ let handler = async (m, { conn, text, usedPrefix }) => {
     return m.reply(
 `*❌ 𝐈𝐥 𝐩𝐥𝐮𝐠𝐢𝐧 ${pluginName}.js 𝐧𝐨𝐧 𝐞𝐬𝐢𝐬𝐭𝐞.*
 
-> *𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓*`)
+> *𝑵𝑰𝑮𝑮𝑨-𝑩𝑶𝑻*`)
   }
 
   try {
@@ -55,7 +55,7 @@ let handler = async (m, { conn, text, usedPrefix }) => {
 
 *🚀 𝐈𝐥 𝐩𝐥𝐮𝐠𝐢𝐧 𝐞̀ 𝐬𝐭𝐚𝐭𝐨 𝐫𝐢𝐦𝐨𝐬𝐬𝐨 𝐚𝐮𝐭𝐨𝐦𝐚𝐭𝐢𝐜𝐚𝐦𝐞𝐧𝐭𝐞.*
 
-> *𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓*`,
+> *𝑵𝑰𝑮𝑮𝑨-𝑩𝑶𝑻*`,
       footer: 'Gestione plugin Axion',
       buttons: [
         {
@@ -84,7 +84,7 @@ let handler = async (m, { conn, text, usedPrefix }) => {
 
 *📛 ${String(e)}*
 
-> *𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓*`)
+> *𝑵𝑰𝑮𝑮𝑨-𝑩𝑶𝑻*`)
   }
 }
 
