@@ -42,7 +42,7 @@ let handler = async (m, { conn, command }) => {
 🔗 *𝐄𝐍𝐓𝐑𝐀𝐓𝐄 𝐓𝐔𝐓𝐓𝐈 𝐐𝐔𝐈:*
 ${link}
 
-⚡ _Powered by Axion Bot_
+⚡ _Powered by Nigga Bot_
 `.trim()
 
         await conn.sendMessage(m.chat, {
