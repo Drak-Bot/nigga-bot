@@ -15,7 +15,7 @@ let handler = async (m, { conn, usedPrefix }) => {
     return m.reply(
 `*❌ 𝐂𝐚𝐫𝐭𝐞𝐥𝐥𝐚 𝐩𝐥𝐮𝐠𝐢𝐧 𝐧𝐨𝐧 𝐭𝐫𝐨𝐯𝐚𝐭𝐚.*
 
-> *𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓*`)
+> *𝑵𝑰𝑮𝑮𝑨-𝑩𝑶𝑻*`)
   }
 
   const files = fs.readdirSync(pluginsDir)
@@ -26,7 +26,7 @@ let handler = async (m, { conn, usedPrefix }) => {
     return m.reply(
 `*⚠️ 𝐍𝐞𝐬𝐬𝐮𝐧 𝐩𝐥𝐮𝐠𝐢𝐧 𝐭𝐫𝐨𝐯𝐚𝐭𝐨.*
 
-> *𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓*`)
+> *𝑵𝑰𝑮𝑮𝑨-𝑩𝑶𝑻*`)
   }
 
   let text =
@@ -38,7 +38,7 @@ let handler = async (m, { conn, usedPrefix }) => {
     text += `\n*${i + 1}.* *${file}*`
   })
 
-  text += `\n\n> *𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓*`
+  text += `\n\n> *𝑵𝑰𝑮𝑮𝑨-𝑩𝑶𝑻*`
 
   return conn.sendMessage(m.chat, {
     text,
