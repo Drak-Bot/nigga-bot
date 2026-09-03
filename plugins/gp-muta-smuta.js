@@ -124,7 +124,7 @@ let handler = async (m, {
     if (!target) {
       return conn.reply(
         m.chat,
-        '*⚠️ 𝐃𝐞𝐯𝐢 𝐦𝐞𝐧𝐳𝐢𝐨𝐧𝐚𝐫𝐞 𝐨 𝐫𝐢𝐬𝐩𝐨𝐧𝐝𝐞𝐫𝐞 𝐚𝐝 𝐮𝐧 𝐮𝐭𝐞𝐧𝐭𝐞.*\n\n> *𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓*',
+        '*⚠️ 𝐃𝐞𝐯𝐢 𝐦𝐞𝐧𝐳𝐢𝐨𝐧𝐚𝐫𝐞 𝐨 𝐫𝐢𝐬𝐩𝐨𝐧𝐝𝐞𝐫𝐞 𝐚𝐝 𝐮𝐧 𝐮𝐭𝐞𝐧𝐭𝐞.*\n\n> *𝑵𝑰𝑮𝑮𝑨-𝑩𝑶𝑻*',
         m
       )
     }
@@ -135,7 +135,7 @@ let handler = async (m, {
     if (isMute && targetIsOwner) {
       return conn.reply(
         m.chat,
-        '*⛔ 𝐍𝐨𝐧 𝐩𝐮𝐨𝐢 𝐦𝐮𝐭𝐚𝐫𝐞 𝐝𝐢𝐨.*\n\n> *𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓*',
+        '*⛔ 𝐍𝐨𝐧 𝐩𝐮𝐨𝐢 𝐦𝐮𝐭𝐚𝐫𝐞 𝐝𝐢𝐨.*\n\n> *𝑵𝑰𝑮𝑮𝑨-𝑩𝑶𝑻*',
         m
       )
     }
@@ -146,7 +146,7 @@ let handler = async (m, {
     if (!isMute && oldMuteData?.mutedByOwner && !executorIsOwner) {
       return conn.reply(
         m.chat,
-        '*⛔ 𝐐𝐮𝐞𝐬𝐭𝐨 𝐮𝐭𝐞𝐧𝐭𝐞 è 𝐬𝐭𝐚𝐭𝐨 𝐦𝐮𝐭𝐚𝐭𝐨 𝐝𝐚 𝐮𝐧 𝐨𝐰𝐧𝐞𝐫.*\n*𝐒𝐨𝐥𝐨 𝐮𝐧 𝐨𝐰𝐧𝐞𝐫 𝐩𝐮𝐨̀ 𝐬𝐦𝐮𝐭𝐚𝐫𝐥𝐨.*\n\n> *𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓*',
+        '*⛔ 𝐐𝐮𝐞𝐬𝐭𝐨 𝐮𝐭𝐞𝐧𝐭𝐞 è 𝐬𝐭𝐚𝐭𝐨 𝐦𝐮𝐭𝐚𝐭𝐨 𝐝𝐚 𝐮𝐧 𝐨𝐰𝐧𝐞𝐫.*\n*𝐒𝐨𝐥𝐨 𝐮𝐧 𝐨𝐰𝐧𝐞𝐫 𝐩𝐮𝐨̀ 𝐬𝐦𝐮𝐭𝐚𝐫𝐥𝐨.*\n\n> *𝑵𝑰𝑮𝑮𝑨-𝑩𝑶𝑻*',
         m
       )
     }
@@ -193,12 +193,12 @@ let handler = async (m, {
 *👮 𝐄𝐬𝐞𝐠𝐮𝐢𝐭𝐨 𝐝𝐚:* ${executor}
 *⏳ 𝐃𝐮𝐫𝐚𝐭𝐚:* ${duration?.label || 'permanente'}
 
-> *𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓*`
+> *𝑵𝑰𝑮𝑮𝑨-𝑩𝑶𝑻*`
       : `*🔊 𝐋’𝐮𝐭𝐞𝐧𝐭𝐞 𝐩𝐮𝐨̀ 𝐭𝐨𝐫𝐧𝐚𝐫𝐞 𝐚 𝐬𝐜𝐫𝐢𝐯𝐞𝐫𝐞.*
 
 *👮 𝐄𝐬𝐞𝐠𝐮𝐢𝐭𝐨 𝐝𝐚:* ${executor}
 
-> *𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓*`
+> *𝑵𝑰𝑮𝑮𝑨-𝑩𝑶𝑻*`
 
     await conn.sendMessage(m.chat, {
       image: card,
@@ -211,7 +211,7 @@ let handler = async (m, {
 
     conn.reply(
       m.chat,
-      '*❌ 𝐄𝐫𝐫𝐨𝐫𝐞 𝐝𝐮𝐫𝐚𝐧𝐭𝐞 𝐥𝐚 𝐠𝐞𝐬𝐭𝐢𝐨𝐧𝐞 𝐝𝐞𝐥 𝐦𝐮𝐭𝐞.*\n\n> *𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓*',
+      '*❌ 𝐄𝐫𝐫𝐨𝐫𝐞 𝐝𝐮𝐫𝐚𝐧𝐭𝐞 𝐥𝐚 𝐠𝐞𝐬𝐭𝐢𝐨𝐧𝐞 𝐝𝐞𝐥 𝐦𝐮𝐭𝐞.*\n\n> *𝑵𝑰𝑮𝑮𝑨-𝑩𝑶𝑻*',
       m
     )
   }
