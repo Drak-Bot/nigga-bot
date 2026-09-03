@@ -46,7 +46,7 @@ let handler = async (m, { conn, args }) => {
 
   if (!args[0]) {
     return m.reply(`┏━━━━━━━━━━━━━━━━━━━━┓
- 💉 ᴇʟɪxɪʀ - ᴍᴇᴛᴇᴏ 💉
+ 💉 𝑵𝑰𝑮𝑮𝑨-𝑩𝑶𝑻 - ᴍᴇᴛᴇᴏ 💉
 ┗━━━━━━━━━━━━━━━━━━━━┛
  ┌───────────────────
  │ 🌦️ *Comando:* !meteo
@@ -88,7 +88,7 @@ _☣️ Previsioni in tempo reale, 100% gratis._`)
     if (!geoRes.data.results?.[0]) {
       await conn.sendMessage(m.chat, { delete: loading.key })
       return m.reply(`┏━━━━━━━━━━━━━━━━━━━━┓
- 💉 ᴇʟɪxɪʀ - ᴍᴇᴛᴇᴏ 💉
+ 💉 𝑵𝑰𝑮𝑮𝑨-𝑩𝑶𝑻 - ᴍᴇᴛᴇᴏ 💉
 ┗━━━━━━━━━━━━━━━━━━━━┛
 ❌ *Città non trovata.*
 _Prova con un nome più specifico._
@@ -177,7 +177,7 @@ ${weekForecast}
 
 
     let errorMsg = `┏━━━━━━━━━━━━━━━━━━━━┓
- 💉 ᴇʟɪxɪʀ - ᴇʀʀᴏʀᴇ 💉
+ 💉 𝑵𝑰𝑮𝑮𝑨-𝑩𝑶𝑻 - ᴇʀʀᴏʀᴇ 💉
 ┗━━━━━━━━━━━━━━━━━━━━┛
 `
     if (e.code === 'ECONNABORTED' || e.message?.includes('timeout')) {
