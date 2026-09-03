@@ -8,7 +8,7 @@ const F = '╰━━━━━━━━━━━━━━━━⬣'
 const GAME_MS = 30_000
 const MAX_TENTATIVI = 3
 const ANSWER_COOLDOWN_MS = 1200
-const WM = '\n\n> 𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓'
+const WM = '\n\n> 𝑵𝑰𝑮𝑮𝑨-𝑩𝑶𝑻'
 const delay = ms => new Promise(resolve => setTimeout(resolve, ms))
 
 const playAgainButtons = () => [
