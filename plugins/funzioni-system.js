@@ -65,7 +65,7 @@ if (isStatus) {
     await conn.sendMessage(m.chat, {
       text: `${text}
 
-> *𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓*`,
+> *𝑵𝑰𝑮𝑮𝑨-𝑩𝑶𝑻*`,
       mentions: [m.sender]
     }, { quoted: fakeContact })
 
@@ -364,7 +364,7 @@ if (isStatus) {
 
   result += `
 
-> *𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓*`
+> *𝑵𝑰𝑮𝑮𝑨-𝑩𝑶𝑻*`
 
   const thumbnail = await getThumbBuffer(thumbFeature)
 
