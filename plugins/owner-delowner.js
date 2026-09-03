@@ -22,7 +22,7 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
 *${usedPrefix + command} 393xxxxxxxxx*
 *${usedPrefix + command} @utente*
 
-> *𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓*`
+> *𝑵𝑰𝑮𝑮𝑨-𝑩𝑶𝑻*`
     )
   }
 
@@ -32,7 +32,7 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
     return m.reply(
 `*❌ 𝐅𝐢𝐥𝐞 config.js 𝐧𝐨𝐧 𝐭𝐫𝐨𝐯𝐚𝐭𝐨.*
 
-> *𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓*`)
+> *𝑵𝑰𝑮𝑮𝑨-𝑩𝑶𝑻*`)
   }
 
   let config = fs.readFileSync(configPath, 'utf8')
@@ -48,7 +48,7 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
 
 *👤 @${number}*
 
-> *𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓*`,
+> *𝑵𝑰𝑮𝑮𝑨-𝑩𝑶𝑻*`,
       null,
       { mentions: [number + '@s.whatsapp.net'] }
     )
@@ -71,7 +71,7 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
 *👤 𝐔𝐭𝐞𝐧𝐭𝐞:* @${number}
 *📂 𝐅𝐢𝐥𝐞:* *config.js*
 
-> *𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓*`,
+> *𝑵𝑰𝑮𝑮𝑨-𝑩𝑶𝑻*`,
     mentions: [number + '@s.whatsapp.net']
   }, { quoted: m })
 }
