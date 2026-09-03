@@ -46,7 +46,7 @@ ${list}`
     key: {
       participants: '0@s.whatsapp.net',
       fromMe: false,
-      id: '𝐀𝐗𝐈𝐎𝐍'
+      id: '𝑵𝑰𝑮𝑮𝑨'
     },
     message: {
       contactMessage: {
