@@ -35,7 +35,7 @@ let handler = async (m, { conn, usedPrefix }) => {
   }
 
   const text = `╭━━━━━━━⚙️━━━━━━━╮
-*✦ 𝐀𝐗𝐈𝐎𝐍 𝐅𝐔𝐍𝐙𝐈𝐎𝐍𝐈 ✦*
+*✦ 𝑵𝑰𝑮𝑮𝑨 𝐅𝐔𝐍𝐙𝐈𝐎𝐍𝐈 ✦*
 ╰━━━━━━━⚙️━━━━━━━╯
 
 *🛡️ 𝐒𝐢𝐜𝐮𝐫𝐞𝐳𝐳𝐚*
@@ -79,7 +79,7 @@ let handler = async (m, { conn, usedPrefix }) => {
     m.chat,
     {
       text,
-      footer: '𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓',
+      footer: '𝑵𝑰𝑮𝑮𝑨-𝑩𝑶𝑻',
       buttons: [
         {
           buttonId: `${usedPrefix}menu`,
@@ -95,7 +95,7 @@ let handler = async (m, { conn, usedPrefix }) => {
         ...(thumbnail
           ? {
               externalAdReply: {
-                title: '𝐀𝐗𝐈𝐎𝐍 𝐅𝐔𝐍𝐙𝐈𝐎𝐍𝐈',
+                title: '𝑵𝑰𝑮𝑮𝑨 𝐅𝐔𝐍𝐙𝐈𝐎𝐍𝐈',
                 body: 'Stato moduli del sistema',
                 thumbnail,
                 mediaType: 1,
