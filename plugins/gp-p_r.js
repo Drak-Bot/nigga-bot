@@ -19,7 +19,7 @@ function title(action){
 function footer(text){
   return `${text}
 
-> *𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓*`
+> *𝑵𝑰𝑮𝑮𝑨-𝑩𝑶𝑻*`
 }
 
 async function roleBox(conn,chatId,{text,thumb,mentions=[],quoted=null,action}={}){
