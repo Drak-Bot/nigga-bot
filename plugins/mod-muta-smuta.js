@@ -105,14 +105,14 @@ let handler = async (m, { conn, text, command, isOwner, isROwner, isAdmin }) => 
 
     const card = await createMuteCard(username, avatar, isMute)
     const caption = isMute 
-      ? `*🔇 𝐈 𝐬𝐮𝐨𝐢 𝐦𝐞𝐬𝐬𝐚𝐠𝐠𝐢 𝐯𝐞𝐫𝐫𝐚𝐧𝐧𝐨 𝐞𝐥𝐢𝐦𝐢𝐧𝐚𝐭𝐢.*\n\n*👮 𝐄𝐬𝐞𝐠𝐮𝐢𝐭𝐨 𝐝𝐚:* @${m.sender.split('@')[0]}\n*⏳ 𝐃𝐮𝐫𝐚𝐭𝐚:* ${duration?.label || 'permanente'}\n\n> *𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓*`
-      : `*🔊 𝐋’𝐮𝐭𝐞𝐧𝐭𝐞 𝐩𝐮𝐨̀ 𝐭𝐨𝐫𝐧𝐚𝐫𝐞 𝐚 𝐬𝐜𝐫𝐢𝐯𝐞𝐫𝐞.*\n\n*👮 𝐄𝐬𝐞𝐠𝐮𝐢𝐭𝐨 𝐝𝐚:* @${m.sender.split('@')[0]}\n\n> *𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓*`
+      ? `*🔇 𝐈 𝐬𝐮𝐨𝐢 𝐦𝐞𝐬𝐬𝐚𝐠𝐠𝐢 𝐯𝐞𝐫𝐫𝐚𝐧𝐧𝐨 𝐞𝐥𝐢𝐦𝐢𝐧𝐚𝐭𝐢.*\n\n*👮 𝐄𝐬𝐞𝐠𝐮𝐢𝐭𝐨 𝐝𝐚:* @${m.sender.split('@')[0]}\n*⏳ 𝐃𝐮𝐫𝐚𝐭𝐚:* ${duration?.label || 'permanente'}\n\n> *𝑵𝑰𝑮𝑮𝑨-𝑩𝑶𝑻*`
+      : `*🔊 𝐋’𝐮𝐭𝐞𝐧𝐭𝐞 𝐩𝐮𝐨̀ 𝐭𝐨𝐫𝐧𝐚𝐫𝐞 𝐚 𝐬𝐜𝐫𝐢𝐯𝐞𝐫𝐞.*\n\n*👮 𝐄𝐬𝐞𝐠𝐮𝐢𝐭𝐨 𝐝𝐚:* @${m.sender.split('@')[0]}\n\n> *𝑵𝑰𝑮𝑮𝑨-𝑩𝑶𝑻*`
 
     await conn.sendMessage(m.chat, { image: card, caption, mentions: [target, m.sender] }, { quoted: m })
 
   } catch (e) {
     console.error('[MUTA ERROR]', e)
-    conn.reply(m.chat, '*❌ 𝐄𝐫𝐫𝐨𝐫𝐞 𝐝𝐮𝐫𝐚𝐧𝐭𝐞 𝐥𝐚 𝐠𝐞𝐬𝐭𝐢𝐨𝐧𝐞 𝐝𝐞𝐥 𝐦𝐮𝐭𝐞.*\n\n> *𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓*', m)
+    conn.reply(m.chat, '*❌ 𝐄𝐫𝐫𝐨𝐫𝐞 𝐝𝐮𝐫𝐚𝐧𝐭𝐞 𝐥𝐚 𝐠𝐞𝐬𝐭𝐢𝐨𝐧𝐞 𝐝𝐞𝐥 𝐦𝐮𝐭𝐞.*\n\n> *𝑵𝑰𝑮𝑮𝑨-𝑩𝑶𝑻*', m)
   }
 }
 
