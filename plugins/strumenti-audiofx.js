@@ -515,6 +515,6 @@ let handler = async (m, { conn, args, usedPrefix, command }) => {
 
 handler.help = ['effetti', 'fx', 'fxset', 'fxapply', 'fxreset']
 handler.tags = ['strumenti']
-handler.command = /^(effetti|fx|fxset|fxapply|fxreset|eco|basso|acuto|grave|radio|telefono|robot|alien|demone|vinile|nightcore|vibrato|tremolo|inverso|chipmunks|earrape|distorto|8d|flanger|coro|sottacqua|metallico|profondo|lento|veloce|cristallino)$/i
+handler.command = /^(effetti|fx|fxset|fxapply|fxreset|eco|basso|acuto|grave|radio|robot|alien|demone|vinile|nightcore|vibrato|tremolo|inverso|chipmunks|earrape|distorto|8d|flanger|coro|sottacqua|metallico|profondo|lento|veloce|cristallino)$/i
 
 export default handler
