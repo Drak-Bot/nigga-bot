@@ -5,7 +5,7 @@ const handler=async(m,{conn,usedPrefix='.'})=>{
 const userId=m.sender
 
 const menuBody=`
-『 𝚫𝐗𝐈𝐎𝐍 • 𝐌𝐄𝐍𝐔 𝐆𝐈𝐎𝐂𝐇𝐈 』
+『 𝑵𝑰𝑮𝑮𝑨 • 𝐌𝐄𝐍𝐔 𝐆𝐈𝐎𝐂𝐇𝐈 』
 ╼━━━━━━━━━━━━━━╾
  ◈ *ᴜsᴇʀ:* @${userId.split('@')[0]}
  ◈ *ᴄᴀᴛᴇɢᴏʀɪᴀ:* ɢɪᴏᴄʜɪ & ғᴜɴ
@@ -57,7 +57,7 @@ const menuBody=`
 await conn.sendMessage(m.chat,{
 text:menuBody,
 mentions:[userId],
-footer:'> *𝛥𝐗𝐈𝐎𝐍 𝚩𝚯𝐓*',
+footer:'> *𝑵𝑰𝑮𝑮𝑨-𝑩𝑶𝑻*',
 buttons:[{
 buttonId:`${usedPrefix}menu`,
 buttonText:{displayText:'⬅️ Menu Principale'},
