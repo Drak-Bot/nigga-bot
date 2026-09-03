@@ -12,7 +12,7 @@ let handler = async (m, { conn, text }) => {
 
     return conn.reply(
       m.chat,
-      '*𝐑𝐢𝐬𝐩𝐨𝐧𝐝𝐢 𝐚𝐝 𝐮𝐧𝐨 𝐬𝐭𝐢𝐜𝐤𝐞𝐫 𝐩𝐞𝐫 𝐩𝐞𝐫𝐬𝐨𝐧𝐚𝐥𝐢𝐳𝐳𝐚𝐫𝐥𝐨.*\n\n> *𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓*',
+      '*𝐑𝐢𝐬𝐩𝐨𝐧𝐝𝐢 𝐚𝐝 𝐮𝐧𝐨 𝐬𝐭𝐢𝐜𝐤𝐞𝐫 𝐩𝐞𝐫 𝐩𝐞𝐫𝐬𝐨𝐧𝐚𝐥𝐢𝐳𝐳𝐚𝐫𝐥𝐨.*\n\n> *𝑵𝑰𝑮𝑮𝑨-𝑩𝑶𝑻*',
       m
     )
   }
@@ -30,7 +30,7 @@ let handler = async (m, { conn, text }) => {
 
     if (!text) {
       const name = await conn.getName(m.sender)
-      text = `${name}|𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓`
+      text = `${name}|𝑵𝑰𝑮𝑮𝑨-𝑩𝑶𝑻`
     }
 
     let [packname, ...author] = text.split('|')
@@ -49,7 +49,7 @@ let handler = async (m, { conn, text }) => {
 
       return conn.reply(
         m.chat,
-        '*𝐑𝐢𝐬𝐩𝐨𝐧𝐝𝐢 𝐚𝐝 𝐮𝐧𝐨 𝐬𝐭𝐢𝐜𝐤𝐞𝐫.*\n\n> *𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓*',
+        '*𝐑𝐢𝐬𝐩𝐨𝐧𝐝𝐢 𝐚𝐝 𝐮𝐧𝐨 𝐬𝐭𝐢𝐜𝐤𝐞𝐫.*\n\n> *𝑵𝑰𝑮𝑮𝑨-𝑩𝑶𝑻*',
         m
       )
     }
@@ -79,7 +79,7 @@ let handler = async (m, { conn, text }) => {
 
     return conn.reply(
       m.chat,
-      '*𝐄𝐫𝐫𝐨𝐫𝐞 𝐝𝐮𝐫𝐚𝐧𝐭𝐞 𝐥𝐚 𝐩𝐞𝐫𝐬𝐨𝐧𝐚𝐥𝐢𝐳𝐳𝐚𝐳𝐢𝐨𝐧𝐞 𝐝𝐞𝐥𝐥𝐨 𝐬𝐭𝐢𝐜𝐤𝐞𝐫.*\n\n> *𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓*',
+      '*𝐄𝐫𝐫𝐨𝐫𝐞 𝐝𝐮𝐫𝐚𝐧𝐭𝐞 𝐥𝐚 𝐩𝐞𝐫𝐬𝐨𝐧𝐚𝐥𝐢𝐳𝐳𝐚𝐳𝐢𝐨𝐧𝐞 𝐝𝐞𝐥𝐥𝐨 𝐬𝐭𝐢𝐜𝐤𝐞𝐫.*\n\n> *𝑵𝑰𝑮𝑮𝑨-𝑩𝑶𝑻*',
       m
     )
 
