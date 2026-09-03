@@ -7,7 +7,7 @@ return m.reply(
 `*🤖 𝐂𝐀𝐌𝐁𝐈𝐀 𝐍𝐎𝐌𝐄 𝐖𝐇𝐀𝐓𝐒𝐀𝐏𝐏*
 
 *📌 𝐄𝐬𝐞𝐦𝐩𝐢𝐨:*
-*${usedPrefix + command} 𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓*`
+*${usedPrefix + command} 𝑵𝑰𝑮𝑮𝑨-𝑩𝑶𝑻*`
 )
 }
 
@@ -21,7 +21,7 @@ return m.reply(
 *🤖 𝐍𝐮𝐨𝐯𝐨 𝐧𝐨𝐦𝐞:*
 *${text}*
 
-> *𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓*`
+> *𝑵𝑰𝑮𝑮𝑨-𝑩𝑶𝑻*`
 )
 
 }catch(e){
