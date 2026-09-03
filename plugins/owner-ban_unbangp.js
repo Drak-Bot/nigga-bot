@@ -31,7 +31,7 @@ let handler = async (m, { conn, text, usedPrefix, command, isOwner, isROwner }) 
 
   if (!isBan && !isUnban) return
 
-  const footer = `\n\n> *𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓*`
+  const footer = `\n\n> *𝑵𝑰𝑮𝑮𝑨-𝑩𝑶𝑻*`
   const action = isBan ? 'ban' : 'unban'
   const actionLabel = isBan ? '𝐁𝐀𝐍𝐍𝐀𝐓𝐎' : '𝐒𝐁𝐀𝐍𝐍𝐀𝐓𝐎'
   const actionText = isBan ? 'bannato' : 'sbannato'
