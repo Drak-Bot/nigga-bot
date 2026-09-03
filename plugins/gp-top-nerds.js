@@ -36,7 +36,7 @@ let testo=`*🤓 𝐓𝐎𝐏 𝐍𝐄𝐑𝐃𝐒*
 top.forEach(([jid,v],i)=>{
 testo+=`*${i+1}.* @${jid.split('@')[0]} — *${formatTempo(v.totalActiveMs||0)}*\n`
 })
-testo+=`\n> *𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓*`
+testo+=`\n> *𝑵𝑰𝑮𝑮𝑨-𝑩𝑶𝑻*`
 await conn.sendMessage(m.chat,{text:testo,mentions},{quoted:m})
 }
 handler.before=async function(m){
