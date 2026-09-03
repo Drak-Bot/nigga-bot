@@ -17,7 +17,7 @@ let handler = async (m, { conn, usedPrefix }) => {
 
 *𝐒𝐜𝐞𝐠𝐥𝐢 𝐜𝐨𝐬𝐚 𝐯𝐮𝐨𝐢 𝐟𝐚𝐫𝐞:*`,
 
-    footer: '𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓',
+    footer: '𝑵𝑰𝑮𝑮𝑨-𝑩𝑶𝑻',
     buttons: [
       {
         buttonId: `${usedPrefix}pluginlist`,
