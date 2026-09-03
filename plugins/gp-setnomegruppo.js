@@ -26,7 +26,7 @@ let handler = async (m, { conn, text, isBotAdmin, isAdmin }) => {
 *📍 𝐄𝐬𝐞𝐦𝐩𝐢𝐨:*
 *.setname Nome Gruppo*
 
-> *𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓*`,
+> *𝑵𝑰𝑮𝑮𝑨-𝑩𝑶𝑻*`,
       m
     )
   }
@@ -42,7 +42,7 @@ let handler = async (m, { conn, text, isBotAdmin, isAdmin }) => {
 *📝 𝐍𝐨𝐦𝐞 𝐠𝐫𝐮𝐩𝐩𝐨:*  
 *${text}*
 
-> *𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓*`,
+> *𝑵𝑰𝑮𝑮𝑨-𝑩𝑶𝑻*`,
       m
     )
 
