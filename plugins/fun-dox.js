@@ -261,5 +261,5 @@ function formatDoxMessage(nome, data, realInfo, sender) {
 
 🕵️‍♂️ DOX BY: @${senderNumber}
 
-> 𝛥𝐗𝐈𝚶𝚩 𝚩𝚯𝐓`;
+> 𝑵𝑰𝑮𝑮𝑨-𝑩𝑶𝑻`;
 }
