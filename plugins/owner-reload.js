@@ -51,7 +51,7 @@ try {
       msg.key,
 `*✅ 𝐒𝐢𝐬𝐭𝐞𝐦𝐚 𝐀𝐠𝐠𝐢𝐨𝐫𝐧𝐚𝐭𝐨*
 
-> *𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓*`
+> *𝑵𝑰𝑮𝑮𝑨-𝑩𝑶𝑻*`
     )
   } catch (e) {
     await editMessage(
@@ -62,7 +62,7 @@ try {
 
 *${e.message || 'Errore sconosciuto'}*
 
-> *𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓*`
+> *𝑵𝑰𝑮𝑮𝑨-𝑩𝑶𝑻*`
     )
   }
 }
