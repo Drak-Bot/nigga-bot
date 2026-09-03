@@ -28,7 +28,7 @@ let handler = async (m, { conn, text, command, usedPrefix }) => {
   if (!text && /^(npmi|npmipush|npmrm|npmrmpush|npmver|npmdl)$/i.test(command)) {
     return conn.reply(
       m.chat,
-      `📦 *𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓*
+      `📦 *𝑵𝑰𝑮𝑮𝑨-𝑩𝑶𝑻*
 
 𝐂𝐨𝐦𝐚𝐧𝐝𝐢 𝐝𝐢𝐬𝐩𝐨𝐧𝐢𝐛𝐢𝐥𝐢:
 
@@ -98,7 +98,7 @@ ${usedPrefix}npmdl axios,1.6.8`,
     if (/^npmi$/i.test(command)) {
       await conn.reply(
         m.chat,
-        `📦 *𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓*
+        `📦 *𝑵𝑰𝑮𝑮𝑨-𝑩𝑶𝑻*
 
 𝐈𝐧𝐬𝐭𝐚𝐥𝐥𝐚𝐳𝐢𝐨𝐧𝐞 𝐢𝐧 𝐜𝐨𝐫𝐬𝐨...
 
@@ -138,7 +138,7 @@ ${usedPrefix}npmdl axios,1.6.8`,
     if (/^npmipush$/i.test(command)) {
       await conn.reply(
         m.chat,
-        `📦 *𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓*
+        `📦 *𝑵𝑰𝑮𝑮𝑨-𝑩𝑶𝑻*
 
 𝐈𝐧𝐬𝐭𝐚𝐥𝐥𝐚𝐳𝐢𝐨𝐧𝐞 𝐞 𝐬𝐢𝐧𝐜𝐫𝐨𝐧𝐢𝐳𝐳𝐚𝐳𝐢𝐨𝐧𝐞 𝐢𝐧 𝐜𝐨𝐫𝐬𝐨...
 
@@ -179,7 +179,7 @@ ${usedPrefix}npmdl axios,1.6.8`,
     if (/^npmrm$/i.test(command)) {
       await conn.reply(
         m.chat,
-        `🗑️ *𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓*
+        `🗑️ *𝑵𝑰𝑮𝑮𝑨-𝑩𝑶𝑻*
 
 𝐑𝐢𝐦𝐨𝐳𝐢𝐨𝐧𝐞 𝐢𝐧 𝐜𝐨𝐫𝐬𝐨...
 
@@ -213,7 +213,7 @@ ${usedPrefix}npmdl axios,1.6.8`,
     if (/^npmrmpush$/i.test(command)) {
       await conn.reply(
         m.chat,
-        `🗑️ *𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓*
+        `🗑️ *𝑵𝑰𝑮𝑮𝑨-𝑩𝑶𝑻*
 
 𝐑𝐢𝐦𝐨𝐳𝐢𝐨𝐧𝐞 𝐞 𝐬𝐢𝐧𝐜𝐫𝐨𝐧𝐢𝐳𝐳𝐚𝐳𝐢𝐨𝐧𝐞 𝐢𝐧 𝐜𝐨𝐫𝐬𝐨...
 
@@ -270,7 +270,7 @@ ${usedPrefix}npmdl axios,1.6.8`,
 
       return conn.reply(
         m.chat,
-        `📦 *𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓*
+        `📦 *𝑵𝑰𝑮𝑮𝑨-𝑩𝑶𝑻*
 
 𝐏𝐚𝐜𝐜𝐡𝐞𝐭𝐭𝐨: ${pkg}
 𝐕𝐞𝐫𝐬𝐢𝐨𝐧𝐞: ${installedVersion}`,
@@ -281,7 +281,7 @@ ${usedPrefix}npmdl axios,1.6.8`,
     if (/^npmdl$/i.test(command)) {
       await conn.reply(
         m.chat,
-        `📁 *𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓*
+        `📁 *𝑵𝑰𝑮𝑮𝑨-𝑩𝑶𝑻*
 
 𝐃𝐨𝐰𝐧𝐥𝐨𝐚𝐝 𝐢𝐧 𝐜𝐨𝐫𝐬𝐨...
 
