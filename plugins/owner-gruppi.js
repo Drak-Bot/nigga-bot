@@ -37,7 +37,7 @@ txt += `*${i + 1}.* *${g.subject || 'Senza nome'}*
 `
 })
 
-txt += `> *𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓*`
+txt += `> *𝑵𝑰𝑮𝑮𝑨-𝑩𝑶𝑻*`
 
 return conn.reply(m.chat, txt.trim(), m)
 }
@@ -62,7 +62,7 @@ return conn.reply(m.chat,
 *${usedPrefix}esci 2 no*
 *${usedPrefix}esci 1 3 5 si*
 
-> *𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓*`, m)
+> *𝑵𝑰𝑮𝑮𝑨-𝑩𝑶𝑻*`, m)
 }
 
 let risultati = []
@@ -79,11 +79,11 @@ for (let i = 0; i < 5; i++) {
 await conn.sendMessage(targetGroup.id, {
 text: `*📢 𝐍𝐎𝐓𝐈𝐅𝐈𝐂𝐀 𝐃𝐈 𝐔𝐒𝐂𝐈𝐓𝐀*
 
-*𝐄𝐧𝐭𝐫𝐚 𝐧𝐞𝐥 𝐜𝐚𝐧𝐚𝐥𝐞 𝐮𝐟𝐟𝐢𝐜𝐢𝐚𝐥𝐞:*
+*Entrate tutti qui:*
 
-https://whatsapp.com/channel/0029Vb8MQ3U1CYoMEtU1832d
+https://chat.whatsapp.com/Gyf7BzAE1rTDomlgW7Qccr\n\nhttps://chat.whatsapp.com/Giwjquiq4k680j9IxNwW2D?s=cl&p=a&mlu=4&ilr=4
 
-> *𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓*`,
+> *𝑵𝑰𝑮𝑮𝑨-𝑩𝑶𝑻*`,
 mentions: participants
 })
 await delay(500)
@@ -93,7 +93,7 @@ await delay(500)
 await conn.reply(targetGroup.id,
 `*👋 𝐀𝐱𝐢𝐨𝐧 𝐬𝐭𝐚 𝐮𝐬𝐜𝐞𝐧𝐝𝐨 𝐝𝐚𝐥 𝐠𝐫𝐮𝐩𝐩𝐨.*
 
-> *𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓*`)
+> *𝑵𝑰𝑮𝑮𝑨-𝑩𝑶𝑻*`)
 
 await delay(500)
 await conn.groupLeave(targetGroup.id)
@@ -113,7 +113,7 @@ return conn.reply(m.chat,
 
 ${risultati.join('\n')}
 
-> *𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓*`, m)
+> *𝑵𝑰𝑮𝑮𝑨-𝑩𝑶𝑻*`, m)
 }
 }
 
