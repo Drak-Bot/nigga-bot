@@ -36,7 +36,7 @@ const box = (emoji, title, body) => `╭━━━━━━━${emoji}━━━�
 
 ${body}
 
-> *𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓*`
+> *𝑵𝑰𝑮𝑮𝑨-𝑩𝑶𝑻*`
 
 let handler = async (m, { conn, command, args }) => {
   const user = m.sender
