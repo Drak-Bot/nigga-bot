@@ -1,26 +1,144 @@
-// aperto-chiuso by Bonzino
+const handler = async (m, { conn, args, usedPrefix, command }) => {
+    const rawCommand = (args[0] || command).toLowerCase();
 
-let handler=async(m,{conn,command})=>{
-const aperto=/^aperto$/i.test(command)
-await conn.groupSettingUpdate(
-m.chat,
-aperto?'not_announcement':'announcement'
-)
-await global.box(conn,m.chat,{
-text:'\n> 𝑵𝑰𝑮𝑮𝑨-𝑩𝑶𝑻',
-title:aperto
-?'ㅤ𝐂𝐡𝐚𝐭 𝐚𝐩𝐞𝐫𝐭𝐚 𝐚 𝐭𝐮𝐭𝐭𝐢 🟢'
-:'ㅤ𝐂𝐡𝐚𝐭 𝐬𝐨𝐥𝐨 𝐩𝐞𝐫 𝐚𝐝𝐦𝐢𝐧 🔴',
-body:' ',
-thumb:aperto?'aperto':'chiuso'
-},{quoted:m})
-}
+    const actions = {
+        apri: 'aperto',
+        aperto: 'aperto',
+        chiudi: 'chiuso',
+        chiuso: 'chiuso'
+    };
 
-handler.help=['aperto','chiuso']
-handler.tags=['group']
-handler.command=/^(aperto|chiuso)$/i
-handler.group=true
-handler.admin=true
-handler.botAdmin=true
+    const action = actions[rawCommand];
 
-export default handler
+    // ─────────────────────────────────────────────
+    // 📖 MENU
+    // ─────────────────────────────────────────────
+    if (!action) {
+        const menu = `
+╭━━━〔 𝑮𝑹𝑶𝑼𝑷 𝑪𝑶𝑵𝑻𝑹𝑶𝑳 〕━━━╮
+┃
+┃  ⚙️  𝐆𝐄𝐒𝐓𝐈𝐎𝐍𝐄 𝐆𝐑𝐔𝐏𝐏𝐎
+┃
+┃  Scegli un'azione:
+┃
+┃  🔓  ${usedPrefix}apri
+┃  └─ 𝑨𝒑𝒓𝒊 𝒊𝒍 𝒈𝒓𝒖𝒑𝒑𝒐
+┃
+┃  🔒  ${usedPrefix}chiudi
+┃  └─ 𝑪𝒉𝒊𝒖𝒅𝒊 𝒊𝒍 𝒈𝒓𝒖𝒑𝒑𝒐
+┃
+╰━━━━━━━━━━━━━━━━━━━━━━╯
+
+        𓆩 ⚡ 𝑺𝑬𝑳𝑬𝒁𝑰𝑶𝑵𝑨 𝑼𝑵'𝑨𝒁𝑰𝑶𝑵𝑬 ⚡ 𓆪
+`;
+
+        const buttons = [
+            {
+                buttonId: `${usedPrefix}apri`,
+                buttonText: { displayText: '🔓 𝐀𝐏𝐑𝐈 𝐆𝐑𝐔𝐏𝐏𝐎' },
+                type: 1
+            },
+            {
+                buttonId: `${usedPrefix}chiudi`,
+                buttonText: { displayText: '🔒 𝐂𝐇𝐈𝐔𝐃𝐈 𝐆𝐑𝐔𝐏𝐏𝐎' },
+                type: 1
+            }
+        ];
+
+        return conn.sendMessage(
+            m.chat,
+            {
+                text: menu,
+                buttons,
+                headerType: 1,
+                contextInfo: global.fake
+            },
+            { quoted: m }
+        );
+    }
+
+    // ─────────────────────────────────────────────
+    // 🔐 CAMBIO STATO
+    // ─────────────────────────────────────────────
+
+    const setting =
+        action === 'aperto'
+            ? 'not_announcement'
+            : 'announcement';
+
+    await conn.groupSettingUpdate(m.chat, setting);
+
+    const isOpen = action === 'aperto';
+
+    const title = isOpen
+        ? '🔓 𝑮𝑹𝑼𝑷𝑷𝑶 𝑨𝑷𝑬𝑹𝑻𝑶'
+        : '🔒 𝑮𝑹𝑼𝑷𝑷𝑶 𝑪𝑯𝑰𝑼𝑺𝑶';
+
+    const state = isOpen
+        ? '𝐀𝐏𝐄𝐑𝐓𝐎'
+        : '𝐂𝐇𝐈𝐔𝐒𝐎';
+
+    const description = isOpen
+        ? 'Tutti i membri possono inviare messaggi.'
+        : 'Solo gli amministratori possono inviare messaggi.';
+
+    const nextCommand = isOpen ? 'chiudi' : 'apri';
+
+    const nextButton = isOpen
+        ? '🔒 𝐂𝐇𝐈𝐔𝐃𝐈 𝐆𝐑𝐔𝐏𝐏𝐎'
+        : '🔓 𝐀𝐏𝐑𝐈 𝐆𝐑𝐔𝐏𝐏𝐎';
+
+    const confirmMessage = `
+╭━━━〔 𝑮𝑹𝑶𝑼𝑷 𝑺𝒀𝑺𝑻𝑬𝑴 〕━━━╮
+┃
+┃       ${title}
+┃
+┃  ╭────────────────────╮
+┃  │  𝑺𝑻𝑨𝑻𝑼𝑺 : ${state}
+┃  ╰────────────────────╯
+┃
+┃  ✦ ${description}
+┃
+┃  ──────────────────────
+┃
+┃  ⚡ 𝑪𝑶𝑴𝑴𝑨𝑵𝑫𝑶
+┃  └─ ${usedPrefix}${nextCommand}
+┃
+╰━━━━━━━━━━━━━━━━━━━━━━╯
+
+       𓆩 𝑮𝑹𝑶𝑼𝑷 𝑪𝑶𝑵𝑻𝑹𝑶𝑳 𓆪
+`;
+
+    await conn.sendMessage(
+        m.chat,
+        {
+            text: confirmMessage,
+            buttons: [
+                {
+                    buttonId: `${usedPrefix}${nextCommand}`,
+                    buttonText: { displayText: nextButton },
+                    type: 1
+                }
+            ],
+            headerType: 1,
+            contextInfo: global.fake
+        },
+        { quoted: m }
+    );
+};
+
+handler.help = [
+    'aperto',
+    'chiuso',
+    'apri',
+    'chiudi'
+];
+
+handler.tags = ['gruppo'];
+
+handler.command = /^(aperto|chiuso|apri|chiudi)$/i;
+
+handler.admin = true;
+handler.botAdmin = true;
+
+export default handler;
