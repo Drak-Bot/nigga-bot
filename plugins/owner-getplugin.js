@@ -59,12 +59,12 @@ function findBestPlugin(query, pluginsDir) {
 }
 
 let handler = async (m, { conn, text, isOwner, usedPrefix }) => {
-  const SIGN = '𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓'
+  const SIGN = '𝑵𝑰𝑮𝑮𝑨-𝑩𝑶𝑻'
   const pluginsDir = path.join(__dirname, '../plugins')
 
   if (!text) {
     return conn.reply(m.chat, `
-⚙️ *𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓*
+⚙️ *𝑵𝑰𝑮𝑮𝑨-𝑩𝑶𝑻*
 
 *Uso corretto:*
 *.getpl <nome-plugin>*
