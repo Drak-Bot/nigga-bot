@@ -1,7 +1,7 @@
 // Plugin presentazione by Luxifer (edited by Bonzino)
 
 let handler = async (m, { conn, usedPrefix }) => {
-  const botName = global.db?.data?.nomedelbot || '𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓'
+  const botName = global.db?.data?.nomedelbot || '𝑵𝑰𝑮𝑮𝑨-𝑩𝑶𝑻'
 
   const introText = `
 *👋 𝐂𝐢𝐚𝐨! 𝐒𝐨𝐧𝐨 ${botName}*
@@ -24,7 +24,7 @@ let handler = async (m, { conn, usedPrefix }) => {
 
   await conn.sendMessage(m.chat, {
     text: introText,
-    footer: '𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓',
+    footer: '𝑵𝑰𝑮𝑮𝑨-𝑩𝑶𝑻',
     buttons: [
       {
         buttonId: `${usedPrefix}menu`,
