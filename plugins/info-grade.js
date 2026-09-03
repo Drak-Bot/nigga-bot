@@ -67,7 +67,7 @@ let handler = async (m, { conn }) => {
 
 『 ${grade} 』
 
-> *𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓*`,
+> *𝑵𝑰𝑮𝑮𝑨-𝑩𝑶𝑻*`,
     contextInfo: global.rcanal?.contextInfo || {}
   }, { quoted: m })
 }
