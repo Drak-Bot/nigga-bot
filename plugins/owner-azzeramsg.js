@@ -20,7 +20,7 @@ let handler = async (m, { conn, text }) => {
     return m.reply(
 `*⚠️ 𝐓𝐚𝐫𝐠𝐚, 𝐫𝐢𝐬𝐩𝐨𝐧𝐝𝐢 𝐚𝐝 𝐮𝐧 𝐮𝐭𝐞𝐧𝐭𝐞 𝐨 𝐢𝐧𝐬𝐞𝐫𝐢𝐬𝐜𝐢 𝐮𝐧 𝐧𝐮𝐦𝐞𝐫𝐨.*
 
-> *𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓*`
+> *𝑵𝑰𝑮𝑮𝑨-𝑩𝑶𝑻*`
     )
   }
 
@@ -98,7 +98,7 @@ let handler = async (m, { conn, text }) => {
 *📦 𝐋𝐞𝐠𝐚𝐜𝐲 𝐫𝐢𝐦𝐨𝐬𝐬𝐢:* *${rimossiLegacy}*
 *👤 𝐆𝐥𝐨𝐛𝐚𝐥𝐢 𝐫𝐢𝐦𝐨𝐬𝐬𝐢:* *${rimossiGlobal}*
 
-> *𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓*`,
+> *𝑵𝑰𝑮𝑮𝑨-𝑩𝑶𝑻*`,
     mentions: [who]
   }, { quoted: m })
 }
