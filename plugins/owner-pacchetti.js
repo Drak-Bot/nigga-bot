@@ -158,7 +158,7 @@ let handler = async (m, { conn, args, command, usedPrefix }) => {
 `📦 𝐆𝐄𝐒𝐓𝐈𝐎𝐍𝐄 𝐏𝐀𝐂𝐂𝐇𝐄𝐓𝐓𝐈📦*
 *𝐒𝐜𝐞𝐠𝐥𝐢 𝐜𝐨𝐬𝐚 𝐯𝐮𝐨𝐢 𝐜𝐨𝐧𝐭𝐫𝐨𝐥𝐥𝐚𝐫𝐞:*`,
 
-      footer: '\n𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓',
+      footer: '\n𝑵𝑰𝑮𝑮𝑨-𝑩𝑶𝑻',
       buttons: [
         {
           buttonId: `${usedPrefix}dipinstallate`,
@@ -196,7 +196,7 @@ let handler = async (m, { conn, args, command, usedPrefix }) => {
 
     return conn.sendMessage(m.chat, {
       text,
-      footer: '𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓',
+      footer: '𝑵𝑰𝑮𝑮𝑨-𝑩𝑶𝑻',
       buttons: [
         { buttonId: `${usedPrefix}dipmancanti`, buttonText: { displayText: '⚠️ Mancanti' }, type: 1 },
         { buttonId: `${usedPrefix}pacchetti`, buttonText: { displayText: '⬅️ Menu' }, type: 1 }
@@ -213,7 +213,7 @@ let handler = async (m, { conn, args, command, usedPrefix }) => {
       return conn.sendMessage(m.chat, {
         text:`
 *✅ 𝐍𝐞𝐬𝐬𝐮𝐧 𝐩𝐚𝐜𝐜𝐡𝐞𝐭𝐭𝐨 𝐦𝐚𝐧𝐜𝐚𝐧𝐭𝐞.*`,
-        footer: '𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓',
+        footer: '𝑵𝑰𝑮𝑮𝑨-𝑩𝑶𝑻',
         buttons: [
           { buttonId: `${usedPrefix}dipinstallate`, buttonText: { displayText: 'Installate' }, type: 1 },
           { buttonId: `${usedPrefix}pacchetti`, buttonText: { displayText: '⬅️ Menu' }, type: 1 }
@@ -238,7 +238,7 @@ let handler = async (m, { conn, args, command, usedPrefix }) => {
 
     return conn.sendMessage(m.chat, {
       text,
-      footer: '𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓',
+      footer: '𝑵𝑰𝑮𝑮𝑨-𝑩𝑶𝑻',
       buttons: [
         { buttonId: `${usedPrefix}installa ${primo}`, buttonText: { displayText: `📥 Installa ${primo}` }, type: 1 },
         { buttonId: `${usedPrefix}installapush ${primo}`, buttonText: { displayText: `🚀 Installa+Push ${primo}` }, type: 1 },
