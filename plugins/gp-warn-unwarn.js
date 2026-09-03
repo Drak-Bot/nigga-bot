@@ -9,11 +9,11 @@ let handler=async(m,{conn,command,text,usedPrefix})=>{
   const cleanJid=jid=>String(jid||'').replace(/[^0-9]/g,'')
   const box=body=>`${body}
 
-> *𝛥𝐗𝐈𝐎𝐍 𝚩𝚯𝐓*`
+> *𝑵𝑰𝑮𝑮𝑨-𝑩𝑶𝑻*`
 
   const thumb=await getThumbBuffer('warn')
   const fakeContact=await createFakeContact(m,conn)
-  const contextInfo={externalAdReply:{title:'ㅤㅤㅤ𝚫𝐗𝐈𝐎𝐍 • 𝐒𝐘𝐒𝐓𝐄𝐌',thumbnail:thumb,mediaType:1,renderLargerThumbnail:false,showAdAttribution:false}}
+  const contextInfo={externalAdReply:{title:'ㅤㅤㅤ𝑵𝑰𝑮𝑮𝑨 • 𝐒𝐘𝐒𝐓𝐄𝐌',thumbnail:thumb,mediaType:1,renderLargerThumbnail:false,showAdAttribution:false}}
 
   const warnButtons=jid=>[
     {buttonId:`${usedPrefix}listawarn`,buttonText:{displayText:'📋 Lista Warn'},type:1},
