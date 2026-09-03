@@ -9,7 +9,7 @@ const handler = async (m, { conn, text, usedPrefix, command }) => {
 *𝐄𝐬𝐞𝐦𝐩𝐢𝐨:*
 *${usedPrefix + command} 𝐂𝐢𝐚𝐨 𝐚 𝐭𝐮𝐭𝐭𝐢!*
 
-> *𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓*`)
+> *𝑵𝑰𝑮𝑮𝑨-𝑩𝑶𝑻*`)
   }
 
   const chats = Object.entries(conn.chats || {})
@@ -18,7 +18,7 @@ const handler = async (m, { conn, text, usedPrefix, command }) => {
   if (!chats.length) {
     return m.reply(`*⚠️ 𝐈𝐥 𝐛𝐨𝐭 𝐧𝐨𝐧 è 𝐩𝐫𝐞𝐬𝐞𝐧𝐭𝐞 𝐢𝐧 𝐧𝐞𝐬𝐬𝐮𝐧 𝐠𝐫𝐮𝐩𝐩𝐨.*
 
-> *𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓*`)
+> *𝑵𝑰𝑮𝑮𝑨-𝑩𝑶𝑻*`)
   }
 
   await m.reply(`*📢 𝐈𝐧𝐯𝐢𝐨 𝐭𝐚𝐠 𝐠𝐥𝐨𝐛𝐚𝐥𝐞 𝐢𝐧 ${chats.length} 𝐠𝐫𝐮𝐩𝐩𝐢...*
@@ -52,7 +52,7 @@ const handler = async (m, { conn, text, usedPrefix, command }) => {
 *📤 𝐈𝐧𝐯𝐢𝐚𝐭𝐢:* *${inviati}*
 *❌ 𝐅𝐚𝐥𝐥𝐢𝐭𝐢:* *${falliti}*
 
-> *𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓*`)
+> *𝑵𝑰𝑮𝑮𝑨-𝑩𝑶𝑻*`)
 }
 
 handler.help = ['tagallgp <messaggio>']
