@@ -39,7 +39,7 @@ ${topOggiNome} • ${fmt(topOggiCount)}
 🔥 *𝐏𝐢ù 𝐀𝐭𝐭𝐢𝐯𝐨 𝐝𝐢 𝐒𝐞𝐦𝐩𝐫𝐞:*
 ${topTotaleNome} • ${fmt(topTotaleCount)}
 
-> *𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓*`
+> *𝑵𝑰𝑮𝑮𝑨-𝑩𝑶𝑻*`
 
 return conn.sendMessage(m.chat,{
 text,
