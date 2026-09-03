@@ -61,7 +61,7 @@ let handler = async (m, { conn }) => {
 `*✅ 𝐓𝐮𝐭𝐭𝐢 𝐢 𝐦𝐞𝐬𝐬𝐚𝐠𝐠𝐢 𝐬𝐨𝐧𝐨 𝐬𝐭𝐚𝐭𝐢 𝐚𝐳𝐳𝐞𝐫𝐚𝐭𝐢*
 *📅 ${giornalieri}* • *🌐 ${totali}* • *📦 ${legacy}* • *👤 ${globali}*
 
-> *𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓*`
+> *𝑵𝑰𝑮𝑮𝑨-𝑩𝑶𝑻*`
   }, { quoted: m })
 }
 
