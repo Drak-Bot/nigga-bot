@@ -59,7 +59,7 @@ let handler = async (m, { conn, usedPrefix }) => {
 ┃ ${rankTotale ? `${medalTotale} *#${rankTotale}* • *${formatNumber(msgTotali)} 𝐦𝐞𝐬𝐬𝐚𝐠𝐠𝐢*` : '🏅 *𝐍𝐨𝐧 𝐢𝐧 𝐜𝐥𝐚𝐬𝐬𝐢𝐟𝐢𝐜𝐚*'}
 ┃ *👥 𝐔𝐭𝐞𝐧𝐭𝐢:* *${formatNumber(classificaTotale.length)}*
 ┃ 
-┃ > 𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓
+┃ > 𝑵𝑰𝑮𝑮𝑨-𝑩𝑶𝑻
 ╰━━━━━━━━━━━━━━⬣`
 
   await conn.sendMessage(m.chat, {
