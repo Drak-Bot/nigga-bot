@@ -87,7 +87,7 @@ let handler = async (m, { conn, text, command }) => {
 *.${cmd} @utente 10*
 *.${cmd} 393xxxxxxxxx 10*
 
-> *𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓*`
+> *𝑵𝑰𝑮𝑮𝑨-𝑩𝑶𝑻*`
     )
   }
 
@@ -178,7 +178,7 @@ let handler = async (m, { conn, text, command }) => {
 *🔧 𝐎𝐩𝐞𝐫𝐚𝐳𝐢𝐨𝐧𝐞:* *${cmd === 'addmsg' ? '𝐀𝐠𝐠𝐢𝐮𝐧𝐭𝐢' : '𝐑𝐢𝐦𝐨𝐬𝐬𝐢'}*
 *📊 𝐐𝐮𝐚𝐧𝐭𝐢𝐭𝐚̀:* *${amount}*
 
-> *𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓*`,
+> *𝑵𝑰𝑮𝑮𝑨-𝑩𝑶𝑻*`,
     mentions: [who]
   }, { quoted: m })
 }
