@@ -8,7 +8,7 @@ const handler = async (message, { conn, usedPrefix = '.' }) => {
     const totalUsers = Object.keys(global.db?.data?.users || {}).length;
 
 const menuBody = `
-『 *𝚫𝐗𝐈𝐎𝐍 • 𝐌𝐄𝐍𝐔* 』
+『 *𝑵𝑰𝑮𝑮𝑨 • 𝐌𝐄𝐍𝐔* 』
 
 ⌬ 🚀 ${usedPrefix}*ping*
 ⌬ ⚙️ ${usedPrefix}*sistema*
@@ -18,7 +18,7 @@ const menuBody = `
 
 ⌬ • *ᴠᴇʀsɪᴏɴᴇ:* ${global.versione}
 ⌬ • *ᴜᴛᴇɴᴛɪ:* ${totalUsers}
-⌬ • *ᴅᴇᴠ:* 𝕯𝖊ⱥ𝖉𝖑𝐲 & Bonzino
+⌬ • *ᴅᴇᴠ:* _Trio dei gay_
 `.trim()
 
 const buttons = [
