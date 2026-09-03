@@ -68,7 +68,7 @@ const textMsg=`
 *⚠️ 𝐖𝐚𝐫𝐧 𝐆𝐫𝐮𝐩𝐩𝐨:* ${warn}/3
 *🔇 𝐌𝐮𝐭𝐚𝐭𝐨:* ${muted?'𝐒𝐢':'𝐍𝐨'}
 
-> *𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓*`
+> *𝑵𝑰𝑮𝑮𝑨-𝑩𝑶𝑻*`
 await conn.sendMessage(m.chat,{text:textMsg,mentions:[target],contextInfo:{...(global.rcanal?.contextInfo||{}),mentionedJid:[target],externalAdReply:{title:nome,thumbnail:thumbnailBuffer,mediaType:1,renderLargerThumbnail:false,showAdAttribution:false}}},{quoted:m})
 }
 handler.help=['infoutente','userinfo','whoami','info']
