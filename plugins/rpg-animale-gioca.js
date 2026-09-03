@@ -66,7 +66,7 @@ const box = (emoji, title, body) => `╭━━━━━━━${emoji}━━━�
 
 ${body}
 
-> *𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓*`
+> *𝑵𝑰𝑮𝑮𝑨-𝑩𝑶𝑻*`
 
 function clamp(value, min, max) {
   return Math.max(min, Math.min(max, value))
