@@ -196,7 +196,7 @@ finale+=`\n*•* @${jid.split('@')[0]} • *+${formatNumber(premio)}€* • *+$
 
 finale+=`\n\n> *La prossima miccia potrebbe essere ancora più caotica.*`
 
-await conn.sendMessage(chatId,{text:finale,mentions,footer:'𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓',buttons:playButtons(),headerType:1})
+await conn.sendMessage(chatId,{text:finale,mentions,footer:'𝑵𝑰𝑮𝑮𝑨-𝑩𝑶𝑻',buttons:playButtons(),headerType:1})
 delete bombaInCorso[chatId]
 }
 
