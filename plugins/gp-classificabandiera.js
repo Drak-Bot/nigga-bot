@@ -102,7 +102,7 @@ const testo=`🏆 *𝐂𝐋𝐀𝐒𝐒𝐈𝐅𝐈𝐂𝐀 𝐁𝐀𝐍𝐃𝐈
 
 ${righe.join('\n')}
 
-> 𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓`
+> 𝑵𝑰𝑮𝑮𝑨-𝑩𝑶𝑻`
 
 await conn.sendMessage(m.chat,{
 text:testo,
