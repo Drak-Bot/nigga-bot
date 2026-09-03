@@ -16,7 +16,7 @@ let handler = async (m, { text, command, usedPrefix }) => {
 ╰━━━━━━━🤖━━━━━━━╯
 
 *𝐍𝐨𝐦𝐞 𝐚𝐭𝐭𝐮𝐚𝐥𝐞:*  
-*${global.botname || '𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓'}*
+*${global.botname || '𝑵𝑰𝑮𝑮𝑨-𝑩𝑶𝑻'}*
 
 *──────────────*
 
@@ -35,7 +35,7 @@ let handler = async (m, { text, command, usedPrefix }) => {
 *❌ 𝐈𝐧𝐬𝐞𝐫𝐢𝐬𝐜𝐢 𝐮𝐧 𝐧𝐨𝐦𝐞*
 
 *📌 𝐄𝐬𝐞𝐦𝐩𝐢𝐨:*  
-*${usedPrefix}setnomebot 𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓*`)
+*${usedPrefix}setnomebot 𝑵𝑰𝑮𝑮𝑨-𝑩𝑶𝑻*`)
     }
 
     salvaNome(text.trim())
@@ -50,7 +50,7 @@ let handler = async (m, { text, command, usedPrefix }) => {
 
   if (command === 'resetnomebot') {
 
-    salvaNome('𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓')
+    salvaNome('𝑵𝑰𝑮𝑮𝑨-𝑩𝑶𝑻')
 
     return m.reply(`╭━━━━━━━♻️━━━━━━━╮
 *✦ 𝐑𝐄𝐒𝐄𝐓 𝐍𝐎𝐌𝐄 ✦*
