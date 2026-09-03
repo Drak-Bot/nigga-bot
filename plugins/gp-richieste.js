@@ -217,7 +217,7 @@ ${target.remote ? `*📌 𝐑𝐢𝐜𝐡𝐢𝐞𝐬𝐭𝐞 𝐧𝐞𝐥 𝐠�
 
 *━━━━━━━━━━━━━━*
 *𝐒𝐜𝐞𝐠𝐥𝐢 𝐜𝐨𝐬𝐚 𝐟𝐚𝐫𝐞:*`,
-      footer: '𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓',
+      footer: '𝑵𝑰𝑮𝑮𝑨-𝑩𝑶𝑻',
       buttons: [
         { buttonId: `${usedPrefix}${command} accetta${targetSuffix}`, buttonText: { displayText: '✅ Accetta tutte' }, type: 1 },
         { buttonId: `${usedPrefix}${command} rifiuta${targetSuffix}`, buttonText: { displayText: '❌ Rifiuta tutte' }, type: 1 },
@@ -242,7 +242,7 @@ ${target.remote ? `*📌 𝐑𝐢𝐜𝐡𝐢𝐞𝐬𝐭𝐞 𝐧𝐞𝐥 𝐠�
 *📊 𝐓𝐨𝐭𝐚𝐥𝐞:* *${pending.length}*
 
 ${details}`,
-      footer: '𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓',
+      footer: '𝑵𝑰𝑮𝑮𝑨-𝑩𝑶𝑻',
       buttons: [
         { buttonId: `${usedPrefix}${command}${targetSuffix}`, buttonText: { displayText: '⬅️ Torna al menu' }, type: 1 },
         { buttonId: `${usedPrefix}${command} accetta39${targetSuffix}`, buttonText: { displayText: '🇮🇹 Accetta +39' }, type: 1 },
@@ -299,7 +299,7 @@ ${details}`,
 `*❓ 𝐐𝐮𝐚𝐧𝐭𝐞 𝐫𝐢𝐜𝐡𝐢𝐞𝐬𝐭𝐞 𝐯𝐮𝐨𝐢 𝐚𝐜𝐜𝐞𝐭𝐭𝐚𝐫𝐞${remoteLabel}?*
 
 *🔢 𝐒𝐜𝐫𝐢𝐯𝐢 𝐮𝐧 𝐧𝐮𝐦𝐞𝐫𝐨.*`,
-      footer: '𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓',
+      footer: '𝑵𝑰𝑮𝑮𝑨-𝑩𝑶𝑻',
       buttons: [
         { buttonId: `${usedPrefix}${command} accettane 10${targetSuffix}`, buttonText: { displayText: '10' }, type: 1 },
         { buttonId: `${usedPrefix}${command} accettane 20${targetSuffix}`, buttonText: { displayText: '20' }, type: 1 },
