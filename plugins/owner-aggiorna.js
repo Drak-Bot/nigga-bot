@@ -46,7 +46,7 @@ let handler = async (m, { conn, command, usedPrefix }) => {
 ${truncate(item.stack, 3000)}
 \`\`\`
 
-> 𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓`
+> 𝑵𝑰𝑮𝑮𝑨-𝑩𝑶𝑻`
 
     return conn.reply(m.chat, fullMsg, m)
   }
@@ -123,7 +123,7 @@ ${truncate(item.stack, 3000)}
       resultMsg += '\n\nℹ️ *𝐍𝐞𝐬𝐬𝐮𝐧 𝐟𝐢𝐥𝐞 𝐝𝐚 𝐚𝐠𝐠𝐢𝐨𝐫𝐧𝐚𝐫𝐞*'
     }
 
-    resultMsg += `\n\n> 𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓`
+    resultMsg += `\n\n> 𝑵𝑰𝑮𝑮𝑨-𝑩𝑶𝑻`
 
     await conn.reply(m.chat, truncate(resultMsg), m)
 
@@ -164,11 +164,11 @@ ${truncate(item.stack, 3000)}
 📄 *𝐅𝐢𝐥𝐞:* ${item.file}
 💥 *𝐌𝐞𝐬𝐬𝐚𝐠𝐠𝐢𝐨:* ${item.message}
 
-> 𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓`
+> 𝑵𝑰𝑮𝑮𝑨-𝑩𝑶𝑻`
 
         await conn.sendMessage(m.chat, {
           text: shortMsg,
-          footer: '𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓',
+          footer: '𝑵𝑰𝑮𝑮𝑨-𝑩𝑶𝑻',
           buttons: [
             {
               buttonId: `${usedPrefix}debugplugin ${debugId}`,
@@ -193,7 +193,7 @@ ${truncate(item.stack, 3000)}
   } catch (err) {
     await conn.reply(
       m.chat,
-      `*❌ 𝐄𝐫𝐫𝐨𝐫𝐞 𝐝𝐮𝐫𝐚𝐧𝐭𝐞 𝐚𝐠𝐠𝐢𝐨𝐫𝐧𝐚𝐦𝐞𝐧𝐭𝐨:*\n\n${err.message}\n\n> 𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓`,
+      `*❌ 𝐄𝐫𝐫𝐨𝐫𝐞 𝐝𝐮𝐫𝐚𝐧𝐭𝐞 𝐚𝐠𝐠𝐢𝐨𝐫𝐧𝐚𝐦𝐞𝐧𝐭𝐨:*\n\n${err.message}\n\n> 𝑵𝑰𝑮𝑮𝑨-𝑩𝑶𝑻`,
       m
     )
 
