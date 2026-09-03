@@ -18,7 +18,7 @@ let handler = async (m, { conn, text, usedPrefix }) => {
 
 *📌 𝐏𝐨𝐢 𝐫𝐢𝐬𝐩𝐨𝐧𝐝𝐢 𝐚𝐝 𝐮𝐧 𝐦𝐞𝐬𝐬𝐚𝐠𝐠𝐢𝐨 𝐜𝐨𝐧 𝐢𝐥 𝐜𝐨𝐝𝐢𝐜𝐞.*
 
-> *𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓*`)
+> *𝑵𝑰𝑮𝑮𝑨-𝑩𝑶𝑻*`)
   }
 
   const pluginName = text
@@ -30,14 +30,14 @@ let handler = async (m, { conn, text, usedPrefix }) => {
     return m.reply(
 `*❌ 𝐍𝐨𝐦𝐞 𝐩𝐥𝐮𝐠𝐢𝐧 𝐧𝐨𝐧 𝐯𝐚𝐥𝐢𝐝𝐨.*
 
-> *𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓*`)
+> *𝑵𝑰𝑮𝑮𝑨-𝑩𝑶𝑻*`)
   }
 
   if (!m.quoted?.text) {
     return m.reply(
 `*⚠️ 𝐑𝐢𝐬𝐩𝐨𝐧𝐝𝐢 𝐚𝐝 𝐮𝐧 𝐦𝐞𝐬𝐬𝐚𝐠𝐠𝐢𝐨 𝐜𝐨𝐧 𝐢𝐥 𝐜𝐨𝐝𝐢𝐜𝐞 𝐝𝐞𝐥 𝐩𝐥𝐮𝐠𝐢𝐧.*
 
-> *𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓*`)
+> *𝑵𝑰𝑮𝑮𝑨-𝑩𝑶𝑻*`)
   }
 
   const pluginPath = path.join(
@@ -62,7 +62,7 @@ let handler = async (m, { conn, text, usedPrefix }) => {
 
 *🚀 𝐈𝐥 𝐩𝐥𝐮𝐠𝐢𝐧 𝐯𝐞𝐫𝐫𝐚̀ 𝐫𝐢𝐜𝐚𝐫𝐢𝐜𝐚𝐭𝐨 𝐚𝐮𝐭𝐨𝐦𝐚𝐭𝐢𝐜𝐚𝐦𝐞𝐧𝐭𝐞.*
 
-> *𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓*`,
+> *𝑵𝑰𝑮𝑮𝑨-𝑩𝑶𝑻*`,
       footer: 'Gestione plugin Axion',
       buttons: [
         {
@@ -91,7 +91,7 @@ let handler = async (m, { conn, text, usedPrefix }) => {
 
 *📛 ${String(e)}*
 
-> *𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓*`)
+> *𝑵𝑰𝑮𝑮𝑨-𝑩𝑶𝑻*`)
   }
 }
 
