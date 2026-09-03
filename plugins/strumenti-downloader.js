@@ -328,7 +328,7 @@ function buildInfoCaption(info, mode, url) {
 
   txt += buildLongWarning(info, mode)
   txt += `\n\n──────────\n\n🕒 *𝐓𝐞𝐦𝐩𝐨 𝐬𝐭𝐢𝐦𝐚𝐭𝐨:*\n${estimateDownloadTime(info, mode)}`
-  txt += `\n\n> 𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓'`
+  txt += `\n\n> 𝑵𝑰𝑮𝑮𝑨-𝑩𝑶𝑻'`
 
 return txt
 }
@@ -1126,7 +1126,7 @@ await editMessage(
 🕒 *𝐓𝐞𝐦𝐩𝐨 𝐭𝐫𝐚𝐬𝐜𝐨𝐫𝐬𝐨:* ${elapsed}
 📦 *𝐏𝐞𝐬𝐨:* ${formatBytes(stats.size)}
 
-> 𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓`
+> 𝑵𝑰𝑮𝑮𝑨-𝑩𝑶𝑻`
 )
 
     await setReaction(conn, m.chat, m.key, '✅')
