@@ -5,7 +5,7 @@ import dotenv from 'dotenv'
 dotenv.config()
 
 const box =`
-> *𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓*`
+> *𝑵𝑰𝑮𝑮𝑨-𝑩𝑶𝑻*`
 
 async function react(conn, m, emoji) {
   try {
