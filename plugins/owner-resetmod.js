@@ -16,7 +16,7 @@ const handler = async (m, { conn }) => {
   if (!removed.length) {
     return m.reply(`*ℹ️ 𝐍𝐨𝐧 𝐜𝐢 𝐬𝐨𝐧𝐨 𝐦𝐨𝐝𝐞𝐫𝐚𝐭𝐨𝐫𝐢 𝐝𝐚 𝐫𝐢𝐦𝐮𝐨𝐯𝐞𝐫𝐞 𝐢𝐧 𝐪𝐮𝐞𝐬𝐭𝐨 𝐠𝐫𝐮𝐩𝐩𝐨.*
 
-> *𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓*`)
+> *𝑵𝑰𝑮𝑮𝑨-𝑩𝑶𝑻*`)
   }
 
   let thumb = null
@@ -37,7 +37,7 @@ const handler = async (m, { conn }) => {
 *𝐔𝐭𝐞𝐧𝐭𝐢 𝐫𝐢𝐦𝐨𝐬𝐬𝐢:*
 ${list}
 
-> *𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓*`
+> *𝑵𝑰𝑮𝑮𝑨-𝑩𝑶𝑻*`
 
   await conn.sendMessage(
     m.chat,
