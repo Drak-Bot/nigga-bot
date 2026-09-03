@@ -7,7 +7,7 @@ m.sender
 await conn.sendButton(
 m.chat,
 `*🆔 ID UTENTE:*\n\n\`${jid}\``,
-'> *𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓*',
+'> *𝑵𝑰𝑮𝑮𝑨-𝑩𝑶𝑻*',
 null,
 null,
 [['📋 Copia ID', jid]],
