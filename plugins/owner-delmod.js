@@ -32,7 +32,7 @@ thumbnail = Buffer.from(await res.arrayBuffer())
 } catch {}
 
 await conn.sendMessage(m.chat, {
-text: `*@${who.split('@')[0]} 𝐧𝐨𝐧 𝐞̀ 𝐩𝐢𝐮̀ 𝐦𝐨𝐝𝐞𝐫𝐚𝐭𝐨𝐫𝐞 𝐝𝐢 𝐪𝐮𝐞𝐬𝐭𝐨 𝐠𝐫𝐮𝐩𝐩𝐨 🚫.*\n\n> 𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓`,
+text: `*@${who.split('@')[0]} 𝐧𝐨𝐧 𝐞̀ 𝐩𝐢𝐮̀ 𝐦𝐨𝐝𝐞𝐫𝐚𝐭𝐨𝐫𝐞 𝐝𝐢 𝐪𝐮𝐞𝐬𝐭𝐨 𝐠𝐫𝐮𝐩𝐩𝐨 🚫.*\n\n> 𝑵𝑰𝑮𝑮𝑨-𝑩𝑶𝑻`,
 contextInfo: {
 mentionedJid: [who],
 externalAdReply: {
