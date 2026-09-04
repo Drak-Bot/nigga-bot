@@ -90,7 +90,7 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
          * Mandiamo la query YouTube all'API.
          */
         const apiUrl =
-            `https://api.chatunity.it/downlaod/play?q=${encodeURIComponent(url)}`;
+    `https://api.chatunity.it/download/play?q=${encodeURIComponent(url)}`;
 
         const response = await fetch(apiUrl);
 
