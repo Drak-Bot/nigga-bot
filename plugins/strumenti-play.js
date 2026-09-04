@@ -1,4 +1,11 @@
 import yts from 'yt-search';
+import fs from 'fs';
+import path from 'path';
+import os from 'os';
+import { execFile } from 'child_process';
+import { promisify } from 'util';
+
+const execFileAsync = promisify(execFile);
 
 const API = 'https://api.chatunity.it/download/play';
 
@@ -11,16 +18,25 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
         );
     }
 
+    let tempInput = null;
+    let tempOutput = null;
+
     try {
         const cmd = command.toLowerCase();
 
-        let youtubeUrl = text;
+        let youtubeUrl = text.trim();
         let title = 'YouTube';
         let duration = '';
         let thumbnail = null;
 
-        if (!/^https?:\/\//i.test(text)) {
-            const search = await yts(text);
+        /*
+         * ==============================
+         * RICERCA YOUTUBE
+         * ==============================
+         */
+
+        if (!/^https?:\/\//i.test(youtubeUrl)) {
+            const search = await yts(youtubeUrl);
             const vid = search.videos?.[0];
 
             if (!vid) {
@@ -30,19 +46,28 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
             youtubeUrl = vid.url;
             title = vid.title || 'Senza titolo';
             duration = vid.timestamp || '';
-            thumbnail = vid.thumbnail;
+            thumbnail = vid.thumbnail || null;
         } else {
             try {
-                const search = await yts(text);
-                const vid = search.videos?.find(v => v.url === text) || search.videos?.[0];
+                const search = await yts(youtubeUrl);
+
+                const vid =
+                    search.videos?.find(v => v.url === youtubeUrl) ||
+                    search.videos?.[0];
 
                 if (vid) {
                     title = vid.title || title;
                     duration = vid.timestamp || '';
-                    thumbnail = vid.thumbnail;
+                    thumbnail = vid.thumbnail || null;
                 }
             } catch {}
         }
+
+        /*
+         * ==============================
+         * MENU PLAY
+         * ==============================
+         */
 
         if (cmd === 'play') {
             const caption =
@@ -53,11 +78,39 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
                 `◈ ⏱️ *Durata:* ${duration || 'Sconosciuta'}\n\n` +
                 `🎵 *Seleziona il formato:*`;
 
+            if (thumbnail) {
+                return await conn.sendMessage(
+                    m.chat,
+                    {
+                        image: { url: thumbnail },
+                        caption,
+                        footer: '𝑵𝑰𝑮𝑮𝑨-𝑩𝑶𝑻',
+                        buttons: [
+                            {
+                                buttonId: `${usedPrefix}playaud ${youtubeUrl}`,
+                                buttonText: {
+                                    displayText: '🎵 𝗔𝗨𝗗𝗜𝗢 (𝗠𝗣𝟯)'
+                                },
+                                type: 1
+                            },
+                            {
+                                buttonId: `${usedPrefix}playvid ${youtubeUrl}`,
+                                buttonText: {
+                                    displayText: '🎬 𝗩𝗜𝗗𝗘𝗢 (𝗠𝗣𝟰)'
+                                },
+                                type: 1
+                            }
+                        ],
+                        headerType: 4
+                    },
+                    { quoted: m }
+                );
+            }
+
             return await conn.sendMessage(
                 m.chat,
                 {
-                    image: { url: thumbnail },
-                    caption,
+                    text: caption,
                     footer: '𝑵𝑰𝑮𝑮𝑨-𝑩𝑶𝑻',
                     buttons: [
                         {
@@ -75,11 +128,17 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
                             type: 1
                         }
                     ],
-                    headerType: 4
+                    headerType: 1
                 },
                 { quoted: m }
             );
         }
+
+        /*
+         * ==============================
+         * REAZIONE DOWNLOAD
+         * ==============================
+         */
 
         await conn.sendMessage(m.chat, {
             react: {
@@ -88,7 +147,16 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
             }
         });
 
-        const apiUrl = `${API}?query=${encodeURIComponent(youtubeUrl)}`;
+        /*
+         * ==============================
+         * CHATUNITY API
+         * ==============================
+         */
+
+        const apiUrl =
+            `${API}?query=${encodeURIComponent(youtubeUrl)}`;
+
+        console.log('[CHATUNITY]', apiUrl);
 
         const response = await fetch(apiUrl, {
             method: 'GET',
@@ -108,6 +176,7 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
 
             try {
                 const errorJson = JSON.parse(raw);
+
                 errorMessage =
                     errorJson.message ||
                     errorJson.error ||
@@ -124,7 +193,9 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
         try {
             data = JSON.parse(raw);
         } catch {
-            throw new Error('La risposta API non è JSON valido.');
+            throw new Error(
+                'La risposta API non è JSON valido.'
+            );
         }
 
         if (!data.success) {
@@ -145,34 +216,128 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
 
         console.log('[DOWNLOAD URL]', downloadUrl);
 
+        /*
+         * ==============================
+         * DOWNLOAD FILE
+         * ==============================
+         */
+
+        const fileResponse = await fetch(downloadUrl, {
+            headers: {
+                'User-Agent': 'Mozilla/5.0'
+            }
+        });
+
+        if (!fileResponse.ok) {
+            throw new Error(
+                `Impossibile scaricare il file. HTTP ${fileResponse.status}`
+            );
+        }
+
+        const arrayBuffer = await fileResponse.arrayBuffer();
+        const buffer = Buffer.from(arrayBuffer);
+
+        console.log(
+            '[FILE SIZE]',
+            (buffer.length / 1024 / 1024).toFixed(2),
+            'MB'
+        );
+
+        /*
+         * ==============================
+         * VIDEO MP4
+         * ==============================
+         */
+
         if (cmd === 'playvid') {
+            if (buffer.length > 200 * 1024 * 1024) {
+                throw new Error(
+                    'Il video è troppo grande per essere inviato.'
+                );
+            }
+
             await conn.sendMessage(
                 m.chat,
                 {
-                    video: {
-                        url: downloadUrl
-                    },
+                    video: buffer,
                     mimetype: 'video/mp4',
+                    fileName: `${title}.mp4`,
                     caption:
                         `✅ *Download completato!*\n\n` +
                         `🎬 *${title}*` +
-                        (duration ? `\n⏱️ ${duration}` : '')
+                        (duration
+                            ? `\n⏱️ ${duration}`
+                            : '')
                 },
                 { quoted: m }
             );
-        } else if (cmd === 'playaud') {
+        }
+
+        /*
+         * ==============================
+         * AUDIO MP3
+         * ==============================
+         */
+
+        else if (cmd === 'playaud') {
+            tempInput = path.join(
+                os.tmpdir(),
+                `play-${Date.now()}.mp4`
+            );
+
+            tempOutput = path.join(
+                os.tmpdir(),
+                `play-${Date.now()}.mp3`
+            );
+
+            fs.writeFileSync(tempInput, buffer);
+
+            console.log('[FFMPEG] Conversione MP4 -> MP3');
+
+            await execFileAsync('ffmpeg', [
+                '-y',
+                '-i',
+                tempInput,
+                '-vn',
+                '-acodec',
+                'libmp3lame',
+                '-b:a',
+                '128k',
+                tempOutput
+            ]);
+
+            if (!fs.existsSync(tempOutput)) {
+                throw new Error(
+                    'FFmpeg non ha generato il file MP3.'
+                );
+            }
+
+            const audioBuffer =
+                fs.readFileSync(tempOutput);
+
+            console.log(
+                '[MP3 SIZE]',
+                (audioBuffer.length / 1024 / 1024).toFixed(2),
+                'MB'
+            );
+
             await conn.sendMessage(
                 m.chat,
                 {
-                    audio: {
-                        url: downloadUrl
-                    },
-                    mimetype: 'audio/mp4',
+                    audio: audioBuffer,
+                    mimetype: 'audio/mpeg',
+                    fileName: `${title}.mp3`,
                     ptt: false
                 },
                 { quoted: m }
             );
         }
+
+        /*
+         * ==============================
+         * REAZIONE OK
+         * ==============================
+         */
 
         await conn.sendMessage(m.chat, {
             react: {
@@ -192,8 +357,29 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
         });
 
         return m.reply(
-            `❌ *PLAY ERROR*\n\n${error.message || 'Errore sconosciuto'}`
+            `❌ *PLAY ERROR*\n\n` +
+            `${error.message || 'Errore sconosciuto'}`
         );
+    }
+
+    /*
+     * ==============================
+     * PULIZIA FILE TEMPORANEI
+     * ==============================
+     */
+
+    finally {
+        try {
+            if (tempInput && fs.existsSync(tempInput)) {
+                fs.unlinkSync(tempInput);
+            }
+        } catch {}
+
+        try {
+            if (tempOutput && fs.existsSync(tempOutput)) {
+                fs.unlinkSync(tempOutput);
+            }
+        } catch {}
     }
 };
 
