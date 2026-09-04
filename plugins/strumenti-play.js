@@ -1,63 +1,64 @@
 import yts from 'yt-search';
 
+const API = 'https://api.chatunity.it/download/play';
+
 let handler = async (m, { conn, text, usedPrefix, command }) => {
     if (!text) {
         return m.reply(
             `⚡ *𝑵𝑰𝑮𝑮𝑨-𝑩𝑶𝑻*\n\n` +
-            `💡 _Scrivi:_ ${usedPrefix + command} nome canzone`
+            `💡 Usa:\n` +
+            `${usedPrefix}play nome canzone`
         );
     }
 
     try {
-        await conn.sendMessage(m.chat, {
-            react: { text: '🔎', key: m.key }
-        });
-
-        // ==============================
+        // =========================
         // RICERCA YOUTUBE
-        // ==============================
+        // =========================
+
         const search = await yts(text);
         const vid = search.videos?.[0];
 
         if (!vid) {
-            return m.reply('⚠️ *Risultato non trovato.*');
+            return m.reply('❌ *Nessun risultato trovato.*');
         }
 
-        const url = vid.url;
+        const youtubeUrl = vid.url;
         const title = vid.title || 'Senza titolo';
         const duration = vid.timestamp || 'Sconosciuta';
         const thumbnail = vid.thumbnail;
 
-        // ==============================
-        // MENU PLAY
-        // ==============================
+        // =========================
+        // MENU
+        // =========================
+
         if (command.toLowerCase() === 'play') {
 
-            const infoMsg =
+            const caption =
                 `┏━━━━━━━━━━━━━━━━━━━┓\n` +
-                `   🎧 *𝙋𝙡𝙖𝙮 𝑵𝑰𝑮𝑮𝑨-𝑩𝑶𝑻* 🎧\n` +
+                `   🎧 *𝙋𝙇𝘼𝙔 𝑵𝑰𝑮𝑮𝑨-𝑩𝑶𝑻* 🎧\n` +
                 `┗━━━━━━━━━━━━━━━━━━━┛\n\n` +
-                `◈ 📌 *𝗧𝗶𝘁𝗼𝗹𝗼:* ${title}\n` +
-                `◈ ⏱️ *𝗗𝘂𝗿𝗮𝘁𝗮:* ${duration}\n\n` +
-                `*Seleziona il formato:*`;
+                `◈ 📌 *Titolo:* ${title}\n` +
+                `◈ ⏱️ *Durata:* ${duration}\n\n` +
+                `🎵 *Scegli il formato:*`;
 
             return await conn.sendMessage(
                 m.chat,
                 {
                     image: { url: thumbnail },
-                    caption: infoMsg,
+                    caption,
                     footer: '𝑵𝑰𝑮𝑮𝑨-𝑩𝑶𝑻',
 
                     buttons: [
                         {
-                            buttonId: `${usedPrefix}playaud ${url}`,
+                            buttonId: `${usedPrefix}playaud ${youtubeUrl}`,
                             buttonText: {
                                 displayText: '🎵 𝗔𝗨𝗗𝗜𝗢 (𝗠𝗣𝟯)'
                             },
                             type: 1
                         },
                         {
-                            buttonId: `${usedPrefix}playvid ${url}`,
+                            buttonId: `${usedPrefix}playvid ${youtubeUrl}`,
                             buttonText: {
                                 displayText: '🎬 𝗩𝗜𝗗𝗘𝗢 (𝗠𝗣𝟰)'
                             },
@@ -71,53 +72,98 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
             );
         }
 
-        // ==============================
+        // =========================
         // DOWNLOAD
-        // ==============================
-
-        await conn.sendMessage(m.chat, {
-            react: { text: '📥', key: m.key }
-        });
+        // =========================
 
         const isAudio = command.toLowerCase() === 'playaud';
 
-        /*
-         * API CHATUNITY
-         *
-         * Endpoint:
-         * https://api.chatunity.it/downlaod/play
-         *
-         * Mandiamo la query YouTube all'API.
-         */
-        const apiUrl =
-    `https://api.chatunity.it/download/play?q=${encodeURIComponent(url)}`;
+        await conn.sendMessage(m.chat, {
+            react: {
+                text: '📥',
+                key: m.key
+            }
+        });
 
-        const response = await fetch(apiUrl);
+        // =========================
+        // CHIAMATA API
+        // =========================
 
-        if (!response.ok) {
+        let data = null;
+        let lastError = null;
+
+        const parameters = [
+            `url=${encodeURIComponent(youtubeUrl)}`,
+            `q=${encodeURIComponent(youtubeUrl)}`,
+            `query=${encodeURIComponent(youtubeUrl)}`
+        ];
+
+        for (const parameter of parameters) {
+
+            try {
+
+                const apiUrl = `${API}?${parameter}`;
+
+                console.log('[CHATUNITY]', apiUrl);
+
+                const response = await fetch(apiUrl, {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/json',
+                        'User-Agent': 'Mozilla/5.0'
+                    }
+                });
+
+                const raw = await response.text();
+
+                console.log(
+                    '[CHATUNITY STATUS]',
+                    response.status
+                );
+
+                console.log(
+                    '[CHATUNITY RESPONSE]',
+                    raw
+                );
+
+                if (!response.ok) {
+                    lastError = `HTTP ${response.status}: ${raw}`;
+                    continue;
+                }
+
+                try {
+                    data = JSON.parse(raw);
+                } catch {
+                    data = raw;
+                }
+
+                break;
+
+            } catch (err) {
+                lastError = err.message;
+            }
+        }
+
+        if (!data) {
             throw new Error(
-                `API HTTP ${response.status}`
+                lastError ||
+                'Nessuna risposta valida dall API'
             );
         }
 
-        const data = await response.json();
+        // =========================
+        // TROVA URL MEDIA
+        // =========================
 
-        console.log(
-            '[CHATUNITY API]',
-            JSON.stringify(data, null, 2)
-        );
+        const findMediaUrl = (obj, wantedType) => {
 
-        // ==============================
-        // CERCA URL MEDIA NELLA RISPOSTA
-        // ==============================
-
-        function findUrl(obj, keys = []) {
             if (!obj) return null;
 
             if (typeof obj === 'string') {
+
                 if (
-                    obj.startsWith('http://') ||
-                    obj.startsWith('https://')
+                    obj.startsWith('https://') ||
+                    obj.startsWith('http://')
                 ) {
                     return obj;
                 }
@@ -126,96 +172,149 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
             }
 
             if (Array.isArray(obj)) {
+
                 for (const item of obj) {
-                    const result = findUrl(item, keys);
+                    const result = findMediaUrl(
+                        item,
+                        wantedType
+                    );
+
                     if (result) return result;
                 }
+
+                return null;
             }
 
             if (typeof obj === 'object') {
 
-                // Prima prova i nomi conosciuti
+                const audioKeys = [
+                    'audio',
+                    'audioUrl',
+                    'audio_url',
+                    'mp3',
+                    'mp3Url',
+                    'mp3_url',
+                    'music',
+                    'song',
+                    'download'
+                ];
+
+                const videoKeys = [
+                    'video',
+                    'videoUrl',
+                    'video_url',
+                    'mp4',
+                    'mp4Url',
+                    'mp4_url',
+                    'download'
+                ];
+
+                const keys =
+                    wantedType === 'audio'
+                        ? audioKeys
+                        : videoKeys;
+
+                // Prima cerca nei campi specifici
                 for (const key of keys) {
+
                     if (obj[key]) {
 
+                        const value = obj[key];
+
                         if (
-                            typeof obj[key] === 'string' &&
+                            typeof value === 'string' &&
                             (
-                                obj[key].startsWith('http://') ||
-                                obj[key].startsWith('https://')
+                                value.startsWith('https://') ||
+                                value.startsWith('http://')
                             )
                         ) {
-                            return obj[key];
+                            return value;
                         }
 
-                        const result = findUrl(obj[key], keys);
+                        const result = findMediaUrl(
+                            value,
+                            wantedType
+                        );
+
                         if (result) return result;
                     }
                 }
 
-                // Poi cerca ricorsivamente
+                // Cerca url/link generici
+                for (const key of [
+                    'url',
+                    'link',
+                    'downloadUrl',
+                    'download_url',
+                    'result'
+                ]) {
+
+                    if (obj[key]) {
+
+                        const value = obj[key];
+
+                        if (
+                            typeof value === 'string' &&
+                            (
+                                value.startsWith('https://') ||
+                                value.startsWith('http://')
+                            )
+                        ) {
+                            return value;
+                        }
+
+                        const result = findMediaUrl(
+                            value,
+                            wantedType
+                        );
+
+                        if (result) return result;
+                    }
+                }
+
+                // Ricerca ricorsiva
                 for (const key of Object.keys(obj)) {
-                    const result = findUrl(obj[key], keys);
+
+                    const result = findMediaUrl(
+                        obj[key],
+                        wantedType
+                    );
+
                     if (result) return result;
                 }
             }
 
             return null;
-        }
+        };
 
-        // ==============================
-        // URL AUDIO / VIDEO
-        // ==============================
-
-        let mediaUrl;
-
-        if (isAudio) {
-
-            mediaUrl = findUrl(data, [
-                'audio',
-                'audioUrl',
-                'audio_url',
-                'mp3',
-                'mp3Url',
-                'mp3_url',
-                'download',
-                'downloadUrl',
-                'download_url',
-                'url',
-                'link'
-            ]);
-
-        } else {
-
-            mediaUrl = findUrl(data, [
-                'video',
-                'videoUrl',
-                'video_url',
-                'mp4',
-                'mp4Url',
-                'mp4_url',
-                'download',
-                'downloadUrl',
-                'download_url',
-                'url',
-                'link'
-            ]);
-        }
+        const mediaUrl = findMediaUrl(
+            data,
+            isAudio ? 'audio' : 'video'
+        );
 
         if (!mediaUrl) {
+
             console.log(
-                'Risposta API senza URL:',
+                '❌ URL MEDIA NON TROVATO'
+            );
+
+            console.log(
                 JSON.stringify(data, null, 2)
             );
 
             throw new Error(
-                'L API non ha restituito un URL multimediale'
+                'L API non ha restituito un link audio/video.'
             );
         }
 
-        // ==============================
-        // AUDIO → VOCALE WHATSAPP
-        // ==============================
+        console.log(
+            '[MEDIA URL]',
+            mediaUrl
+        );
+
+        // =========================
+        // AUDIO → VOCALE
+        // =========================
 
         if (isAudio) {
 
@@ -225,17 +324,21 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
                     audio: {
                         url: mediaUrl
                     },
+
                     mimetype: 'audio/ogg; codecs=opus',
+
                     ptt: true
                 },
-                { quoted: m }
+                {
+                    quoted: m
+                }
             );
 
         }
 
-        // ==============================
-        // VIDEO → MP4
-        // ==============================
+        // =========================
+        // VIDEO
+        // =========================
 
         else {
 
@@ -245,45 +348,56 @@ let handler = async (m, { conn, text, usedPrefix, command }) => {
                     video: {
                         url: mediaUrl
                     },
+
                     mimetype: 'video/mp4',
+
                     caption:
-                        `✅ *𝐒𝐜𝐚𝐫𝐢𝐜𝐚𝐭𝐨 𝐝𝐚 𝑵𝑰𝑮𝑮𝑨-𝑩𝑶𝑻*\n\n` +
-                        `🎬 *${title}*`
+                        `✅ *Download completato!*\n\n` +
+                        `🎬 *${title}*\n` +
+                        `⏱️ ${duration}`
                 },
-                { quoted: m }
+                {
+                    quoted: m
+                }
             );
         }
 
-        // ==============================
-        // OK
-        // ==============================
+        // =========================
+        // SUCCESS
+        // =========================
 
         await conn.sendMessage(m.chat, {
-            react: { text: '✅', key: m.key }
+            react: {
+                text: '✅',
+                key: m.key
+            }
         });
 
-    } catch (e) {
+    } catch (error) {
 
         console.error(
             '[PLAY ERROR]',
-            e
+            error
         );
 
         await conn.sendMessage(m.chat, {
-            react: { text: '❌', key: m.key }
+            react: {
+                text: '❌',
+                key: m.key
+            }
         });
 
         return m.reply(
-            `❌ *Errore Play*\n\n` +
-            `Non sono riuscito a scaricare il contenuto.\n\n` +
-            `> ${e.message || 'Errore sconosciuto'}`
+            `❌ *PLAY ERROR*\n\n` +
+            `Impossibile scaricare il contenuto.\n\n` +
+            `📌 ${error.message || 'Errore sconosciuto'}`
         );
     }
 };
 
-// ==============================
-// CONFIG
-// ==============================
+// =========================
+// CONFIGURAZIONE
+// =========================
 
 handler.help = [
     'play'
@@ -293,6 +407,7 @@ handler.tags = [
     'downloader'
 ];
 
-handler.command = /^(play|playaud|playvid)$/i;
+handler.command =
+    /^(play|playaud|playvid)$/i;
 
 export default handler;
