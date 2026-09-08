@@ -1,85 +1,148 @@
 const handler = m => m;
 
-// Lista utenti autorizzati
 const registeredAdmins = [
-  '393204514107@s.whatsapp.net', // Roze
-  '393516908130@s.whatsapp.net', // Ankush
-  '447598974929@s.whatsapp.net', // Picz
+  '393204514107@s.whatsapp.net',
+  '393516908130@s.whatsapp.net',
+  '447598974929@s.whatsapp.net',
 ];
 
 handler.before = async function (m, { conn, participants, isBotAdmin }) {
   if (!m.isGroup) return;
-  if (!isBotAdmin) return;
 
   const chat = global.db.data.chats[m.chat];
   if (!chat?.antinuke) return;
 
-  const sender = m.key?.participant || m.participant || m.sender;
-
   if (![29, 30].includes(m.messageStubType)) return;
 
-  const botJid = conn.user.id.split(':')[0] + '@s.whatsapp.net';
-  const BOT_OWNERS = global.owner.map(o => o[0] + '@s.whatsapp.net');
+  const decode = jid => {
+    try {
+      return conn.decodeJid(jid);
+    } catch {
+      return jid;
+    }
+  };
 
-  let founderJid = null;
+  const sender = decode(
+    m.key?.participant ||
+    m.participant ||
+    m.sender
+  );
+
+  const botJid = decode(conn.user.id);
+
+  const BOT_OWNERS = (global.owner || [])
+    .map(o => decode(
+      o[0].includes('@')
+        ? o[0]
+        : o[0] + '@s.whatsapp.net'
+    ));
+
+  const dynamicAdmins = (chat.antinukeAdmins || [])
+    .map(decode);
+
+  let metadata;
+
   try {
-    const metadata = await conn.groupMetadata(m.chat);
-    founderJid = metadata.owner;
+    metadata = await conn.groupMetadata(m.chat);
   } catch {
-    founderJid = null;
+    metadata = null;
   }
+
+  const founderJid = metadata?.owner
+    ? decode(metadata.owner)
+    : null;
 
   const allowed = [
     botJid,
     ...BOT_OWNERS,
-    ...registeredAdmins,
+    ...registeredAdmins.map(decode),
+    ...dynamicAdmins,
     founderJid
   ].filter(Boolean);
 
   if (allowed.includes(sender)) return;
 
-  const usersToDemote = participants
+  if (sender === botJid) {
+    for (const owner of BOT_OWNERS) {
+      try {
+        await conn.sendMessage(owner, {
+          text:
+            `⚠️ *ANTI-NUKE ALERT*\n\n` +
+            `Il bot è stato rimosso dagli amministratori di un gruppo.\n\n` +
+            `👤 Azione eseguita da: @${sender.split('@')[0]}\n` +
+            `💬 Gruppo: ${m.chat}\n\n` +
+            `ℹ️ Il bot non può eseguire demote finché non dispone dei privilegi admin.`,
+          mentions: [sender]
+        });
+      } catch {}
+    }
+
+    return;
+  }
+
+  if (!isBotAdmin) return;
+
+  const groupParticipants =
+    participants?.length
+      ? participants
+      : metadata?.participants || [];
+
+  const usersToDemote = groupParticipants
     .filter(p => p.admin)
-    .map(p => p.jid)
-    .filter(jid => jid && !allowed.includes(jid));
+    .map(p => decode(p.jid || p.id))
+    .filter(jid =>
+      jid &&
+      !allowed.includes(jid)
+    );
 
   if (!usersToDemote.length) return;
 
-  await conn.groupParticipantsUpdate(
-    m.chat,
-    usersToDemote,
-    'demote'
+  await Promise.all(
+    usersToDemote.map(async jid => {
+      try {
+        await conn.groupParticipantsUpdate(
+          m.chat,
+          [jid],
+          'demote'
+        );
+      } catch (e) {
+        console.error(
+          `[ANTINUKE] Errore demote ${jid}:`,
+          e
+        );
+      }
+    })
   );
 
-  await conn.groupSettingUpdate(m.chat, 'announcement');
-
-  const action = m.messageStubType === 29 ? 'Tentativo di Promozione' : 'Tentativo di Retrocessione';
-
-  const groupName = m.pushName || 'GRUPPO NΞXSUS';
+  const action =
+    m.messageStubType === 29
+      ? 'Promozione'
+      : 'Retrocessione';
 
   const text = `
-⚡ 𝑵𝑰𝑮𝑮𝑨-𝑩𝑶𝑻 — PROTOCOLLO ANTI-NUKE ⚡
+⚡ *ANTI-NUKE*
 
-════════════════════
-🚨 AZIONE NON AUTORIZZATA RILEVATA
-════════════════════
-👤 @${sender.split('@')[0]} ha tentato di eseguire una ${action} senza permessi.
+🚨 *AZIONE NON AUTORIZZATA*
 
-☠️ AMMINISTRATORI DEMOTATI:
-${usersToDemote.map(j => `💀 @${j.split('@')[0]}`).join('\n')}
+👤 @${sender.split('@')[0]}
+ha eseguito una ${action.toLowerCase()} non autorizzata.
 
-👑 OWNER AVVISATI:
-${BOT_OWNERS.map(x => `🛡️ @${x.split('@')[0]}`).join('\n')}
-
-════════════════════
+🔒 *AMMINISTRATORI DEMOTATI:*
+${usersToDemote.map(j => `• @${j.split('@')[0]}`).join('\n')}
 `.trim();
 
-  await conn.sendMessage(m.chat, {
-    text,
-    contextInfo: {
-      mentionedJid: [...usersToDemote, ...BOT_OWNERS].filter(Boolean),
-    },
-  });
+  try {
+    await conn.sendMessage(m.chat, {
+      text,
+      mentions: [
+        sender,
+        ...usersToDemote,
+        ...BOT_OWNERS
+      ]
+    });
+  } catch (e) {
+    console.error('[ANTINUKE] Errore invio messaggio:', e);
+  }
 };
 
 export default handler;
