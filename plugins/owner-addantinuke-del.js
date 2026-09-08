@@ -9,51 +9,82 @@ const handler = async (m, { conn, isOwner }) => {
 
     const command = match[1].toLowerCase()
 
+    global.db.data.chats[m.chat] =
+        global.db.data.chats[m.chat] || {}
+
     const chat = global.db.data.chats[m.chat]
 
-    if (!chat) return
-
-    if (!chat.antinukeAdmins) {
+    if (!Array.isArray(chat.antinukeAdmins)) {
         chat.antinukeAdmins = []
     }
 
-    let target = m.mentionedJid?.[0]
+    let target = null
+
+    if (m.mentionedJid && m.mentionedJid.length) {
+        target = m.mentionedJid[0]
+    }
 
     if (!target && m.quoted) {
         target = m.quoted.sender
     }
 
     if (!target) {
-        return m.reply(
-            command === 'addantinuke'
-                ? '❌ Menziona l\'utente da autorizzare.'
-                : '❌ Menziona l\'utente da rimuovere.'
+        return conn.sendMessage(
+            m.chat,
+            {
+                text:
+                    command === 'addantinuke'
+                        ? '❌ Menziona l\'utente da autorizzare.\n\nEsempio: .addantinuke @utente'
+                        : '❌ Menziona l\'utente da rimuovere.\n\nEsempio: .delantinuke @utente'
+            },
+            { quoted: m }
         )
     }
 
-    target = conn.decodeJid(target)
+    try {
+        target = conn.decodeJid(target)
+    } catch {
+        return
+    }
+
+    if (!target || !target.includes('@s.whatsapp.net')) return
 
     if (command === 'addantinuke') {
         if (chat.antinukeAdmins.includes(target)) {
-            return m.reply(
-                `⚠️ @${target.split('@')[0]} è già autorizzato.`,
-                { mentions: [target] }
+            return conn.sendMessage(
+                m.chat,
+                {
+                    text: `⚠️ @${target.split('@')[0]} è già autorizzato all'Anti-Nuke.`,
+                    mentions: [target]
+                },
+                { quoted: m }
             )
         }
 
         chat.antinukeAdmins.push(target)
 
-        return m.reply(
-            `✅ @${target.split('@')[0]} è stato autorizzato all'Anti-Nuke.`,
-            { mentions: [target] }
+        return conn.sendMessage(
+            m.chat,
+            {
+                text:
+                    `✅ *ANTI-NUKE*\n\n` +
+                    `@${target.split('@')[0]} è stato autorizzato.\n\n` +
+                    `Ora può modificare gli amministratori senza essere bloccato dall'Anti-Nuke.`,
+                mentions: [target]
+            },
+            { quoted: m }
         )
     }
 
     if (command === 'delantinuke') {
         if (!chat.antinukeAdmins.includes(target)) {
-            return m.reply(
-                `⚠️ @${target.split('@')[0]} non è presente tra gli autorizzati.`,
-                { mentions: [target] }
+            return conn.sendMessage(
+                m.chat,
+                {
+                    text: `⚠️ @${target.split('@')[0]} non è presente tra gli autorizzati.`,
+                    mentions: [target]
+                },
+                { quoted: m }
             )
         }
 
@@ -61,9 +92,16 @@ const handler = async (m, { conn, isOwner }) => {
             jid => jid !== target
         )
 
-        return m.reply(
-            `❌ @${target.split('@')[0]} è stato rimosso dagli autorizzati.`,
-            { mentions: [target] }
+        return conn.sendMessage(
+            m.chat,
+            {
+                text:
+                    `✅ *ANTI-NUKE*\n\n` +
+                    `@${target.split('@')[0]} è stato rimosso dagli autorizzati.\n\n` +
+                    `Da ora le sue modifiche agli amministratori verranno controllate dall'Anti-Nuke.`,
+                mentions: [target]
+            },
+            { quoted: m }
         )
     }
 }
