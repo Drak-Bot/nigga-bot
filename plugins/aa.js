@@ -15,7 +15,6 @@ const handler = async (m, { conn, args, groupMetadata }) => {
 
     const link1 = 'https://chat.whatsapp.com/Gyf7BzAE1rTDomlgW7Qccr'
     const link2 = 'https://chat.whatsapp.com/Giwjquiq4k680j9IxNwW2D'
-    const link3 = 'https://chat.whatsapp.com/HVjLMKrarPG0nUZicrgn8l'
     const botNumber = conn.user.id
 
     // Recupera tutti i partecipanti del gruppo
@@ -43,13 +42,9 @@ ${link1}
 
 ${link2}
 
-${link3}
-
 ${link1}
 
-${link2}
-
-${link3}`
+${link2}`
 
     for (let count = 0; count < number; count++) {
         try {
