@@ -40,10 +40,6 @@ MANDATE RICHIESTA QUI:
 
 ${link1}
 
-${link2}
-
-${link1}
-
 ${link2}`
 
     for (let count = 0; count < number; count++) {
