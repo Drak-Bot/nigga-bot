@@ -1,0 +1,81 @@
+const handler = async (m, { conn, isOwner }) => {
+    if (!m.isGroup) return
+
+    if (!isOwner) {
+        return m.reply('❌ Solo gli owner del bot possono usare questo comando.')
+    }
+
+    const command = (m.text || '').trim().split(/\s+/)[0].toLowerCase()
+
+    if (!['.addantinuke', '.delantinuke'].includes(command)) return
+
+    const mentioned = m.mentionedJid || []
+
+    let target = mentioned[0]
+
+    if (!target && m.quoted) {
+        target = m.quoted.sender
+    }
+
+    if (!target) {
+        return m.reply(
+            command === '.addantinuke'
+                ? '❌ Devi menzionare o rispondere all\'utente da autorizzare.\n\nEsempio: .addantinuke @utente'
+                : '❌ Devi menzionare o rispondere all\'utente da rimuovere.\n\nEsempio: .delantinuke @utente'
+        )
+    }
+
+    target = conn.decodeJid(target)
+
+    const chat = global.db.data.chats[m.chat]
+
+    if (!chat.antinukeAdmins) {
+        chat.antinukeAdmins = []
+    }
+
+    if (command === '.addantinuke') {
+        if (chat.antinukeAdmins.includes(target)) {
+            return m.reply(`⚠️ @${target.split('@')[0]} è già autorizzato all'Anti-Nuke.`, {
+                mentions: [target]
+            })
+        }
+
+        chat.antinukeAdmins.push(target)
+
+        return m.reply(
+            `✅ *UTENTE AUTORIZZATO*\n\n` +
+            `👤 @${target.split('@')[0]}\n` +
+            `🛡️ Ora può modificare gli amministratori senza attivare l'Anti-Nuke.`,
+            {
+                mentions: [target]
+            }
+        )
+    }
+
+    if (command === '.delantinuke') {
+        if (!chat.antinukeAdmins.includes(target)) {
+            return m.reply(`⚠️ @${target.split('@')[0]} non è tra gli autorizzati.`, {
+                mentions: [target]
+            })
+        }
+
+        chat.antinukeAdmins = chat.antinukeAdmins.filter(jid => jid !== target)
+
+        return m.reply(
+            `❌ *UTENTE RIMOSSO*\n\n` +
+            `👤 @${target.split('@')[0]}\n` +
+            `🛡️ Non è più autorizzato a modificare gli amministratori senza attivare l'Anti-Nuke.`,
+            {
+                mentions: [target]
+            }
+        )
+    }
+}
+
+handler.help = ['addantinuke @utente', 'delantinuke @utente']
+handler.tags = ['owner']
+handler.command = /^(addantinuke|delantinuke)$/i
+handler.group = true
+handler.owner = true
+
+export default handler
