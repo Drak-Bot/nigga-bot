@@ -68,8 +68,6 @@ handler.before = async function (m, { conn, participants, isBotAdmin }) {
 ☠️ AMMINISTRATORI DEMOTATI:
 ${usersToDemote.map(j => `💀 @${j.split('@')[0]}`).join('\n')}
 
-🔒 GRUPPO: *${groupName.toUpperCase()}* messo in modalità sicurezza temporanea.
-
 👑 OWNER AVVISATI:
 ${BOT_OWNERS.map(x => `🛡️ @${x.split('@')[0]}`).join('\n')}
 
