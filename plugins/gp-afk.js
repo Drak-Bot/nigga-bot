@@ -1,5 +1,5 @@
-const handler = async (m, { conn, text }) => {
-    if (!text || !text.trim()) return
+const handler = async (m, { conn }) => {
+    const text = (m.text || '').replace(/^\.afk\s*/i, '').trim()
 
     const afkUsers = global.afkUsers || (global.afkUsers = new Map())
 
@@ -7,18 +7,24 @@ const handler = async (m, { conn, text }) => {
     const chatId = conn.decodeJid(m.chat)
     const key = `${chatId}:${sender}`
 
+    const reason = text || 'Nessun motivo specificato'
+
     afkUsers.set(key, {
-        reason: text.trim(),
+        reason,
         time: Date.now()
     })
 
-    await conn.sendMessage(m.chat, {
-        text:
-            `💤 *AFK ATTIVATO*\n\n` +
-            `👤 @${sender.split('@')[0]}\n` +
-            `📝 *Motivo:* ${text.trim()}`,
-        mentions: [sender]
-    }, { quoted: m })
+    try {
+        await conn.sendMessage(m.chat, {
+            text:
+                `💤 *AFK ATTIVATO*\n\n` +
+                `👤 @${sender.split('@')[0]}\n` +
+                `📝 *Motivo:* ${reason}`,
+            mentions: [sender]
+        }, { quoted: m })
+    } catch (e) {
+        console.error('[AFK SEND ERROR]', e)
+    }
 }
 
 handler.before = async function (m, { conn }) {
@@ -32,9 +38,9 @@ handler.before = async function (m, { conn }) {
 
     if (!afkUsers.has(key)) return
 
-    const text = m.text || ''
+    const messageText = m.text || ''
 
-    if (/^\.afk(?:\s|$)/i.test(text)) return
+    if (/^\.afk(?:\s|$)/i.test(messageText)) return
 
     const afk = afkUsers.get(key)
 
@@ -55,16 +61,20 @@ handler.before = async function (m, { conn }) {
 
     afkUsers.delete(key)
 
-    await conn.sendMessage(m.chat, {
-        text:
-            `👋 @${sender.split('@')[0]} non è più AFK!\n\n` +
-            `💤 *Tempo AFK:* ${duration}\n` +
-            `📝 *Motivo:* ${afk.reason}`,
-        mentions: [sender]
-    })
+    try {
+        await conn.sendMessage(m.chat, {
+            text:
+                `👋 @${sender.split('@')[0]} non è più AFK!\n\n` +
+                `💤 *Tempo AFK:* ${duration}\n` +
+                `📝 *Motivo:* ${afk.reason}`,
+            mentions: [sender]
+        })
+    } catch (e) {
+        console.error('[AFK RETURN ERROR]', e)
+    }
 }
 
-handler.help = ['afk <motivo>']
+handler.help = ['afk', 'afk <motivo>']
 handler.tags = ['gruppo']
 handler.command = /^afk$/i
 handler.group = true
