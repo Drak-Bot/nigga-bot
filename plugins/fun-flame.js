@@ -169,16 +169,16 @@ npm i sharp
 
   const generateFlame = (target) => {
     const flames = [
-      `🔊 ${target}, scrivi così piano che i tuoi messaggi arrivano via fax?`,
-      `🎭 ${target}, sembri un bug di sistema... inutile e fastidioso!`,
-      `📱 ${target}, la tua sfiga prende sempre il 5G, complimenti!`,
-      `⚡ ${target}, se la stupidità fosse energia, saresti una centrale elettrica!`,
-      `🤡 ${target}, il circo ha chiamato, dicono che manchi solo tu!`,
-      `⚰️ ${target}, il tuo senso dell'umorismo è morto e sepolto!`,
-      `📡 ${target}, il segnale è arrivato, ma il tuo cervello è ancora in roaming?`,
-      `💅 ${target}, anche i sassi hanno conversazioni più interessanti delle tue!`,
-      `📉 ${target}, la tua dignità sta scendendo più velocemente delle azioni di una banca in crisi!`,
-      `🧟 ${target}, ti hanno mai detto che hai il carisma di un router spento?`
+      `🔊 ${target}, sei così brutto che quando tua mamma ti ha partorito ti ha subito dato alla famiglia affidataria`,
+      `🎭 ${target}, tuo padre è così pentito di aver cresciuto un figlio così handicappato come te, si è pentito di aver sborrato dentro quella sera`,
+      `📱 ${target}, tua madre è così cessa da struccata che quando gli si toglie il trucco sembra uscita dal film "avatar"`,
+      `⚡ ${target}, per quanto sei brutto la tua tipa viene bullizzata a scuola`,
+      `🤡 ${target}, volevi incontrare la tua famiglia biologica, ma quando tua madre ti ha visto pensava di aver incontrato gargamella`,
+      `⚰️ ${target}, sei così tanto stupido che tua mamma ha deciso di diventare suora invece tuo padre è entrato nel club lgbt`,
+      `📡 ${target}, ti faresti abusare anche da red`,
+      `💅 ${target}, ormai ti fai abusare anche dal bot`,
+      `📉 ${target}, tuo padre è così tanto in crisi che ormai quando vede che mi sto scopando tua madre mi fa i complimenti`,
+      `🧟 ${target}, uso tua madre come rasoio per staccare i peli dal cazzo`
     ]
     return flames[Math.floor(Math.random() * flames.length)]
   }
