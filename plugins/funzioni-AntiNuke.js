@@ -64,21 +64,6 @@ handler.before = async function (m, { conn, participants, isBotAdmin }) {
     if (sender === botJid) return
 
     if (!isBotAdmin) {
-        if (sender !== botJid) {
-            for (const owner of BOT_OWNERS) {
-                try {
-                    await conn.sendMessage(owner, {
-                        text:
-                            `⚠️ *ANTI-NUKE ALERT*\n\n` +
-                            `Il bot non dispone più dei privilegi admin nel gruppo.\n\n` +
-                            `👤 Azione eseguita da: @${sender.split('@')[0]}\n` +
-                            `💬 Gruppo: ${m.chat}`,
-                        mentions: [sender]
-                    })
-                } catch {}
-            }
-        }
-
         return
     }
 
