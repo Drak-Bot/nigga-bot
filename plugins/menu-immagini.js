@@ -34,6 +34,7 @@ const handler = async (message, { conn, usedPrefix = '.' }) => {
 ┃ 🃏 ${usedPrefix}simpcard
 ┃ 🏳️‍⚧️ ${usedPrefix}trans
 ┃ 📲 ${usedPrefix}telefono
+┃ 📝 ${usedPrefix}brat
 ╰━━━━━━━━━━━━━━━━⬣
 
 ╭━━━〔 📌 ɪɴғᴏ 〕━⬣
