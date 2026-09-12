@@ -8,7 +8,7 @@ const commands=['kick','puffo','rimuovi','vola','spalumma','sparisci','evapora']
 const cmdRegex=new RegExp(`^(${commands.join('|')})(?:\\s|$)`,'i')
 const footer=text=>`${text}
 
-> *𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓*`
+> *𝑵𝑰𝑮𝑮𝑨-𝑩𝑶𝑻*`
 
 async function kickBox(conn,chatId,{text,mentions=[],quoted=null}={}){
   const thumbnail=await getThumbBuffer('kick')
