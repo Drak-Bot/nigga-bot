@@ -55,7 +55,7 @@ let handler = async (m, { conn }) => {
         m.chat,
         {
             text,
-            footer: '𝛥𝐗𝐈𝚶𝐍 𝚩𝚯𝐓',
+            footer: '𝑵𝑰𝑮𝑮𝑨-𝑩𝑶𝑻',
             buttons,
             headerType: 1,
             mentions: [who]
