@@ -103,6 +103,6 @@ let handler = async (m, { conn, text, isOwner }) => {
 
 handler.command = ['gruppoban'];
 handler.owner = true;
-handler.private = true;
+handler.private = false;
 
 export default handler;
