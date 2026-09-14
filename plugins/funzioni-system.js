@@ -1,5 +1,3 @@
-// Sistema funzioni by Bonzino
-
 import { getThumbBuffer } from '../lib/thumb.js'
 import { createFakeContact } from '../lib/fakecontact.js'
 
@@ -24,12 +22,18 @@ let handler = async (m, { conn, command, args, isAdmin, isOwner, isROwner, usedP
   }
 
   const mentionTag = `@${m.sender.split('@')[0]}`
-  const fakeContact = await createFakeContact(m, conn)
+  
+  let fakeContact = null
+  try {
+    if (m && m.chat && typeof createFakeContact === 'function') {
+      fakeContact = await createFakeContact(m, conn)
+    }
+  } catch (err) {
+    console.error('Errore creazione fakeContact:', err)
+  }
 
-const actor = `👤 ${mentionTag}\n\n`
-
-const box = (_, desc) => desc
-
+  const actor = `👤 ${mentionTag}\n\n`
+  const box = (_, desc) => desc
 
   const alreadyText = label =>
     `*⚠️ 𝐋𝐚 𝐟𝐮𝐧𝐳𝐢𝐨𝐧𝐞 ${label} è 𝐠𝐢à ${isEnable ? '𝐚𝐭𝐭𝐢𝐯𝐚' : '𝐝𝐢𝐬𝐚𝐭𝐭𝐢𝐯𝐚'}.*`
@@ -38,28 +42,27 @@ const box = (_, desc) => desc
     `*${isEnable ? '✅' : '❌'} ${label} ${isEnable ? '𝐚𝐭𝐭𝐢𝐯𝐚𝐭𝐚' : '𝐝𝐢𝐬𝐚𝐭𝐭𝐢𝐯𝐚𝐭𝐚'}*`
 
   const setFeature = (target, key, title, label) => {
+    if (isStatus) {
+      return box(
+        title,
+        `${actor}*${label}:* ${target[key] ? '✅ 𝐀𝐭𝐭𝐢𝐯𝐚' : '❌ 𝐃𝐢𝐬𝐚𝐭𝐭𝐢𝐯𝐚'}`
+      )
+    }
 
-if (isStatus) {
-  return box(
-    title,
-    `${actor}*${label}:* ${target[key] ? '✅ 𝐀𝐭𝐭𝐢𝐯𝐚' : '❌ 𝐃𝐢𝐬𝐚𝐭𝐭𝐢𝐯𝐚'}`
-  )
-}
+    if (target[key] === isEnable) {
+      return box(
+        title,
+        `${actor}${alreadyText(label)}`
+      )
+    }
 
-  if (target[key] === isEnable) {
+    target[key] = isEnable
+
     return box(
       title,
-      `${actor}${alreadyText(label)}`
+      `${actor}${statusText(label)}`
     )
   }
-
-  target[key] = isEnable
-
-  return box(
-    title,
-    `${actor}${statusText(label)}`
-  )
-}
 
   const sendDenied = async text => {
     await conn.sendMessage(m.chat, {
@@ -67,7 +70,7 @@ if (isStatus) {
 
 > *𝑵𝑰𝑮𝑮𝑨-𝑩𝑶𝑻*`,
       mentions: [m.sender]
-    }, { quoted: fakeContact })
+    }, ...(fakeContact ? [{ quoted: fakeContact }] : []))
 
     return false
   }
@@ -86,8 +89,8 @@ if (isStatus) {
 
     return true
   }
-  
-    const requireOwner = async () => {
+
+  const requireOwner = async () => {
     if (!(isOwner || isROwner)) {
       return sendDenied(
         box(
@@ -101,7 +104,6 @@ if (isStatus) {
 
     return true
   }
-
 
   if (!args[0]) {
     throw `*╭━━━━━━━⚙️━━━━━━━╮*
@@ -117,8 +119,8 @@ if (isStatus) {
 *antilink, antispam, antibot*
 *antiporno, antigore, antitrava*
 *antitag, antiprivato, antivoip*
-*antimedia, antiviewonce, *antidelete,*
-*antinuke*, *antiwz*
+*antimedia, antiviewonce, antidelete*
+*antinuke, antiwz*
 *antiinsta, antitelegram*
 *antitiktok*
 
@@ -135,7 +137,6 @@ if (isStatus) {
   let showActivator = true
 
   switch (feature) {
-
     case 'antilink':
       if (!await requireAdmin()) return
       result = setFeature(chat, 'antiLink', '𝐀𝐍𝐓𝐈𝐋𝐈𝐍𝐊', '𝐀𝐧𝐭𝐢𝐥𝐢𝐧𝐤')
@@ -150,23 +151,18 @@ if (isStatus) {
       if (!await requireAdmin()) return
       result = setFeature(chat, 'antimedia', '𝐀𝐍𝐓𝐈 𝐌𝐄𝐃𝐈𝐀', '𝐀𝐧𝐭𝐢 𝐌𝐞𝐝𝐢𝐚')
       break
-      
-      case 'antiviewonce':
+
+    case 'antiviewonce':
       if (!await requireAdmin()) return
       thumbFeature = 'antiviewonce'
       result = setFeature(chat, 'antiviewonce', '𝐀𝐍𝐓𝐈 𝐕𝐈𝐄𝐖 𝐎𝐍𝐂𝐄', '𝐀𝐧𝐭𝐢 𝐕𝐢𝐞𝐰 𝐎𝐧𝐜𝐞')
       break
-      
-      case 'antidelete':
-  if (!await requireAdmin()) return
-  thumbFeature = 'antidelete'
-  result = setFeature(
-    chat,
-    'antidelete',
-    '𝐀𝐍𝐓𝐈 𝐃𝐄𝐋𝐄𝐓𝐄',
-    '𝐀𝐧𝐭𝐢 𝐃𝐞𝐥𝐞𝐭𝐞'
-  )
-  break
+
+    case 'antidelete':
+      if (!await requireAdmin()) return
+      thumbFeature = 'antidelete'
+      result = setFeature(chat, 'antidelete', '𝐀𝐍𝐓𝐈 𝐃𝐄𝐋𝐄𝐓𝐄', '𝐀𝐧𝐭𝐢 𝐃𝐞𝐥𝐞𝐭𝐞')
+      break
 
     case 'antitelegram':
       if (!await requireAdmin()) return
@@ -175,7 +171,7 @@ if (isStatus) {
 
     case 'antitiktok':
       if (!await requireAdmin()) return
-      result = setFeature(chat, 'antiTiktok', '𝐀𝐍𝐓𝐈 𝐓𝐈𝐊𝐓𝐎𝐊', '𝐀𝐧𝐭𝐢 𝐓𝐢𝐤𝐓𝐨𝐤')
+      result = setFeature(chat, 'antiTiktok', '𝐀𝐍𝐓𝐈 𝐓𝐈𝐊𝐓𝐎𝐊', '𝐀𝐧𝐭𝐢 Tik𝐓𝐨𝐤')
       break
 
     case 'antitag':
@@ -211,12 +207,11 @@ if (isStatus) {
       if (!await requireAdmin()) return
       result = setFeature(chat, 'goodbye', '𝐀𝐃𝐃𝐈𝐎', '𝐀𝐝𝐝𝐢𝐨')
       break
-      
-      case 'presentazione':
+
+    case 'presentazione':
       if (!await requireAdmin()) return
-      result = setFeature(
-      chat, 'presentazione', '𝐏𝐑𝐄𝐒𝐄𝐍𝐓𝐀𝐙𝐈𝐎𝐍𝐄',  '𝐏𝐫𝐞𝐬𝐞𝐧𝐭𝐚𝐳𝐢𝐨𝐧𝐞')
-  break
+      result = setFeature(chat, 'presentazione', '𝐏𝐑𝐄𝐒𝐄𝐍𝐓𝐀𝐙𝐈𝐎𝐍𝐄', '𝐏𝐫𝐞𝐬𝐞𝐧𝐭𝐚𝐳𝐢𝐨𝐧𝐞')
+      break
 
     case 'ia':
     case 'ai':
@@ -281,29 +276,12 @@ if (isStatus) {
       if (!await requireOwner()) return
 
       const allState = [
-        chat.antiLink,
-        chat.antispam,
-        chat.antiBot,
-        chat.antiporno,
-        chat.antigore,
-        chat.antitrava,
-        chat.antiTag,
-        chat.antimedia,
-        chat.antidelete,
-        chat.antiviewonce,
-        chat.antinuke,
-        chat.antiWhatsapp,
-        chat.antiInsta,
-        chat.antiTelegram,
-        chat.antiTiktok,
-        chat.antivoip,
-        chat.welcome,
-        chat.presentazione,
-        chat.goodbye,
-        bot.antiprivato,
-        chat.modoadmin,
-        chat.ai,
-        bot.autoDbBackup
+        chat.antiLink, chat.antispam, chat.antiBot, chat.antiporno,
+        chat.antigore, chat.antitrava, chat.antiTag, chat.antimedia,
+        chat.antidelete, chat.antiviewonce, chat.antinuke, chat.antiWhatsapp,
+        chat.antiInsta, chat.antiTelegram, chat.antiTiktok, chat.antivoip,
+        chat.welcome, chat.presentazione, chat.goodbye, bot.antiprivato,
+        chat.modoadmin, chat.ai, bot.autoDbBackup
       ].every(v => v === isEnable)
 
       if (allState) {
@@ -335,8 +313,10 @@ if (isStatus) {
         chat.modoadmin = isEnable
         chat.ai = isEnable
         bot.autoDbBackup = isEnable
+        
         if (typeof global.restartAutoDbBackupLoop === 'function') {
-        global.restartAutoDbBackupLoop(conn)}
+          global.restartAutoDbBackupLoop(conn)
+        }
 
         result = box(
           '𝐓𝐔𝐓𝐓𝐄 𝐋𝐄 𝐏𝐑𝐎𝐓𝐄𝐙𝐈𝐎𝐍𝐈',
@@ -378,11 +358,11 @@ if (isStatus) {
         mentionedJid: showActivator ? [m.sender] : [],
         forwardedNewsletterMessageInfo: {
           newsletterJid: global.rcanal?.contextInfo?.forwardedNewsletterMessageInfo?.newsletterJid || '120363424041538498@newsletter',
-          newsletterName: global.rcanal?.contextInfo?.forwardedNewsletterMessageInfo?.newsletterName || '𝛥𝐗𝐈𝐎𝐍 𝚩𝚯𝐓',
+          newsletterName: global.rcanal?.contextInfo?.forwardedNewsletterMessageInfo?.newsletterName || '𝑵𝑰𝑮𝑮𝑨-𝑩𝑶𝑻',
           serverMessageId: -1
         },
         externalAdReply: {
-          title: '      𝚫𝐗𝐈𝐎𝐍 • 𝐒𝐘𝐒𝐓𝐄𝐌',
+          title: '      𝑵𝑰𝑮𝑮𝑨 • 𝐒𝐘𝐒𝐓𝐄𝐌',
           body: ``,
           ...(thumbnail ? { thumbnail } : {}),
           mediaType: 1,
@@ -390,18 +370,18 @@ if (isStatus) {
           showAdAttribution: false
         }
       }
-    }, { quoted: fakeContact })
+    }, ...(fakeContact ? [{ quoted: fakeContact }] : []))
   } catch (e) {
     console.error('Errore invio preview funzione:', e)
 
     return conn.sendMessage(m.chat, {
       text: result,
       mentions: showActivator ? [m.sender] : []
-    }, { quoted: fakeContact })
+    }, ...(fakeContact ? [{ quoted: fakeContact }] : []))
   }
 }
 
 handler.help = ['attiva <feature>', 'disattiva <feature>']
 handler.tags = ['group']
-handler.command = [  'attiva',  'disattiva',  'enable', 'disable',  '1',  '0',  'statofunzione', 'sf']
+handler.command = ['attiva', 'disattiva', 'enable', 'disable', '1', '0', 'statofunzione', 'sf']
 export default handler
