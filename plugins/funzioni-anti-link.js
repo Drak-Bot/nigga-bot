@@ -1,5 +1,3 @@
-// AntiLink by Bonzino
-
 import { axionSystem,axionFooter } from '../lib/axionsystem.js'
 
 const linkRegex=/(?:https?:\/\/|ftp:\/\/|www\.)\S+|(?:[a-zA-Z0-9-]+\.)+(?:com|it|net|org|info|biz|xyz|me|co|io|tv|gg|dev|app|shop|site|online|store|blog|cloud|ai|uk|us|ru|de|fr|es|nl|eu|ch|ca|au|jp|br|in|tk|ml|ga|cf|gq)(?:\/\S*)?/i
@@ -25,10 +23,15 @@ export async function before(m,{isAdmin,isModerator,isBotAdmin,conn}){
   const text=getMessageText(m)
   if(!text||!linkRegex.test(text))return false
 
-  const reason='link'
-  const data=global.addGroupWarn(m.sender,m.chat,reason,'system')
+  global.db.data.users=global.db.data.users||{}
+  global.db.data.users[m.sender]=global.db.data.users[m.sender]||{}
+  global.db.data.users[m.sender].warnings=global.db.data.users[m.sender].warnings||{}
+  
+  let currentWarns=global.db.data.users[m.sender].warnings[m.chat]||0
+  currentWarns+=1
+  global.db.data.users[m.sender].warnings[m.chat]=currentWarns
+
   const warnLimit=3
-  const warnCount=data.warn
   const mention=`@${global.cleanWarnNumber?global.cleanWarnNumber(m.sender):m.sender.split('@')[0]}`
 
   if(isBotAdmin){
@@ -44,13 +47,13 @@ export async function before(m,{isAdmin,isModerator,isBotAdmin,conn}){
     }catch{}
   }
 
-  if(warnCount<warnLimit){
+  if(currentWarns<warnLimit){
     await axionSystem(conn,m.chat,{
       text:axionFooter(`*❌ 𝐋𝐢𝐧𝐤 𝐫𝐢𝐥𝐞𝐯𝐚𝐭𝐨*
 
 ${mention}
 
-*⚠️ 𝐖𝐚𝐫𝐧:* ${warnCount}/${warnLimit}
+*⚠️ 𝐖𝐚𝐫𝐧:* ${currentWarns}/${warnLimit}
 
 *🚫 𝐀𝐥 𝐭𝐞𝐫𝐳𝐨 𝐰𝐚𝐫𝐧 𝐬𝐚𝐫𝐚𝐢 𝐫𝐢𝐦𝐨𝐬𝐬𝐨 𝐝𝐚𝐥 𝐠𝐫𝐮𝐩𝐩𝐨*`),
       thumb:'antilink',
@@ -60,7 +63,7 @@ ${mention}
     return true
   }
 
-  global.resetGroupWarn(m.sender,m.chat)
+  global.db.data.users[m.sender].warnings[m.chat]=0
 
   if(isBotAdmin){
     try{
