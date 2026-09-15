@@ -1,5 +1,3 @@
-// Antitag by Bonzino
-
 import { axionSystem,axionFooter } from '../lib/axionsystem.js'
 
 let handler=m=>m
@@ -19,11 +17,16 @@ handler.before=async function(m,{conn,isAdmin,isModerator,isBotAdmin,isOwner,isR
   if(isOwner||isROwner||isAdmin||isModerator)return true
   if(m.mentionedJid.length<=40)return false
 
-  const reason='tag eccessivi'
-  const data=global.addGroupWarn(userJid,m.chat,reason,'system')
+  global.db.data.users=global.db.data.users||{}
+  global.db.data.users[userJid]=global.db.data.users[userJid]||{}
+  global.db.data.users[userJid].warnings=global.db.data.users[userJid].warnings||{}
+  
+  let currentWarns=global.db.data.users[userJid].warnings[m.chat]||0
+  currentWarns+=1
+  global.db.data.users[userJid].warnings[m.chat]=currentWarns
+
   const warnLimit=3
-  const warnCount=data.warn
-  const remaining=warnLimit-warnCount
+  const remaining=warnLimit-currentWarns
   const senderTag=global.cleanWarnNumber?global.cleanWarnNumber(userJid):userJid.split('@')[0]
 
   try{
@@ -41,13 +44,13 @@ handler.before=async function(m,{conn,isAdmin,isModerator,isBotAdmin,isOwner,isR
     console.error('Errore nella cancellazione del messaggio:',e)
   }
 
-  if(warnCount<warnLimit){
+  if(currentWarns<warnLimit){
     await axionSystem(conn,m.chat,{
       text:axionFooter(`*@${senderTag}*
 
 *⚠️ 𝐓𝐫𝐨𝐩𝐩𝐢 𝐭𝐚𝐠 𝐧𝐞𝐥 𝐦𝐞𝐬𝐬𝐚𝐠𝐠𝐢𝐨*
 
-*📌 𝐀𝐯𝐯𝐢𝐬𝐨:* *${warnCount}/${warnLimit}*
+*📌 𝐀𝐯𝐯𝐢𝐬𝐨:* *${currentWarns}/${warnLimit}*
 *⏳ 𝐑𝐢𝐦𝐚𝐧𝐞𝐧𝐭𝐢:* *${remaining}*
 
 *🚫 𝐀𝐥𝐥𝐚 𝐩𝐫𝐨𝐬𝐬𝐢𝐦𝐚 𝐯𝐢𝐨𝐥𝐚𝐳𝐢𝐨𝐧𝐞 𝐬𝐚𝐫𝐚𝐢 𝐫𝐢𝐦𝐨𝐬𝐬𝐨*`),
@@ -58,7 +61,7 @@ handler.before=async function(m,{conn,isAdmin,isModerator,isBotAdmin,isOwner,isR
     return true
   }
 
-  global.resetGroupWarn(userJid,m.chat)
+  global.db.data.users[userJid].warnings[m.chat]=0
 
   if(!isBotAdmin){
     await axionSystem(conn,m.chat,{
