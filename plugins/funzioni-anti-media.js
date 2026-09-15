@@ -1,5 +1,3 @@
-// antimedia by Bonzino
-
 import { axionSystem,axionFooter } from '../lib/axionsystem.js'
 
 let handler=m=>m
@@ -24,14 +22,19 @@ handler.before=async(m,{conn,isAdmin,isBotAdmin,isOwner,isROwner})=>{
     await conn.sendMessage(m.chat,{delete:m.key})
   }catch{}
 
-  const reason='media normale non consentito'
-  const data=global.addGroupWarn(m.sender,m.chat,reason,'system')
-  const warn=data.warn
+  global.db.data.users=global.db.data.users||{}
+  global.db.data.users[m.sender]=global.db.data.users[m.sender]||{}
+  global.db.data.users[m.sender].warnings=global.db.data.users[m.sender].warnings||{}
+  
+  let currentWarns=global.db.data.users[m.sender].warnings[m.chat]||0
+  currentWarns+=1
+  global.db.data.users[m.sender].warnings[m.chat]=currentWarns
+
   const maxWarn=3
   const mention=`@${global.cleanWarnNumber?global.cleanWarnNumber(m.sender):m.sender.split('@')[0]}`
 
-  if(warn>=maxWarn){
-    global.resetGroupWarn(m.sender,m.chat)
+  if(currentWarns>=maxWarn){
+    global.db.data.users[m.sender].warnings[m.chat]=0
 
     if(isBotAdmin){
       try{
@@ -72,7 +75,7 @@ ${mention}
 
 ${mention}
 
-*⚠️ 𝐖𝐚𝐫𝐧:* ${warn}/${maxWarn}
+*⚠️ 𝐖𝐚𝐫𝐧:* ${currentWarns}/${maxWarn}
 
 *‼️ 𝐀𝐥 𝐭𝐞𝐫𝐳𝐨 𝐰𝐚𝐫𝐧 𝐬𝐚𝐫𝐚𝐢 𝐫𝐢𝐦𝐨𝐬𝐬𝐨 𝐝𝐚𝐥 𝐠𝐫𝐮𝐩𝐩𝐨*`),
     thumb:'antimedia',
