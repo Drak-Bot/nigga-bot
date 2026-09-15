@@ -1,5 +1,3 @@
-// antiviewonce by Bonzino
-
 import { axionSystem, axionFooter } from '../lib/axionsystem.js'
 
 let HOOKED=false
@@ -32,15 +30,22 @@ global.db.data.chats[chatId] ||= {}
 const chat=global.db.data.chats[chatId]
 if(!chat.antiviewonce)continue
 
-const warns=global.addGroupWarn(sender,chatId,'antiviewonce','system').warn
+global.db.data.users=global.db.data.users||{}
+global.db.data.users[sender]=global.db.data.users[sender]||{}
+global.db.data.users[sender].warnings=global.db.data.users[sender].warnings||{}
+
+let currentWarns=global.db.data.users[sender].warnings[chatId]||0
+currentWarns+=1
+global.db.data.users[sender].warnings[chatId]=currentWarns
+
 const mention=sender.split('@')[0]
 
 try{await conn.sendMessage(chatId,{delete:msg.key})}catch{}
 
-if(warns<3){
+if(currentWarns<3){
 try{
 await axionSystem(conn,chatId,{
-text:axionFooter(`*❌ 𝐕𝐢𝐞𝐰 𝐎𝐧𝐜𝐞 𝐍𝐨𝐧 𝐂𝐨𝐧𝐬𝐞𝐧𝐭𝐢𝐭𝐨*\n\n*@${mention}*\n\n*⚠️ 𝐖𝐚𝐫𝐧:* *${warns}/3*\n\n*📸 𝐈𝐧𝐯𝐢𝐚 𝐢𝐥 𝐦𝐞𝐝𝐢𝐚 𝐢𝐧 𝐦𝐨𝐝𝐚𝐥𝐢𝐭𝐚̀ 𝐧𝐨𝐫𝐦𝐚𝐥𝐞*`),
+text:axionFooter(`*❌ 𝐕𝐢𝐞𝐰 𝐎𝐧𝐜𝐞 𝐍𝐨𝐧 𝐂𝐨𝐧𝐬𝐞𝐧𝐭𝐢𝐭𝐨*\n\n*@${mention}*\n\n*⚠️ 𝐖𝐚𝐫𝐧:* *${currentWarns}/3*\n\n*📸 𝐈𝐧𝐯𝐢𝐚 𝐢𝐥 𝐦𝐞𝐝𝐢𝐚 𝐢𝐧 𝐦𝐨𝐝𝐚𝐥𝐢𝐭𝐚̀ 𝐧𝐨𝐫𝐦𝐚𝐥𝐞*`),
 thumb:'antiviewonce',
 mentions:[sender]
 })
@@ -48,7 +53,7 @@ mentions:[sender]
 continue
 }
 
-global.resetGroupWarn(sender,chatId)
+global.db.data.users[sender].warnings[chatId]=0
 
 try{
 await axionSystem(conn,chatId,{
