@@ -1,5 +1,3 @@
-// AntiTrava by Bonzino
-
 import { axionSystem, axionFooter } from '../lib/axionsystem.js'
 
 let handler=m=>m
