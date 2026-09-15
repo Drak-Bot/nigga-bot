@@ -1,19 +1,17 @@
-// anti-delete by Bonzino
-
 import { axionSystem, axionFooter } from '../lib/axionsystem.js'
 
 const formatBytes = bytes => {
 if (!bytes) return '0 B'
 const sizes = ['B', 'KB', 'MB', 'GB']
 const i = Math.floor(Math.log(bytes) / Math.log(1024))
-return "${(bytes / Math.pow(1024, i)).toFixed(i ? 2 : 0)} ${sizes[i]}"
+return `${(bytes / Math.pow(1024, i)).toFixed(i ? 2 : 0)} ${sizes[i]}`
 }
 
 const formatDuration = seconds => {
 if (!seconds) return '00:00'
 const m = Math.floor(seconds / 60)
 const s = seconds % 60
-return "${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}"
+return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`
 }
 
 const formatTime = timestamp => {
