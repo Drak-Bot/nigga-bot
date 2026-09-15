@@ -1,5 +1,3 @@
-// AntiTiktok by Bonzino
-
 import { axionSystem,axionFooter } from '../lib/axionsystem.js'
 
 const tiktokRegex=/(?:https?:\/\/|www\.)[^\s]*tiktok[^\s]*|(?:^|\s)[^\s]*tiktok[^\s]*\.(com|it|net|org|ru|me|co|io|tv)(?:\/[^\s]*)?/i
