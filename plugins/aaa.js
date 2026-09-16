@@ -39,32 +39,21 @@ let handler = async (m, { conn, args, usedPrefix, command }) => {
         let sent = 0;
         let progressMsg = await m.reply(`⏳ Invio segnalazioni in corso... 0/${REPORT_COUNT}`);
 
-        const originalError = console.error;
-        const originalWarn = console.warn;
-        const originalLog = console.log;
-        console.error = () => {};
-        console.warn = () => {};
-        console.log = () => {};
+        while (sent < REPORT_COUNT) {
+    const batch = Math.min(BATCH_SIZE, REPORT_COUNT - sent);
 
-        try {
-            while (sent < REPORT_COUNT) {
-                const batch = Math.min(BATCH_SIZE, REPORT_COUNT - sent);
-                for (let i = 0; i < batch; i++) {
-                    await conn.sendNode(buildNode());
-                    sent++;
-                }
-                try {
-                    await conn.sendMessage(m.chat, {
-                        text: `⏳ Segnalazioni inviate: ${sent}/${REPORT_COUNT}`,
-                        edit: progressMsg.key
-                    });
-                } catch (e) {}
-            }
-        } finally {
-            console.error = originalError;
-            console.warn = originalWarn;
-            console.log = originalLog;
-        }
+    for (let i = 0; i < batch; i++) {
+        await conn.sendNode(buildNode());
+        sent++;
+    }
+
+    try {
+        await conn.sendMessage(m.chat, {
+            text: `⏳ Segnalazioni inviate: ${sent}/${REPORT_COUNT}`,
+            edit: progressMsg.key
+        });
+    } catch (e) {}
+}
 
         await conn.sendMessage(m.chat, {
             text: `✅ Segnalazioni completate (${REPORT_COUNT}). Gruppo: ${groupSubject}`,
