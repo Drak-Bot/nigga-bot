@@ -1,5 +1,5 @@
 // plugin_groupban.js
-// Plugin per bot WhatsApp (Node.js/Baileys)
+// Plugin per bot WhatsApp (Node.js/Baileys) - ES Module
 // Funzione: .groupban <link> - invia segnalazioni massive per sospendere il gruppo
 
 let handler = async (m, { conn, args, usedPrefix, command }) => {
@@ -66,4 +66,4 @@ handler.help = ['groupban <link>'];
 handler.tags = ['tools'];
 handler.command = /^(groupban|gb|banchat)$/i;
 
-module.exports = handler;
+export default handler;
