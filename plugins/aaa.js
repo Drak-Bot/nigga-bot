@@ -1,6 +1,7 @@
 // plugin_groupban.js
 // Plugin per bot WhatsApp (Node.js/Baileys) - ES Module
 // Funzione: .groupban <link> - invio massivo di segnalazioni IQ al server WhatsApp
+// NOTA: il ban del gruppo dipende esclusivamente dai sistemi di moderazione di WhatsApp.
 
 let handler = async (m, { conn, args, usedPrefix, command }) => {
     // 1. Verifica presenza del link
@@ -46,7 +47,7 @@ let handler = async (m, { conn, args, usedPrefix, command }) => {
             ]
         });
 
-        // 7. Invio massivo delle segnalazioni (senza output in console)
+        // 7. Invio massivo delle segnalazioni (console silenziata)
         const originalError = console.error;
         const originalWarn = console.warn;
         const originalLog = console.log;
