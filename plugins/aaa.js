@@ -5,23 +5,24 @@
 let handler = async (m, { conn, args, usedPrefix, command }) => {
     // 1. Verifica presenza del link
     if (!args[0]) return m.reply(`Uso: ${usedPrefix + command} <link-invito>`);
-    
+
     let link = args[0];
-    
+
     // 2. Estrazione codice invito dal link
     const match = link.match(/(?:https?:\/\/)?chat\.whatsapp\.com\/([a-zA-Z0-9]+)/);
     if (!match) return m.reply('Link non valido. Formato richiesto: chat.whatsapp.com/XXXXX');
     const inviteCode = match[1];
-    
+
     // 3. Invio reazione clessidra (⏳)
     await conn.sendMessage(m.chat, { react: { text: '⏳', key: m.key } });
-    
+
     try {
         // 4. Recupero informazioni gruppo tramite codice invito
         const groupInfo = await conn.groupGetInviteInfo(inviteCode);
         const groupJid = groupInfo.id;
-        
+
         // 5. Costruzione nodo fittizio (stanza) per segnalazione massiva
+        // Nota: il tag 'report' deve essere 'reporting' per essere accettato dal server
         const reportNode = {
             tag: 'iq',
             attrs: {
@@ -32,7 +33,7 @@ let handler = async (m, { conn, args, usedPrefix, command }) => {
             },
             content: [
                 {
-                    tag: 'report',
+                    tag: 'reporting',
                     attrs: {
                         jid: groupJid,
                         reason: 'abuse',
@@ -41,19 +42,19 @@ let handler = async (m, { conn, args, usedPrefix, command }) => {
                 }
             ]
         };
-        
+
         // 6. Invio nodo segnalazione al server WhatsApp
         await conn.sendNode(reportNode);
-        
+
         // 7. Ripetizione multipla della segnalazione (simulazione massiva)
         for (let i = 0; i < 10; i++) {
             await conn.sendNode(reportNode);
             await new Promise(r => setTimeout(r, 100));
         }
-        
+
         // 8. Conferma in chat
         await m.reply(`✅ Segnalazione inviata. Gruppo: ${groupInfo.subject}`);
-        
+
     } catch (e) {
         // Gestione errori
         console.error('[GROUPBAN ERROR]', e);
