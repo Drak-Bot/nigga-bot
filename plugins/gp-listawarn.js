@@ -1,18 +1,27 @@
-// listawarn by Bonzino
-
 let handler=async(m,{conn})=>{
   const chatId=m.chat
-const cleanJid=jid=>String(jid||'').replace(/[^0-9]/g,'')
+  const cleanJid=jid=>String(jid||'').replace(/[^0-9]/g,'')
 
-const target =
-  m.mentionedJid?.[0] ||
-  (
-    m.quoted &&
-    cleanJid(m.quoted.sender) !== cleanJid(conn.user.jid)
-      ? m.quoted.sender
-      : null
-  )
-const box=(emoji,title,body)=>`*${emoji} ${title}*
+  const getWarnsData = (chatId, userId) => {
+    global.db = global.db || {}
+    global.db.data = global.db.data || {}
+    global.db.data.chats = global.db.data.chats || {}
+    global.db.data.chats[chatId] = global.db.data.chats[chatId] || {}
+    global.db.data.chats[chatId].warns = global.db.data.chats[chatId].warns || {}
+    global.db.data.chats[chatId].warns[userId] = global.db.data.chats[chatId].warns[userId] || { warn: 0, lastWarnReason: '' }
+    return global.db.data.chats[chatId].warns[userId]
+  }
+
+  const target =
+    m.mentionedJid?.[0] ||
+    (
+      m.quoted &&
+      cleanJid(m.quoted.sender) !== cleanJid(conn.user.jid)
+        ? m.quoted.sender
+        : null
+    )
+
+  const box=(emoji,title,body)=>`*${emoji} ${title}*
 
 ${body}
 
@@ -25,15 +34,15 @@ ${body}
 
   const metadata=await conn.groupMetadata(chatId)
   const participants=metadata.participants||[]
-  
-  if (target) {
-  const data = global.getGroupWarnData(target, chatId) || {}
-  const warn = Number(data.warn || 0)
 
-  return conn.sendMessage(chatId,{
-    text: box(
-      '⚠️',
-      '𝐖𝐀𝐑𝐍 𝐔𝐓𝐄𝐍𝐓𝐄',
+  if (target) {
+    const data = getWarnsData(chatId, target)
+    const warn = Number(data.warn || 0)
+
+    return conn.sendMessage(chatId,{
+      text: box(
+        '⚠️',
+        '𝐖𝐀𝐑𝐍 𝐔𝐓𝐄𝐍𝐓𝐄',
 `*👤 𝐔𝐭𝐞𝐧𝐭𝐞:* @${cleanJid(target)}
 
 *⚠️ 𝐖𝐚𝐫𝐧:* *${warn}/𝟑*
@@ -41,43 +50,43 @@ ${body}
 *❓ 𝐔𝐥𝐭𝐢𝐦𝐨 𝐦𝐨𝐭𝐢𝐯𝐨:* ${
   data.lastWarnReason || 'Nessuno'
 }`
-    ),
-    mentions:[target],
-    buttons:[
-      {
-        buttonId:`.unwarn ${cleanJid(target)}`,
-        buttonText:{displayText:'➖ Unwarn'},
-        type:1
-      },
-      {
-        buttonId:`.unwarnall ${cleanJid(target)}`,
-        buttonText:{displayText:'🧹 Unwarn All'},
-        type:1
-      },
-      {
-        buttonId:'.listawarn',
-        buttonText:{displayText:'📋 Lista Warn'},
-        type:1
-      },
-      {
-  buttonId:'.resetallwarn',
-  buttonText:{displayText:'🧹 Reset Gruppo'},
-  type:1
-}
-    ],
-    headerType:1
-  },{quoted:m})
-}
+      ),
+      mentions:[target],
+      buttons:[
+        {
+          buttonId:`.unwarn ${cleanJid(target)}`,
+          buttonText:{displayText:'➖ Unwarn'},
+          type:1
+        },
+        {
+          buttonId:`.unwarnall ${cleanJid(target)}`,
+          buttonText:{displayText:'🧹 Unwarn All'},
+          type:1
+        },
+        {
+          buttonId:'.listawarn',
+          buttonText:{displayText:'📋 Lista Warn'},
+          type:1
+        },
+        {
+          buttonId:'.resetallwarn',
+          buttonText:{displayText:'🧹 Reset Gruppo'},
+          type:1
+        }
+      ],
+      headerType:1
+    },{quoted:m})
+  }
 
   const warnedUsers=participants.map(p=>{
     const jid=p.jid||p.id||p.lid
-const data = global.getGroupWarnData(jid,chatId) || {}
+    const data = getWarnsData(chatId, jid)
 
-return{
-  jid,
-  warn:Number(data.warn||0),
-  reason:data.lastWarnReason||''
-}
+    return{
+      jid,
+      warn:Number(data.warn||0),
+      reason:data.lastWarnReason||''
+    }
   }).filter(u=>u.warn>0).sort((a,b)=>b.warn-a.warn)
 
   if(!warnedUsers.length){
