@@ -2,8 +2,11 @@ import { getThumbBuffer } from '../lib/thumb.js'
 import { createFakeContact } from '../lib/fakecontact.js'
 
 const getWarnsData = (chatId, userId) => {
-  global.db = global.db || { data: { chats: {} } }
-  global.db.data.chats[chatId] = global.db.data.chats[chatId] || { warns: {} }
+  global.db = global.db || {}
+  global.db.data = global.db.data || {}
+  global.db.data.chats = global.db.data.chats || {}
+  global.db.data.chats[chatId] = global.db.data.chats[chatId] || {}
+  global.db.data.chats[chatId].warns = global.db.data.chats[chatId].warns || {}
   global.db.data.chats[chatId].warns[userId] = global.db.data.chats[chatId].warns[userId] || { warn: 0 }
   return global.db.data.chats[chatId].warns[userId]
 }
