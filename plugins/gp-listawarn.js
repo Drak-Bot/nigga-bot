@@ -1,4 +1,4 @@
-let handler=async(m,{conn})=>{
+let handler=async(m,{conn,command,usedPrefix})=>{
   const chatId=m.chat
   const cleanJid=jid=>String(jid||'').replace(/[^0-9]/g,'')
 
@@ -12,6 +12,25 @@ let handler=async(m,{conn})=>{
     return global.db.data.chats[chatId].warns[userId]
   }
 
+  const box=(emoji,title,body)=>`*${emoji} ${title}*
+
+${body}
+
+> *𝑵𝑰𝑮𝑮𝑨-𝑩𝑶𝑻*`
+
+  if(/resetallwarn|delallwarn|unwarnallgroup/i.test(command)){
+    global.db = global.db || {}
+    global.db.data = global.db.data || {}
+    global.db.data.chats = global.db.data.chats || {}
+    global.db.data.chats[chatId] = global.db.data.chats[chatId] || {}
+    global.db.data.chats[chatId].warns = {}
+
+    return conn.sendMessage(chatId,{
+      text:box('🧹','𝐑𝐄𝐒𝐄𝐓 𝐖𝐀𝐑𝐍','*𝐓𝐮𝐭𝐭𝐢 i warn sono stati azzerati con successo per questo gruppo.*'),
+      headerType:1
+    },{quoted:m})
+  }
+
   const target =
     m.mentionedJid?.[0] ||
     (
@@ -21,15 +40,9 @@ let handler=async(m,{conn})=>{
         : null
     )
 
-  const box=(emoji,title,body)=>`*${emoji} ${title}*
-
-${body}
-
-> *𝑵𝑰𝑮𝑮𝑨-𝑩𝑶𝑻*`
-
   const warnListButtons=()=>[
-    {buttonId:'.resetallwarn',buttonText:{displayText:'🧹 Azzera tutti i warn'},type:1},
-    {buttonId:'.listawarn',buttonText:{displayText:'🔄 Aggiorna lista'},type:1}
+    {buttonId:`${usedPrefix}resetallwarn`,buttonText:{displayText:'🧹 Azzera tutti i warn'},type:1},
+    {buttonId:`${usedPrefix}listawarn`,buttonText:{displayText:'🔄 Aggiorna lista'},type:1}
   ]
 
   const metadata=await conn.groupMetadata(chatId)
@@ -47,29 +60,27 @@ ${body}
 
 *⚠️ 𝐖𝐚𝐫𝐧:* *${warn}/𝟑*
 
-*❓ 𝐔𝐥𝐭𝐢𝐦𝐨 𝐦𝐨𝐭𝐢𝐯𝐨:* ${
-  data.lastWarnReason || 'Nessuno'
-}`
+*❓ 𝐔𝐥𝐭𝐢𝐦𝐨 𝐦𝐨𝐭𝐢𝐯𝐨:* ${data.lastWarnReason || 'Nessuno'}`
       ),
       mentions:[target],
       buttons:[
         {
-          buttonId:`.unwarn ${cleanJid(target)}`,
+          buttonId:`${usedPrefix}unwarn ${cleanJid(target)}`,
           buttonText:{displayText:'➖ Unwarn'},
           type:1
         },
         {
-          buttonId:`.unwarnall ${cleanJid(target)}`,
+          buttonId:`${usedPrefix}unwarnall ${cleanJid(target)}`,
           buttonText:{displayText:'🧹 Unwarn All'},
           type:1
         },
         {
-          buttonId:'.listawarn',
+          buttonId:`${usedPrefix}listawarn`,
           buttonText:{displayText:'📋 Lista Warn'},
           type:1
         },
         {
-          buttonId:'.resetallwarn',
+          buttonId:`${usedPrefix}resetallwarn`,
           buttonText:{displayText:'🧹 Reset Gruppo'},
           type:1
         }
@@ -91,7 +102,7 @@ ${body}
 
   if(!warnedUsers.length){
     return conn.sendMessage(chatId,{
-      text:box('✅','𝐋𝐈𝐒𝐓𝐀 𝐖𝐀𝐑𝐍',`*𝐍𝐞𝐬𝐬𝐮𝐧 𝐮𝐭𝐞𝐧𝐭𝐞 𝐰𝐚𝐫𝐧𝐚𝐭𝐨 𝐢𝐧 𝐪𝐮𝐞𝐬𝐭𝐨 𝐠𝐫𝐮𝐩𝐩𝐨.*`),
+      text:box('✅','𝐋𝐈𝐒𝐓𝐀 𝐖𝐀𝐑𝐍','*𝐍𝐞𝐬𝐬𝐮𝐧 𝐮𝐭𝐞𝐧𝐭𝐞 𝐰𝐚𝐫𝐧𝐚𝐭𝐨 𝐢𝐧 𝐪𝐮𝐞𝐬𝐭𝐨 𝐠𝐫𝐮𝐩𝐩𝐨.*'),
       buttons:warnListButtons(),
       headerType:1
     },{quoted:m})
@@ -114,7 +125,7 @@ ${body}
   },{quoted:m})
 }
 
-handler.command=/^(listwarn|warnlist|listawarn)$/i
+handler.command=/^(listwarn|warnlist|listawarn|resetallwarn|delallwarn|unwarnallgroup)$/i
 handler.group=true
 handler.admin=true
 
