@@ -1,7 +1,12 @@
-// warn-unwarn by Bonzino
-
 import { getThumbBuffer } from '../lib/thumb.js'
 import { createFakeContact } from '../lib/fakecontact.js'
+
+const getWarnsData = (chatId, userId) => {
+  global.db = global.db || { data: { chats: {} } }
+  global.db.data.chats[chatId] = global.db.data.chats[chatId] || { warns: {} }
+  global.db.data.chats[chatId].warns[userId] = global.db.data.chats[chatId].warns[userId] || { warn: 0 }
+  return global.db.data.chats[chatId].warns[userId]
+}
 
 let handler=async(m,{conn,command,text,usedPrefix})=>{
   const chatId=m.chat
@@ -80,11 +85,12 @@ let handler=async(m,{conn,command,text,usedPrefix})=>{
   const reasonText=reason?.trim()?reason.trim():'𝐍𝐞𝐬𝐬𝐮𝐧 𝐦𝐨𝐭𝐢𝐯𝐨 𝐬𝐩𝐞𝐜𝐢𝐟𝐢𝐜𝐚𝐭𝐨'
 
   if(command==='warn'){
-    const data=global.addGroupWarn(displayJid,chatId,reasonText,m.sender)
-    const warn=data.warn
+    const userWarns = getWarnsData(chatId, displayJid)
+    userWarns.warn += 1
+    const warn = userWarns.warn
 
     if(warn>=3){
-      global.resetGroupWarn(displayJid,chatId)
+      userWarns.warn = 0
       await conn.groupParticipantsUpdate(chatId,[displayJid],'remove')
       return conn.sendMessage(chatId,{
         text:box(`*🚨 𝐔𝐭𝐞𝐧𝐭𝐞 𝐞𝐬𝐩𝐮𝐥𝐬𝐨*
@@ -117,15 +123,15 @@ let handler=async(m,{conn,command,text,usedPrefix})=>{
   }
 
   if(command==='unwarn'){
-    const current=global.getGroupWarn(displayJid,chatId)
-    if(current<=0)return conn.reply(chatId,box(`*⚠️ 𝐋’𝐮𝐭𝐞𝐧𝐭𝐞 𝐧𝐨𝐧 𝐡𝐚 𝐰𝐚𝐫𝐧 𝐝𝐚 𝐫𝐢𝐦𝐮𝐨𝐯𝐞𝐫𝐞.*`),m)
+    const userWarns = getWarnsData(chatId, displayJid)
+    if(userWarns.warn<=0)return conn.reply(chatId,box(`*⚠️ 𝐋’𝐮𝐭𝐞𝐧𝐭𝐞 𝐧𝐨𝐧 𝐡𝐚 𝐰𝐚𝐫𝐧 𝐝𝐚 𝐫𝐢𝐦𝐮𝐨𝐯𝐞𝐫𝐞.*`),m)
 
-    const data=global.removeGroupWarn(displayJid,chatId)
+    userWarns.warn -= 1
     return conn.sendMessage(chatId,{
       text:box(`*✅ 𝐖𝐀𝐑𝐍 𝐑𝐈𝐌𝐎𝐒𝐒𝐎*
 
 *👤 𝐔𝐭𝐞𝐧𝐭𝐞:* ${tag}
-*📊 𝐒𝐭𝐚𝐭𝐨:* *${data.warn}/𝟑 𝐰𝐚𝐫𝐧*`),
+*📊 𝐒𝐭𝐚𝐭𝐨:* *${userWarns.warn}/𝟑 𝐰𝐚𝐫𝐧*`),
       mentions:[displayJid],
       buttons:unwarnButtons(displayJid),
       headerType:1,
