@@ -1,445 +1,539 @@
 import yts from 'yt-search'
-import fs from 'fs'
-import path from 'path'
-import os from 'os'
-import { execFile } from 'child_process'
-import { promisify } from 'util'
 
-const execFileAsync = promisify(execFile)
-
-const PROVIDERS = [
-  {
-    url: 'https://api.cobalt.tools',
-    endpoint: '/',
-    version: 'modern'
-  },
-  {
-    url: 'https://api.cobalt.tools',
-    endpoint: '/api/json',
-    version: 'legacy'
-  }
-]
-
-const TIMEOUT = 30000
-const DOWNLOAD_TIMEOUT = 120000
-const MAX_VIDEO = 200 * 1024 * 1024
-const MAX_AUDIO = 50 * 1024 * 1024
+const MAX_FILE_SIZE = 100 * 1024 * 1024
+const TIMEOUT = 25000
 
 const clean = value =>
   String(value || '')
-    .replace(/[\\/:*?"<>|]/g, '')
     .replace(/\s+/g, ' ')
     .trim()
 
-const request = async (url, options = {}, timeout = TIMEOUT) => {
+const sleep = ms =>
+  new Promise(resolve => setTimeout(resolve, ms))
+
+function isYoutubeUrl(value) {
+  return /^https?:\/\/(www\.)?(youtube\.com|youtu\.be)\//i.test(value)
+}
+
+function getVideoId(url) {
+  try {
+    const u = new URL(url)
+
+    if (u.hostname.includes('youtu.be')) {
+      return u.pathname.replace('/', '').trim()
+    }
+
+    return u.searchParams.get('v') || null
+  } catch {
+    return null
+  }
+}
+
+function safeFileName(value, extension) {
+  const name = clean(value)
+    .replace(/[<>:"/\\|?*\x00-\x1F]/g, '')
+    .replace(/[. ]+$/g, '')
+    .slice(0, 120)
+
+  return `${name || 'NIGGA-BOT'}.${extension}`
+}
+
+async function fetchJson(url, options = {}, timeout = TIMEOUT) {
   const controller = new AbortController()
-  const timer = setTimeout(
-    () => controller.abort(),
-    timeout
-  )
+  const timer = setTimeout(() => controller.abort(), timeout)
 
   try {
-    return await fetch(url, {
+    const response = await fetch(url, {
       ...options,
       signal: controller.signal,
       headers: {
-        'User-Agent':
-          'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/131 Safari/537.36',
-        Accept: '*/*',
+        Accept: 'application/json,text/plain,*/*',
+        'User-Agent': 'Mozilla/5.0',
         ...(options.headers || {})
       }
     })
+
+    const text = await response.text()
+
+    let data = null
+
+    try {
+      data = JSON.parse(text)
+    } catch {
+      data = null
+    }
+
+    if (!response.ok) {
+      throw new Error(
+        `HTTP ${response.status}${text ? `: ${text.slice(0, 300)}` : ''}`
+      )
+    }
+
+    return {
+      response,
+      data,
+      text
+    }
   } finally {
     clearTimeout(timer)
   }
 }
 
-const searchYoutube = async query => {
-  if (/^https?:\/\//i.test(query)) {
-    try {
-      const result = await yts(query)
+async function fetchBuffer(url, timeout = TIMEOUT) {
+  const controller = new AbortController()
+  const timer = setTimeout(() => controller.abort(), timeout)
 
-      const video =
-        result.videos?.find(
-          x => x.url === query
-        ) ||
-        result.videos?.[0]
-
-      if (video) {
-        return {
-          url: video.url,
-          title: video.title || 'YouTube',
-          duration: video.timestamp || '',
-          thumbnail: video.thumbnail || null,
-          author:
-            video.author?.name ||
-            'YouTube'
-        }
+  try {
+    const response = await fetch(url, {
+      signal: controller.signal,
+      headers: {
+        Accept: '*/*',
+        'User-Agent': 'Mozilla/5.0'
       }
-    } catch {}
+    })
+
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}`)
+    }
+
+    const contentLength = Number(
+      response.headers.get('content-length') || 0
+    )
+
+    if (contentLength > MAX_FILE_SIZE) {
+      throw new Error('File troppo grande')
+    }
+
+    const arrayBuffer = await response.arrayBuffer()
+    const buffer = Buffer.from(arrayBuffer)
+
+    if (!buffer.length) {
+      throw new Error('File vuoto')
+    }
+
+    if (buffer.length > MAX_FILE_SIZE) {
+      throw new Error('File troppo grande')
+    }
 
     return {
-      url: query,
-      title: 'YouTube',
-      duration: '',
-      thumbnail: null,
-      author: 'YouTube'
+      buffer,
+      contentType:
+        response.headers.get('content-type') ||
+        'application/octet-stream'
     }
-  }
-
-  const result = await yts(query)
-
-  if (!result?.videos?.length) {
-    throw new Error(
-      'Nessun risultato trovato su YouTube.'
-    )
-  }
-
-  const video = result.videos[0]
-
-  return {
-    url: video.url,
-    title: video.title || 'YouTube',
-    duration: video.timestamp || '',
-    thumbnail: video.thumbnail || null,
-    author:
-      video.author?.name ||
-      'YouTube'
+  } finally {
+    clearTimeout(timer)
   }
 }
 
-const parseResponse = async response => {
-  const raw = await response.text()
+function findUrlDeep(value, wanted = 'video') {
+  if (!value) {
+    return null
+  }
+
+  if (typeof value === 'string') {
+    if (!/^https?:\/\//i.test(value)) {
+      return null
+    }
+
+    const lower = value.toLowerCase()
+
+    if (
+      wanted === 'audio' &&
+      (
+        lower.includes('.mp3') ||
+        lower.includes('.m4a') ||
+        lower.includes('.aac') ||
+        lower.includes('.ogg') ||
+        lower.includes('audio')
+      )
+    ) {
+      return value
+    }
+
+    if (
+      wanted === 'video' &&
+      (
+        lower.includes('.mp4') ||
+        lower.includes('.webm') ||
+        lower.includes('.mkv') ||
+        lower.includes('video')
+      )
+    ) {
+      return value
+    }
+
+    return null
+  }
+
+  if (Array.isArray(value)) {
+    for (const item of value) {
+      const result = findUrlDeep(item, wanted)
+
+      if (result) {
+        return result
+      }
+    }
+
+    return null
+  }
+
+  if (typeof value === 'object') {
+    const priority = wanted === 'audio'
+      ? [
+          'audioUrl',
+          'audio_url',
+          'mp3',
+          'mp3Url',
+          'downloadUrl',
+          'download_url',
+          'url'
+        ]
+      : [
+          'videoUrl',
+          'video_url',
+          'mp4',
+          'mp4Url',
+          'downloadUrl',
+          'download_url',
+          'url'
+        ]
+
+    for (const key of priority) {
+      if (value[key]) {
+        const result = findUrlDeep(value[key], wanted)
+
+        if (result) {
+          return result
+        }
+      }
+    }
+
+    for (const key of Object.keys(value)) {
+      const result = findUrlDeep(value[key], wanted)
+
+      if (result) {
+        return result
+      }
+    }
+  }
+
+  return null
+}
+
+async function providerAllDl(url, type) {
+  const endpoint =
+    `https://ahm7xmakki.com/api/alldl?url=${encodeURIComponent(url)}`
+
+  const result = await fetchJson(endpoint)
+
+  if (!result.data) {
+    throw new Error('Risposta non JSON')
+  }
+
+  const wanted = type === 'audio'
+    ? 'audio'
+    : 'video'
+
+  const downloadUrl = findUrlDeep(result.data, wanted)
+
+  if (!downloadUrl) {
+    throw new Error('Nessun link multimediale')
+  }
+
+  return {
+    url: downloadUrl,
+    provider: 'AllDL'
+  }
+}
+
+async function providerOldYoutubeApi(url, type) {
+  const base =
+    'https://youtube-download-api.matheusishiyama.repl.co'
+
+  const endpoint =
+    `${base}/${type === 'audio' ? 'mp3' : 'mp4'}/?url=${encodeURIComponent(url)}`
+
+  const response = await fetch(endpoint, {
+    redirect: 'follow',
+    headers: {
+      'User-Agent': 'Mozilla/5.0'
+    }
+  })
+
+  if (!response.ok) {
+    throw new Error(`HTTP ${response.status}`)
+  }
+
+  const contentType =
+    response.headers.get('content-type') || ''
+
+  if (
+    contentType.includes('audio') ||
+    contentType.includes('video') ||
+    contentType.includes('octet-stream')
+  ) {
+    const arrayBuffer = await response.arrayBuffer()
+    const buffer = Buffer.from(arrayBuffer)
+
+    if (!buffer.length) {
+      throw new Error('File vuoto')
+    }
+
+    if (buffer.length > MAX_FILE_SIZE) {
+      throw new Error('File troppo grande')
+    }
+
+    return {
+      buffer,
+      contentType,
+      provider: 'YouTube Download API'
+    }
+  }
+
+  const text = await response.text()
 
   let data = null
 
   try {
-    data = JSON.parse(raw)
+    data = JSON.parse(text)
   } catch {}
 
-  if (!response.ok) {
-    const message =
-      data?.text ||
-      data?.message ||
-      data?.error?.message ||
-      data?.error ||
-      raw ||
-      `HTTP ${response.status}`
-
-    throw new Error(
-      `HTTP ${response.status}: ${message}`
+  const downloadUrl =
+    findUrlDeep(data, type === 'audio' ? 'audio' : 'video') ||
+    (
+      /^https?:\/\//i.test(text.trim())
+        ? text.trim()
+        : null
     )
-  }
 
-  if (!data) {
-    throw new Error(
-      'Il provider ha restituito una risposta non JSON.'
-    )
-  }
-
-  if (
-    data.status === 'error' ||
-    data.status === 'rate-limit'
-  ) {
-    throw new Error(
-      data.text ||
-      data.message ||
-      data.error?.message ||
-      `Provider ${data.status}`
-    )
-  }
-
-  const url =
-    data.url ||
-    data.audio ||
-    data.downloadUrl ||
-    data.download?.url ||
-    data.result?.url ||
-    data.result?.downloadUrl
-
-  if (!url) {
-    throw new Error(
-      'Il provider non ha restituito un URL di download.'
-    )
+  if (!downloadUrl) {
+    throw new Error('Nessun download disponibile')
   }
 
   return {
-    url,
-    filename:
-      data.filename ||
-      data.download?.filename ||
-      null,
-    status:
-      data.status ||
-      'success'
+    url: downloadUrl,
+    provider: 'YouTube Download API'
   }
 }
 
-const cobalt = async (
-  provider,
-  youtubeUrl,
-  mode
-) => {
+async function providerNajemi(url, type) {
   const endpoint =
-    provider.url.replace(/\/$/, '') +
-    provider.endpoint
+    `https://najemi.cz/ytdl/handler.php?url=${encodeURIComponent(url)}`
 
-  let body
-
-  if (provider.version === 'modern') {
-    body = {
-      url: youtubeUrl,
-      downloadMode:
-        mode === 'audio'
-          ? 'audio'
-          : 'auto',
-      audioFormat: 'mp3',
-      audioBitrate: '128',
-      videoQuality: '720',
-      youtubeVideoCodec: 'h264',
-      filenameStyle: 'pretty',
-      disableMetadata: false
+  const response = await fetch(endpoint, {
+    redirect: 'follow',
+    headers: {
+      'User-Agent': 'Mozilla/5.0'
     }
-  } else {
-    body = {
-      url: youtubeUrl,
-      vCodec: 'h264',
-      vQuality: '720',
-      aFormat: 'mp3',
-      isAudioOnly: mode === 'audio',
-      filenamePattern: 'pretty',
-      disableMetadata: false
+  })
+
+  if (!response.ok) {
+    throw new Error(`HTTP ${response.status}`)
+  }
+
+  const contentType =
+    response.headers.get('content-type') || ''
+
+  if (
+    contentType.includes('audio') ||
+    contentType.includes('video') ||
+    contentType.includes('octet-stream')
+  ) {
+    const arrayBuffer = await response.arrayBuffer()
+    const buffer = Buffer.from(arrayBuffer)
+
+    if (!buffer.length) {
+      throw new Error('File vuoto')
+    }
+
+    if (buffer.length > MAX_FILE_SIZE) {
+      throw new Error('File troppo grande')
+    }
+
+    return {
+      buffer,
+      contentType,
+      provider: 'Najemi'
     }
   }
 
-  const response = await request(
-    endpoint,
-    {
-      method: 'POST',
-      headers: {
-        Accept: 'application/json',
-        'Content-Type':
-          'application/json'
-      },
-      body: JSON.stringify(body)
-    },
-    TIMEOUT
-  )
+  const text = await response.text()
 
-  return parseResponse(response)
+  let data = null
+
+  try {
+    data = JSON.parse(text)
+  } catch {}
+
+  const downloadUrl =
+    findUrlDeep(data, type === 'audio' ? 'audio' : 'video') ||
+    (
+      /^https?:\/\//i.test(text.trim())
+        ? text.trim()
+        : null
+    )
+
+  if (!downloadUrl) {
+    throw new Error('Link non trovato')
+  }
+
+  return {
+    url: downloadUrl,
+    provider: 'Najemi'
+  }
 }
 
-const getDownload = async (
-  youtubeUrl,
-  mode
-) => {
-  const errors = []
-
+async function resolveProvider(url, type) {
   const providers = [
-    ...PROVIDERS
+    {
+      name: 'AllDL',
+      run: () => providerAllDl(url, type)
+    },
+    {
+      name: 'YouTube Download API',
+      run: () => providerOldYoutubeApi(url, type)
+    },
+    {
+      name: 'Najemi',
+      run: () => providerNajemi(url, type)
+    }
   ]
+
+  const errors = []
 
   for (const provider of providers) {
     try {
-      const result = await cobalt(
-        provider,
-        youtubeUrl,
-        mode
-      )
+      const result = await provider.run()
 
-      if (result?.url) {
+      if (result?.url || result?.buffer) {
         return result
       }
     } catch (error) {
       errors.push(
-        `${provider.url}${provider.endpoint}: ${
-          error?.message || 'errore'
-        }`
+        `${provider.name}: ${error?.message || 'errore'}`
       )
     }
+
+    await sleep(250)
   }
 
   throw new Error(
-    `Nessun provider disponibile.\n${errors.join(
-      '\n'
-    )}`
+    `Nessun provider disponibile.\n${errors.join('\n')}`
   )
 }
 
-const downloadBuffer = async url => {
-  const response = await request(
-    url,
-    {
-      method: 'GET'
-    },
-    DOWNLOAD_TIMEOUT
-  )
-
-  if (!response.ok) {
-    throw new Error(
-      `Download HTTP ${response.status}`
-    )
+async function materializeDownload(result) {
+  if (result.buffer) {
+    return result
   }
 
-  const contentLength = Number(
-    response.headers.get(
-      'content-length'
-    ) || 0
-  )
-
-  if (
-    contentLength &&
-    contentLength > MAX_VIDEO
-  ) {
-    throw new Error(
-      'Il file supera il limite massimo.'
-    )
+  if (!result.url) {
+    throw new Error('Download URL mancante')
   }
 
-  const buffer = Buffer.from(
-    await response.arrayBuffer()
-  )
-
-  if (!buffer.length) {
-    throw new Error(
-      'Il file scaricato è vuoto.'
-    )
+  return {
+    ...(await fetchBuffer(result.url)),
+    provider: result.provider
   }
-
-  if (buffer.length > MAX_VIDEO) {
-    throw new Error(
-      'Il file supera il limite massimo.'
-    )
-  }
-
-  return buffer
 }
 
-const convertMp3 = async (
-  input,
-  output
-) => {
-  await execFileAsync(
-    'ffmpeg',
-    [
-      '-y',
-      '-hide_banner',
-      '-loglevel',
-      'error',
-      '-i',
-      input,
-      '-vn',
-      '-map',
-      '0:a:0',
-      '-codec:a',
-      'libmp3lame',
-      '-b:a',
-      '128k',
-      '-ar',
-      '44100',
-      '-ac',
-      '2',
-      output
-    ],
-    {
-      timeout:
-        DOWNLOAD_TIMEOUT
+async function searchYoutube(query) {
+  const search = await yts(query)
+  const video = search.videos?.[0]
+
+  if (!video) {
+    throw new Error('Nessun risultato YouTube trovato')
+  }
+
+  return {
+    url: video.url,
+    title: clean(video.title || 'YouTube'),
+    duration: clean(video.timestamp || ''),
+    thumbnail: video.thumbnail || null,
+    author: clean(video.author?.name || ''),
+    views: video.views || 0
+  }
+}
+
+async function resolveInput(text) {
+  const value = clean(text)
+
+  if (isYoutubeUrl(value)) {
+    let metadata = {
+      url: value,
+      title: 'YouTube',
+      duration: '',
+      thumbnail: null,
+      author: '',
+      views: 0
     }
-  )
 
-  if (
-    !fs.existsSync(output)
-  ) {
-    throw new Error(
-      'FFmpeg non ha creato il file MP3.'
-    )
-  }
+    try {
+      const search = await yts(value)
 
-  const stat =
-    fs.statSync(output)
+      const video =
+        search.videos?.find(item => item.url === value) ||
+        search.videos?.[0]
 
-  if (!stat.size) {
-    throw new Error(
-      'Il file MP3 è vuoto.'
-    )
-  }
-
-  if (
-    stat.size > MAX_AUDIO
-  ) {
-    throw new Error(
-      'Il file MP3 è troppo grande.'
-    )
-  }
-
-  return fs.readFileSync(output)
-}
-
-const react = async (
-  conn,
-  m,
-  emoji
-) => {
-  try {
-    await conn.sendMessage(
-      m.chat,
-      {
-        react: {
-          text: emoji,
-          key: m.key
+      if (video) {
+        metadata = {
+          url: value,
+          title: clean(video.title || 'YouTube'),
+          duration: clean(video.timestamp || ''),
+          thumbnail: video.thumbnail || null,
+          author: clean(video.author?.name || ''),
+          views: video.views || 0
         }
       }
-    )
-  } catch {}
+    } catch {}
+
+    return metadata
+  }
+
+  return searchYoutube(value)
 }
 
-const sendMenu = async (
-  conn,
-  m,
-  video,
-  usedPrefix
-) => {
+async function sendMenu(conn, m, data, usedPrefix) {
   const caption =
     `╭━━━〔 🎧 𝑵𝑰𝑮𝑮𝑨-𝑩𝑶𝑻 〕━━━╮\n` +
     `┃\n` +
-    `┃ 🎵 *${video.title}*\n` +
-    `┃ ⏱️ *${video.duration || 'N/D'}*\n` +
-    `┃ 👤 *${video.author || 'YouTube'}*\n` +
+    `┃ 🎵 *${data.title}*\n` +
     `┃\n` +
-    `╰━━━━━━━━━━━━━━━━━━━━━━╯\n\n` +
-    `🎛️ *Scegli il formato:*`
+    `┃ 👤 ${data.author || 'Sconosciuto'}\n` +
+    `┃ ⏱️ ${data.duration || 'Sconosciuta'}\n` +
+    `┃ 👁️ ${data.views ? Number(data.views).toLocaleString('it-IT') : 'N/D'}\n` +
+    `┃\n` +
+    `┃ 🎧 *Scegli il formato:*\n` +
+    `┃\n` +
+    `╰━━━━━━━━━━━━━━━━━━━━━━╯`
 
   const buttons = [
     {
-      buttonId:
-        `${usedPrefix}playaud ${video.url}`,
+      buttonId: `${usedPrefix}playaud ${data.url}`,
       buttonText: {
-        displayText:
-          '🎵 𝗔𝗨𝗗𝗜𝗢 𝗠𝗣𝟯'
+        displayText: '🎵 MP3 AUDIO'
       },
       type: 1
     },
     {
-      buttonId:
-        `${usedPrefix}playvid ${video.url}`,
+      buttonId: `${usedPrefix}playvid ${data.url}`,
       buttonText: {
-        displayText:
-          '🎬 𝗩𝗜𝗗𝗘𝗢 𝗠𝗣𝟰'
+        displayText: '🎬 MP4 VIDEO'
       },
       type: 1
     }
   ]
 
-  if (video.thumbnail) {
+  if (data.thumbnail) {
     return conn.sendMessage(
       m.chat,
       {
         image: {
-          url: video.thumbnail
+          url: data.thumbnail
         },
         caption,
-        footer:
-          '𝑵𝑰𝑮𝑮𝑨-𝑩𝑶𝑻',
+        footer: '𝑵𝑰𝑮𝑮𝑨-𝑩𝑶𝑻',
         buttons,
         headerType: 4
       },
@@ -453,8 +547,7 @@ const sendMenu = async (
     m.chat,
     {
       text: caption,
-      footer:
-        '𝑵𝑰𝑮𝑮𝑨-𝑩𝑶𝑻',
+      footer: '𝑵𝑰𝑮𝑮𝑨-𝑩𝑶𝑻',
       buttons,
       headerType: 1
     },
@@ -464,165 +557,131 @@ const sendMenu = async (
   )
 }
 
-const handler = async (
-  m,
-  {
-    conn,
-    text,
-    usedPrefix,
-    command
-  }
-) => {
-  const cmd =
-    String(command || '')
-      .toLowerCase()
+async function sendDownload(conn, m, data, type) {
+  const result = await resolveProvider(data.url, type)
+  const media = await materializeDownload(result)
 
-  const query =
-    String(text || '').trim()
-
-  if (!query) {
-    return m.reply(
-      `╭━━━〔 🎧 𝑵𝑰𝑮𝑮𝑨-𝑩𝑶𝑻 〕━━━╮\n` +
-      `┃\n` +
-      `┃ ⚡ *Usa:*\n` +
-      `┃ ${usedPrefix}play nome canzone\n` +
-      `┃\n` +
-      `┃ 🎵 ${usedPrefix}playaud nome canzone\n` +
-      `┃ 🎬 ${usedPrefix}playvid nome canzone\n` +
-      `┃\n` +
-      `╰━━━━━━━━━━━━━━━━━━━━━━╯`
-    )
-  }
-
-  let inputFile = null
-  let outputFile = null
-
-  try {
-    const video =
-      await searchYoutube(query)
-
-    if (cmd === 'play') {
-      return sendMenu(
-        conn,
-        m,
-        video,
-        usedPrefix
-      )
-    }
-
-    await react(
-      conn,
-      m,
-      '📥'
-    )
-
-    const mode =
-      cmd === 'playaud'
-        ? 'audio'
-        : 'video'
-
-    const result =
-      await getDownload(
-        video.url,
-        mode
-      )
-
-    const buffer =
-      await downloadBuffer(
-        result.url
-      )
-
-    if (cmd === 'playvid') {
-      if (
-        buffer.length >
-        MAX_VIDEO
-      ) {
-        throw new Error(
-          'Video troppo grande.'
-        )
-      }
-
-      await conn.sendMessage(
-        m.chat,
-        {
-          video: buffer,
-          mimetype:
-            'video/mp4',
-          fileName:
-            `${clean(video.title)}.mp4`,
-          caption:
-            `╭━━━〔 🎬 𝑵𝑰𝑮𝑮𝑨-𝑩𝑶𝑻 〕━━━╮\n` +
-            `┃\n` +
-            `┃ 🎵 *${video.title}*\n` +
-            `┃ ⏱️ *${video.duration || 'N/D'}*\n` +
-            `┃\n` +
-            `╰━━━━━━━━━━━━━━━━━━━━━━╯`
-        },
-        {
-          quoted: m
-        }
-      )
-
-      await react(
-        conn,
-        m,
-        '✅'
-      )
-
-      return
-    }
-
-    inputFile = path.join(
-      os.tmpdir(),
-      `niggabot-${Date.now()}-input`
-    )
-
-    outputFile = path.join(
-      os.tmpdir(),
-      `niggabot-${Date.now()}-output.mp3`
-    )
-
-    fs.writeFileSync(
-      inputFile,
-      buffer
-    )
-
-    const audio =
-      await convertMp3(
-        inputFile,
-        outputFile
-      )
-
-    await conn.sendMessage(
+  if (type === 'audio') {
+    return conn.sendMessage(
       m.chat,
       {
-        audio,
-        mimetype:
-          'audio/mpeg',
-        fileName:
-          `${clean(video.title)}.mp3`,
+        audio: media.buffer,
+        mimetype: 'audio/mpeg',
+        fileName: safeFileName(data.title, 'mp3'),
         ptt: false
       },
       {
         quoted: m
       }
     )
+  }
 
-    await react(
-      conn,
-      m,
-      '✅'
+  return conn.sendMessage(
+    m.chat,
+    {
+      video: media.buffer,
+      mimetype: 'video/mp4',
+      fileName: safeFileName(data.title, 'mp4'),
+      caption:
+        `╭━━━〔 🎬 𝑵𝑰𝑮𝑮𝑨-𝑩𝑶𝑻 〕━━━╮\n` +
+        `┃\n` +
+        `┃ ✅ *Download completato*\n` +
+        `┃\n` +
+        `┃ 🎵 ${data.title}\n` +
+        `┃ ⏱️ ${data.duration || 'N/D'}\n` +
+        `┃ 🌐 ${media.provider || 'Provider'}\n` +
+        `┃\n` +
+        `╰━━━━━━━━━━━━━━━━━━━━━━╯`
+    },
+    {
+      quoted: m
+    }
+  )
+}
+
+const handler = async (m, {
+  conn,
+  text,
+  usedPrefix,
+  command
+}) => {
+  const cmd = clean(command).toLowerCase()
+
+  if (!text) {
+    return m.reply(
+      `╭━━━〔 🎧 𝑵𝑰𝑮𝑮𝑨-𝑩𝑶𝑻 〕━━━╮\n` +
+      `┃\n` +
+      `┃ ❌ Inserisci una canzone o un link YouTube.\n` +
+      `┃\n` +
+      `┃ 💡 ${usedPrefix}play nome canzone\n` +
+      `┃\n` +
+      `╰━━━━━━━━━━━━━━━━━━━━━━╯`
+    )
+  }
+
+  try {
+    const data = await resolveInput(text)
+
+    if (cmd === 'play') {
+      return sendMenu(
+        conn,
+        m,
+        data,
+        usedPrefix
+      )
+    }
+
+    await conn.sendMessage(
+      m.chat,
+      {
+        react: {
+          text: '📥',
+          key: m.key
+        }
+      }
+    )
+
+    if (cmd === 'playaud') {
+      await sendDownload(
+        conn,
+        m,
+        data,
+        'audio'
+      )
+    } else if (cmd === 'playvid') {
+      await sendDownload(
+        conn,
+        m,
+        data,
+        'video'
+      )
+    } else {
+      throw new Error('Comando non supportato')
+    }
+
+    await conn.sendMessage(
+      m.chat,
+      {
+        react: {
+          text: '✅',
+          key: m.key
+        }
+      }
     )
   } catch (error) {
     console.error(
       '[NIGGA-BOT PLAY]',
-      error
+      error?.stack || error
     )
 
-    await react(
-      conn,
-      m,
-      '❌'
+    await conn.sendMessage(
+      m.chat,
+      {
+        react: {
+          text: '❌',
+          key: m.key
+        }
+      }
     )
 
     return m.reply(
@@ -630,32 +689,10 @@ const handler = async (
       `┃\n` +
       `┃ ⚠️ *Download fallito*\n` +
       `┃\n` +
-      `┃ ${error?.message || 'Errore sconosciuto'}\n` +
+      `┃ ${clean(error?.message || 'Errore sconosciuto')}\n` +
       `┃\n` +
       `╰━━━━━━━━━━━━━━━━━━━━━━╯`
     )
-  } finally {
-    try {
-      if (
-        inputFile &&
-        fs.existsSync(inputFile)
-      ) {
-        fs.unlinkSync(
-          inputFile
-        )
-      }
-    } catch {}
-
-    try {
-      if (
-        outputFile &&
-        fs.existsSync(outputFile)
-      ) {
-        fs.unlinkSync(
-          outputFile
-        )
-      }
-    } catch {}
   }
 }
 
@@ -675,4 +712,3 @@ handler.command =
 handler.group = true
 
 export default handler
-
