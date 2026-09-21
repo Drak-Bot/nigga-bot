@@ -1,4 +1,11 @@
 import yts from 'yt-search'
+import { execFile } from 'child_process'
+import { promisify } from 'util'
+import fs from 'fs/promises'
+import path from 'path'
+import os from 'os'
+
+const execFileAsync = promisify(execFile)
 
 const MAX_FILE_SIZE = 100 * 1024 * 1024
 const TIMEOUT = 25000
@@ -8,438 +15,29 @@ const clean = value =>
     .replace(/\s+/g, ' ')
     .trim()
 
-const sleep = ms =>
-  new Promise(resolve => setTimeout(resolve, ms))
+const isYoutubeUrl = value =>
+  /^https?:\/\/(www\.)?(youtube\.com|youtu\.be)\//i.test(value)
 
-function isYoutubeUrl(value) {
-  return /^https?:\/\/(www\.)?(youtube\.com|youtu\.be)\//i.test(value)
-}
-
-function getVideoId(url) {
-  try {
-    const u = new URL(url)
-
-    if (u.hostname.includes('youtu.be')) {
-      return u.pathname.replace('/', '').trim()
-    }
-
-    return u.searchParams.get('v') || null
-  } catch {
-    return null
-  }
-}
-
-function safeFileName(value, extension) {
+const safeFileName = (value, extension) => {
   const name = clean(value)
     .replace(/[<>:"/\\|?*\x00-\x1F]/g, '')
     .replace(/[. ]+$/g, '')
     .slice(0, 120)
 
-  return `${name || 'NIGGA-BOT'}.${extension}`
+  return `${name || 'youtube'}.${extension}`
 }
 
-async function fetchJson(url, options = {}, timeout = TIMEOUT) {
-  const controller = new AbortController()
-  const timer = setTimeout(() => controller.abort(), timeout)
-
-  try {
-    const response = await fetch(url, {
-      ...options,
-      signal: controller.signal,
-      headers: {
-        Accept: 'application/json,text/plain,*/*',
-        'User-Agent': 'Mozilla/5.0',
-        ...(options.headers || {})
-      }
-    })
-
-    const text = await response.text()
-
-    let data = null
-
-    try {
-      data = JSON.parse(text)
-    } catch {
-      data = null
-    }
-
-    if (!response.ok) {
-      throw new Error(
-        `HTTP ${response.status}${text ? `: ${text.slice(0, 300)}` : ''}`
-      )
-    }
-
-    return {
-      response,
-      data,
-      text
-    }
-  } finally {
-    clearTimeout(timer)
-  }
-}
-
-async function fetchBuffer(url, timeout = TIMEOUT) {
-  const controller = new AbortController()
-  const timer = setTimeout(() => controller.abort(), timeout)
-
-  try {
-    const response = await fetch(url, {
-      signal: controller.signal,
-      headers: {
-        Accept: '*/*',
-        'User-Agent': 'Mozilla/5.0'
-      }
-    })
-
-    if (!response.ok) {
-      throw new Error(`HTTP ${response.status}`)
-    }
-
-    const contentLength = Number(
-      response.headers.get('content-length') || 0
-    )
-
-    if (contentLength > MAX_FILE_SIZE) {
-      throw new Error('File troppo grande')
-    }
-
-    const arrayBuffer = await response.arrayBuffer()
-    const buffer = Buffer.from(arrayBuffer)
-
-    if (!buffer.length) {
-      throw new Error('File vuoto')
-    }
-
-    if (buffer.length > MAX_FILE_SIZE) {
-      throw new Error('File troppo grande')
-    }
-
-    return {
-      buffer,
-      contentType:
-        response.headers.get('content-type') ||
-        'application/octet-stream'
-    }
-  } finally {
-    clearTimeout(timer)
-  }
-}
-
-function findUrlDeep(value, wanted = 'video') {
-  if (!value) {
-    return null
-  }
-
-  if (typeof value === 'string') {
-    if (!/^https?:\/\//i.test(value)) {
-      return null
-    }
-
-    const lower = value.toLowerCase()
-
-    if (
-      wanted === 'audio' &&
-      (
-        lower.includes('.mp3') ||
-        lower.includes('.m4a') ||
-        lower.includes('.aac') ||
-        lower.includes('.ogg') ||
-        lower.includes('audio')
-      )
-    ) {
-      return value
-    }
-
-    if (
-      wanted === 'video' &&
-      (
-        lower.includes('.mp4') ||
-        lower.includes('.webm') ||
-        lower.includes('.mkv') ||
-        lower.includes('video')
-      )
-    ) {
-      return value
-    }
-
-    return null
-  }
-
-  if (Array.isArray(value)) {
-    for (const item of value) {
-      const result = findUrlDeep(item, wanted)
-
-      if (result) {
-        return result
-      }
-    }
-
-    return null
-  }
-
-  if (typeof value === 'object') {
-    const priority = wanted === 'audio'
-      ? [
-          'audioUrl',
-          'audio_url',
-          'mp3',
-          'mp3Url',
-          'downloadUrl',
-          'download_url',
-          'url'
-        ]
-      : [
-          'videoUrl',
-          'video_url',
-          'mp4',
-          'mp4Url',
-          'downloadUrl',
-          'download_url',
-          'url'
-        ]
-
-    for (const key of priority) {
-      if (value[key]) {
-        const result = findUrlDeep(value[key], wanted)
-
-        if (result) {
-          return result
-        }
-      }
-    }
-
-    for (const key of Object.keys(value)) {
-      const result = findUrlDeep(value[key], wanted)
-
-      if (result) {
-        return result
-      }
-    }
-  }
-
-  return null
-}
-
-async function providerAllDl(url, type) {
-  const endpoint =
-    `https://ahm7xmakki.com/api/alldl?url=${encodeURIComponent(url)}`
-
-  const result = await fetchJson(endpoint)
-
-  if (!result.data) {
-    throw new Error('Risposta non JSON')
-  }
-
-  const wanted = type === 'audio'
-    ? 'audio'
-    : 'video'
-
-  const downloadUrl = findUrlDeep(result.data, wanted)
-
-  if (!downloadUrl) {
-    throw new Error('Nessun link multimediale')
-  }
-
-  return {
-    url: downloadUrl,
-    provider: 'AllDL'
-  }
-}
-
-async function providerOldYoutubeApi(url, type) {
-  const base =
-    'https://youtube-download-api.matheusishiyama.repl.co'
-
-  const endpoint =
-    `${base}/${type === 'audio' ? 'mp3' : 'mp4'}/?url=${encodeURIComponent(url)}`
-
-  const response = await fetch(endpoint, {
-    redirect: 'follow',
-    headers: {
-      'User-Agent': 'Mozilla/5.0'
-    }
-  })
-
-  if (!response.ok) {
-    throw new Error(`HTTP ${response.status}`)
-  }
-
-  const contentType =
-    response.headers.get('content-type') || ''
-
-  if (
-    contentType.includes('audio') ||
-    contentType.includes('video') ||
-    contentType.includes('octet-stream')
-  ) {
-    const arrayBuffer = await response.arrayBuffer()
-    const buffer = Buffer.from(arrayBuffer)
-
-    if (!buffer.length) {
-      throw new Error('File vuoto')
-    }
-
-    if (buffer.length > MAX_FILE_SIZE) {
-      throw new Error('File troppo grande')
-    }
-
-    return {
-      buffer,
-      contentType,
-      provider: 'YouTube Download API'
-    }
-  }
-
-  const text = await response.text()
-
-  let data = null
-
-  try {
-    data = JSON.parse(text)
-  } catch {}
-
-  const downloadUrl =
-    findUrlDeep(data, type === 'audio' ? 'audio' : 'video') ||
-    (
-      /^https?:\/\//i.test(text.trim())
-        ? text.trim()
-        : null
-    )
-
-  if (!downloadUrl) {
-    throw new Error('Nessun download disponibile')
-  }
-
-  return {
-    url: downloadUrl,
-    provider: 'YouTube Download API'
-  }
-}
-
-async function providerNajemi(url, type) {
-  const endpoint =
-    `https://najemi.cz/ytdl/handler.php?url=${encodeURIComponent(url)}`
-
-  const response = await fetch(endpoint, {
-    redirect: 'follow',
-    headers: {
-      'User-Agent': 'Mozilla/5.0'
-    }
-  })
-
-  if (!response.ok) {
-    throw new Error(`HTTP ${response.status}`)
-  }
-
-  const contentType =
-    response.headers.get('content-type') || ''
-
-  if (
-    contentType.includes('audio') ||
-    contentType.includes('video') ||
-    contentType.includes('octet-stream')
-  ) {
-    const arrayBuffer = await response.arrayBuffer()
-    const buffer = Buffer.from(arrayBuffer)
-
-    if (!buffer.length) {
-      throw new Error('File vuoto')
-    }
-
-    if (buffer.length > MAX_FILE_SIZE) {
-      throw new Error('File troppo grande')
-    }
-
-    return {
-      buffer,
-      contentType,
-      provider: 'Najemi'
-    }
-  }
-
-  const text = await response.text()
-
-  let data = null
-
-  try {
-    data = JSON.parse(text)
-  } catch {}
-
-  const downloadUrl =
-    findUrlDeep(data, type === 'audio' ? 'audio' : 'video') ||
-    (
-      /^https?:\/\//i.test(text.trim())
-        ? text.trim()
-        : null
-    )
-
-  if (!downloadUrl) {
-    throw new Error('Link non trovato')
-  }
-
-  return {
-    url: downloadUrl,
-    provider: 'Najemi'
-  }
-}
-
-async function resolveProvider(url, type) {
-  const providers = [
-    {
-      name: 'AllDL',
-      run: () => providerAllDl(url, type)
-    },
-    {
-      name: 'YouTube Download API',
-      run: () => providerOldYoutubeApi(url, type)
-    },
-    {
-      name: 'Najemi',
-      run: () => providerNajemi(url, type)
-    }
-  ]
-
-  const errors = []
-
-  for (const provider of providers) {
-    try {
-      const result = await provider.run()
-
-      if (result?.url || result?.buffer) {
-        return result
-      }
-    } catch (error) {
-      errors.push(
-        `${provider.name}: ${error?.message || 'errore'}`
-      )
-    }
-
-    await sleep(250)
-  }
-
-  throw new Error(
-    `Nessun provider disponibile.\n${errors.join('\n')}`
-  )
-}
-
-async function materializeDownload(result) {
-  if (result.buffer) {
-    return result
-  }
-
-  if (!result.url) {
-    throw new Error('Download URL mancante')
-  }
-
-  return {
-    ...(await fetchBuffer(result.url)),
-    provider: result.provider
-  }
+const sleep = ms =>
+  new Promise(resolve => setTimeout(resolve, ms))
+
+async function fileSize(file) {
+  const stat = await fs.stat(file)
+  return stat.size
 }
 
 async function searchYoutube(query) {
   const search = await yts(query)
+
   const video = search.videos?.[0]
 
   if (!video) {
@@ -458,6 +56,10 @@ async function searchYoutube(query) {
 
 async function resolveInput(text) {
   const value = clean(text)
+
+  if (!value) {
+    throw new Error('Inserisci una ricerca o un link YouTube')
+  }
 
   if (isYoutubeUrl(value)) {
     let metadata = {
@@ -494,15 +96,134 @@ async function resolveInput(text) {
   return searchYoutube(value)
 }
 
+async function runYtDlp(args) {
+  try {
+    return await execFileAsync(
+      'yt-dlp',
+      args,
+      {
+        timeout: TIMEOUT,
+        maxBuffer: 10 * 1024 * 1024
+      }
+    )
+  } catch (error) {
+    const stderr = clean(error?.stderr)
+    const stdout = clean(error?.stdout)
+
+    throw new Error(
+      stderr ||
+      stdout ||
+      error?.message ||
+      'yt-dlp ha restituito un errore'
+    )
+  }
+}
+
+async function downloadAudio(url, outputDir) {
+  const outputTemplate =
+    path.join(outputDir, 'audio.%(ext)s')
+
+  /*
+   * Estrae l'audio senza appoggiarsi a servizi esterni.
+   *
+   * Richiede ffmpeg per convertire in MP3.
+   */
+  await runYtDlp([
+    '--no-playlist',
+    '--no-warnings',
+    '--restrict-filenames',
+    '--extract-audio',
+    '--audio-format',
+    'mp3',
+    '--audio-quality',
+    '128K',
+    '-o',
+    outputTemplate,
+    url
+  ])
+
+  const files = await fs.readdir(outputDir)
+
+  const audioFile = files.find(file =>
+    /^audio\.(mp3|m4a|opus|webm|aac)$/i.test(file)
+  )
+
+  if (!audioFile) {
+    throw new Error('yt-dlp non ha prodotto un file audio')
+  }
+
+  const filePath = path.join(outputDir, audioFile)
+  const size = await fileSize(filePath)
+
+  if (size > MAX_FILE_SIZE) {
+    throw new Error('File audio troppo grande')
+  }
+
+  return {
+    filePath,
+    size
+  }
+}
+
+async function downloadVideo(url, outputDir) {
+  const outputTemplate =
+    path.join(outputDir, 'video.%(ext)s')
+
+  /*
+   * Cerca un formato compatibile con WhatsApp.
+   * Se possibile prende video + audio e li unisce in MP4.
+   */
+  await runYtDlp([
+    '--no-playlist',
+    '--no-warnings',
+    '--restrict-filenames',
+    '-f',
+    'bv*[ext=mp4]+ba[ext=m4a]/b[ext=mp4]/best',
+    '--merge-output-format',
+    'mp4',
+    '-o',
+    outputTemplate,
+    url
+  ])
+
+  const files = await fs.readdir(outputDir)
+
+  const videoFile = files.find(file =>
+    /^video\.mp4$/i.test(file)
+  )
+
+  if (!videoFile) {
+    throw new Error('yt-dlp non ha prodotto un file MP4')
+  }
+
+  const filePath = path.join(outputDir, videoFile)
+  const size = await fileSize(filePath)
+
+  if (size > MAX_FILE_SIZE) {
+    throw new Error(
+      `Video troppo grande: ${(size / 1024 / 1024).toFixed(1)} MB`
+    )
+  }
+
+  return {
+    filePath,
+    size
+  }
+}
+
 async function sendMenu(conn, m, data, usedPrefix) {
   const caption =
-    `╭━━━〔 🎧 𝑵𝑰𝑮𝑮𝑨-𝑩𝑶𝑻 〕━━━╮\n` +
+    `╭━━━〔 🎧 𝑩𝑶𝑻 〕━━━╮\n` +
     `┃\n` +
     `┃ 🎵 *${data.title}*\n` +
     `┃\n` +
     `┃ 👤 ${data.author || 'Sconosciuto'}\n` +
     `┃ ⏱️ ${data.duration || 'Sconosciuta'}\n` +
-    `┃ 👁️ ${data.views ? Number(data.views).toLocaleString('it-IT') : 'N/D'}\n` +
+    `┃ 👁️ ${
+      data.views
+        ? Number(data.views).toLocaleString('it-IT')
+        : 'N/D'
+    }\n` +
     `┃\n` +
     `┃ 🎧 *Scegli il formato:*\n` +
     `┃\n` +
@@ -533,7 +254,7 @@ async function sendMenu(conn, m, data, usedPrefix) {
           url: data.thumbnail
         },
         caption,
-        footer: '𝑵𝑰𝑮𝑮𝑨-𝑩𝑶𝑻',
+        footer: 'YouTube Downloader',
         buttons,
         headerType: 4
       },
@@ -547,7 +268,7 @@ async function sendMenu(conn, m, data, usedPrefix) {
     m.chat,
     {
       text: caption,
-      footer: '𝑵𝑰𝑮𝑮𝑨-𝑩𝑶𝑻',
+      footer: 'YouTube Downloader',
       buttons,
       headerType: 1
     },
@@ -557,59 +278,101 @@ async function sendMenu(conn, m, data, usedPrefix) {
   )
 }
 
-async function sendDownload(conn, m, data, type) {
-  const result = await resolveProvider(data.url, type)
-  const media = await materializeDownload(result)
+async function sendAudio(conn, m, data) {
+  const tempDir = await fs.mkdtemp(
+    path.join(os.tmpdir(), 'yt-audio-')
+  )
 
-  if (type === 'audio') {
-    return conn.sendMessage(
+  try {
+    const result = await downloadAudio(
+      data.url,
+      tempDir
+    )
+
+    const fileName =
+      safeFileName(data.title, 'mp3')
+
+    await conn.sendMessage(
       m.chat,
       {
-        audio: media.buffer,
+        audio: {
+          url: result.filePath
+        },
         mimetype: 'audio/mpeg',
-        fileName: safeFileName(data.title, 'mp3'),
+        fileName,
         ptt: false
       },
       {
         quoted: m
       }
     )
+  } finally {
+    await fs.rm(tempDir, {
+      recursive: true,
+      force: true
+    })
   }
-
-  return conn.sendMessage(
-    m.chat,
-    {
-      video: media.buffer,
-      mimetype: 'video/mp4',
-      fileName: safeFileName(data.title, 'mp4'),
-      caption:
-        `╭━━━〔 🎬 𝑵𝑰𝑮𝑮𝑨-𝑩𝑶𝑻 〕━━━╮\n` +
-        `┃\n` +
-        `┃ ✅ *Download completato*\n` +
-        `┃\n` +
-        `┃ 🎵 ${data.title}\n` +
-        `┃ ⏱️ ${data.duration || 'N/D'}\n` +
-        `┃ 🌐 ${media.provider || 'Provider'}\n` +
-        `┃\n` +
-        `╰━━━━━━━━━━━━━━━━━━━━━━╯`
-    },
-    {
-      quoted: m
-    }
-  )
 }
 
-const handler = async (m, {
-  conn,
-  text,
-  usedPrefix,
-  command
-}) => {
+async function sendVideo(conn, m, data) {
+  const tempDir = await fs.mkdtemp(
+    path.join(os.tmpdir(), 'yt-video-')
+  )
+
+  try {
+    const result = await downloadVideo(
+      data.url,
+      tempDir
+    )
+
+    const fileName =
+      safeFileName(data.title, 'mp4')
+
+    await conn.sendMessage(
+      m.chat,
+      {
+        video: {
+          url: result.filePath
+        },
+        mimetype: 'video/mp4',
+        fileName,
+        caption:
+          `╭━━━〔 🎬 𝑩𝑶𝑻 〕━━━╮\n` +
+          `┃\n` +
+          `┃ ✅ *Download completato*\n` +
+          `┃\n` +
+          `┃ 🎵 ${data.title}\n` +
+          `┃ ⏱️ ${data.duration || 'N/D'}\n` +
+          `┃ 📦 ${(result.size / 1024 / 1024).toFixed(1)} MB\n` +
+          `┃\n` +
+          `╰━━━━━━━━━━━━━━━━━━━━━━╯`
+      },
+      {
+        quoted: m
+      }
+    )
+  } finally {
+    await fs.rm(tempDir, {
+      recursive: true,
+      force: true
+    })
+  }
+}
+
+const handler = async (
+  m,
+  {
+    conn,
+    text,
+    usedPrefix,
+    command
+  }
+) => {
   const cmd = clean(command).toLowerCase()
 
   if (!text) {
     return m.reply(
-      `╭━━━〔 🎧 𝑵𝑰𝑮𝑮𝑨-𝑩𝑶𝑻 〕━━━╮\n` +
+      `╭━━━〔 🎧 𝑩𝑶𝑻 〕━━━╮\n` +
       `┃\n` +
       `┃ ❌ Inserisci una canzone o un link YouTube.\n` +
       `┃\n` +
@@ -620,6 +383,15 @@ const handler = async (m, {
   }
 
   try {
+    /*
+     * Per playaud/playvid accettiamo anche direttamente
+     * una query, quindi:
+     *
+     * .playaud nome canzone
+     * .playvid nome canzone
+     *
+     * funzionano senza passare prima da .play.
+     */
     const data = await resolveInput(text)
 
     if (cmd === 'play') {
@@ -642,21 +414,21 @@ const handler = async (m, {
     )
 
     if (cmd === 'playaud') {
-      await sendDownload(
+      await sendAudio(
         conn,
         m,
-        data,
-        'audio'
+        data
       )
     } else if (cmd === 'playvid') {
-      await sendDownload(
+      await sendVideo(
         conn,
         m,
-        data,
-        'video'
+        data
       )
     } else {
-      throw new Error('Comando non supportato')
+      throw new Error(
+        'Comando non supportato'
+      )
     }
 
     await conn.sendMessage(
@@ -670,7 +442,7 @@ const handler = async (m, {
     )
   } catch (error) {
     console.error(
-      '[NIGGA-BOT PLAY]',
+      '[PLAY ERROR]',
       error?.stack || error
     )
 
@@ -685,11 +457,14 @@ const handler = async (m, {
     )
 
     return m.reply(
-      `╭━━━〔 ❌ 𝑵𝑰𝑮𝑮𝑨-𝑩𝑶𝑻 〕━━━╮\n` +
+      `╭━━━〔 ❌ 𝑩𝑶𝑻 〕━━━╮\n` +
       `┃\n` +
       `┃ ⚠️ *Download fallito*\n` +
       `┃\n` +
-      `┃ ${clean(error?.message || 'Errore sconosciuto')}\n` +
+      `┃ ${clean(
+        error?.message ||
+        'Errore sconosciuto'
+      )}\n` +
       `┃\n` +
       `╰━━━━━━━━━━━━━━━━━━━━━━╯`
     )
