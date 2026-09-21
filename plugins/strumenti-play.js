@@ -7,53 +7,62 @@ import { promisify } from 'util'
 
 const execFileAsync = promisify(execFile)
 
-const COBALT_APIS = [
-  'https://api.cobalt.tools',
-  'https://cobalt-api.kwiatekmiki.com',
-  'https://cobalt-api.meowing.de',
-  'https://cobalt-backend.canine.tools',
-  'https://cobalt-api.2ez4u.dev'
+const PROVIDERS = [
+  {
+    url: 'https://api.cobalt.tools',
+    endpoint: '/',
+    version: 'modern'
+  },
+  {
+    url: 'https://api.cobalt.tools',
+    endpoint: '/api/json',
+    version: 'legacy'
+  }
 ]
 
-const MAX_VIDEO_SIZE = 200 * 1024 * 1024
-const MAX_AUDIO_SIZE = 50 * 1024 * 1024
-const REQUEST_TIMEOUT = 25000
+const TIMEOUT = 30000
+const DOWNLOAD_TIMEOUT = 120000
+const MAX_VIDEO = 200 * 1024 * 1024
+const MAX_AUDIO = 50 * 1024 * 1024
 
-const sleep = ms => new Promise(resolve => setTimeout(resolve, ms))
-
-const clean = text =>
-  String(text || '')
+const clean = value =>
+  String(value || '')
     .replace(/[\\/:*?"<>|]/g, '')
     .replace(/\s+/g, ' ')
     .trim()
 
-const request = async (url, options = {}, timeout = REQUEST_TIMEOUT) => {
+const request = async (url, options = {}, timeout = TIMEOUT) => {
   const controller = new AbortController()
-  const timer = setTimeout(() => controller.abort(), timeout)
+  const timer = setTimeout(
+    () => controller.abort(),
+    timeout
+  )
 
   try {
-    const response = await fetch(url, {
+    return await fetch(url, {
       ...options,
       signal: controller.signal,
       headers: {
-        'User-Agent': 'Mozilla/5.0',
+        'User-Agent':
+          'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/131 Safari/537.36',
         Accept: '*/*',
         ...(options.headers || {})
       }
     })
-
-    return response
   } finally {
     clearTimeout(timer)
   }
 }
 
-const getYoutube = async query => {
+const searchYoutube = async query => {
   if (/^https?:\/\//i.test(query)) {
     try {
       const result = await yts(query)
+
       const video =
-        result.videos?.find(x => x.url === query) ||
+        result.videos?.find(
+          x => x.url === query
+        ) ||
         result.videos?.[0]
 
       if (video) {
@@ -62,7 +71,9 @@ const getYoutube = async query => {
           title: video.title || 'YouTube',
           duration: video.timestamp || '',
           thumbnail: video.thumbnail || null,
-          author: video.author?.name || ''
+          author:
+            video.author?.name ||
+            'YouTube'
         }
       }
     } catch {}
@@ -72,158 +83,242 @@ const getYoutube = async query => {
       title: 'YouTube',
       duration: '',
       thumbnail: null,
-      author: ''
+      author: 'YouTube'
     }
   }
 
   const result = await yts(query)
-  const video = result.videos?.[0]
 
-  if (!video) {
-    throw new Error('Nessun risultato YouTube trovato.')
+  if (!result?.videos?.length) {
+    throw new Error(
+      'Nessun risultato trovato su YouTube.'
+    )
   }
+
+  const video = result.videos[0]
 
   return {
     url: video.url,
     title: video.title || 'YouTube',
     duration: video.timestamp || '',
     thumbnail: video.thumbnail || null,
-    author: video.author?.name || ''
+    author:
+      video.author?.name ||
+      'YouTube'
   }
 }
 
-const cobaltRequest = async (api, youtubeUrl, mode) => {
-  const endpoint = `${api.replace(/\/$/, '')}/`
-
-  const body = {
-    url: youtubeUrl,
-    downloadMode: mode === 'audio' ? 'audio' : 'auto',
-    audioFormat: 'mp3',
-    videoQuality: '720',
-    filenameStyle: 'pretty',
-    disableMetadata: false
-  }
-
-  const response = await request(endpoint, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Accept: 'application/json'
-    },
-    body: JSON.stringify(body)
-  })
-
+const parseResponse = async response => {
   const raw = await response.text()
 
-  if (!response.ok) {
-    throw new Error(`HTTP ${response.status}`)
-  }
-
-  let data
+  let data = null
 
   try {
     data = JSON.parse(raw)
-  } catch {
-    throw new Error('Risposta provider non valida.')
-  }
+  } catch {}
 
-  if (!data) {
-    throw new Error('Risposta vuota.')
-  }
+  if (!response.ok) {
+    const message =
+      data?.text ||
+      data?.message ||
+      data?.error?.message ||
+      data?.error ||
+      raw ||
+      `HTTP ${response.status}`
 
-  if (data.status === 'error') {
     throw new Error(
-      data.error?.code ||
-      data.error?.message ||
-      'Provider download non disponibile.'
+      `HTTP ${response.status}: ${message}`
     )
   }
 
-  if (data.status === 'redirect' && data.url) {
-    return {
-      type: 'url',
-      url: data.url,
-      filename: data.filename || null
-    }
+  if (!data) {
+    throw new Error(
+      'Il provider ha restituito una risposta non JSON.'
+    )
   }
 
-  if (data.status === 'tunnel' && data.url) {
-    return {
-      type: 'url',
-      url: data.url,
-      filename: data.filename || null
-    }
+  if (
+    data.status === 'error' ||
+    data.status === 'rate-limit'
+  ) {
+    throw new Error(
+      data.text ||
+      data.message ||
+      data.error?.message ||
+      `Provider ${data.status}`
+    )
   }
 
-  if (data.status === 'stream' && data.url) {
-    return {
-      type: 'url',
-      url: data.url,
-      filename: data.filename || null
-    }
+  const url =
+    data.url ||
+    data.audio ||
+    data.downloadUrl ||
+    data.download?.url ||
+    data.result?.url ||
+    data.result?.downloadUrl
+
+  if (!url) {
+    throw new Error(
+      'Il provider non ha restituito un URL di download.'
+    )
   }
 
-  throw new Error('Il provider non ha restituito un file.')
+  return {
+    url,
+    filename:
+      data.filename ||
+      data.download?.filename ||
+      null,
+    status:
+      data.status ||
+      'success'
+  }
 }
 
-const getDownload = async (youtubeUrl, mode) => {
-  let lastError = null
+const cobalt = async (
+  provider,
+  youtubeUrl,
+  mode
+) => {
+  const endpoint =
+    provider.url.replace(/\/$/, '') +
+    provider.endpoint
 
-  const shuffled = [...COBALT_APIS].sort(() => Math.random() - 0.5)
+  let body
 
-  for (const api of shuffled) {
+  if (provider.version === 'modern') {
+    body = {
+      url: youtubeUrl,
+      downloadMode:
+        mode === 'audio'
+          ? 'audio'
+          : 'auto',
+      audioFormat: 'mp3',
+      audioBitrate: '128',
+      videoQuality: '720',
+      youtubeVideoCodec: 'h264',
+      filenameStyle: 'pretty',
+      disableMetadata: false
+    }
+  } else {
+    body = {
+      url: youtubeUrl,
+      vCodec: 'h264',
+      vQuality: '720',
+      aFormat: 'mp3',
+      isAudioOnly: mode === 'audio',
+      filenamePattern: 'pretty',
+      disableMetadata: false
+    }
+  }
+
+  const response = await request(
+    endpoint,
+    {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type':
+          'application/json'
+      },
+      body: JSON.stringify(body)
+    },
+    TIMEOUT
+  )
+
+  return parseResponse(response)
+}
+
+const getDownload = async (
+  youtubeUrl,
+  mode
+) => {
+  const errors = []
+
+  const providers = [
+    ...PROVIDERS
+  ]
+
+  for (const provider of providers) {
     try {
-      const result = await cobaltRequest(api, youtubeUrl, mode)
+      const result = await cobalt(
+        provider,
+        youtubeUrl,
+        mode
+      )
 
       if (result?.url) {
-        return {
-          ...result,
-          provider: api
-        }
+        return result
       }
     } catch (error) {
-      lastError = error
+      errors.push(
+        `${provider.url}${provider.endpoint}: ${
+          error?.message || 'errore'
+        }`
+      )
     }
-
-    await sleep(250)
   }
 
   throw new Error(
-    lastError?.message ||
-    'Nessun provider pubblico disponibile.'
+    `Nessun provider disponibile.\n${errors.join(
+      '\n'
+    )}`
   )
 }
 
 const downloadBuffer = async url => {
-  const response = await request(url, {
-    method: 'GET'
-  }, 60000)
+  const response = await request(
+    url,
+    {
+      method: 'GET'
+    },
+    DOWNLOAD_TIMEOUT
+  )
 
   if (!response.ok) {
-    throw new Error(`Download HTTP ${response.status}`)
+    throw new Error(
+      `Download HTTP ${response.status}`
+    )
   }
 
-  const contentLength =
-    Number(response.headers.get('content-length') || 0)
+  const contentLength = Number(
+    response.headers.get(
+      'content-length'
+    ) || 0
+  )
 
-  if (contentLength > MAX_VIDEO_SIZE) {
-    throw new Error('Il file supera il limite massimo consentito.')
+  if (
+    contentLength &&
+    contentLength > MAX_VIDEO
+  ) {
+    throw new Error(
+      'Il file supera il limite massimo.'
+    )
   }
 
-  const buffer = Buffer.from(await response.arrayBuffer())
+  const buffer = Buffer.from(
+    await response.arrayBuffer()
+  )
 
   if (!buffer.length) {
-    throw new Error('File scaricato vuoto.')
+    throw new Error(
+      'Il file scaricato è vuoto.'
+    )
   }
 
-  if (buffer.length > MAX_VIDEO_SIZE) {
-    throw new Error('Il file supera il limite massimo consentito.')
+  if (buffer.length > MAX_VIDEO) {
+    throw new Error(
+      'Il file supera il limite massimo.'
+    )
   }
 
   return buffer
 }
 
-const convertToMp3 = async (input, output) => {
+const convertMp3 = async (
+  input,
+  output
+) => {
   await execFileAsync(
     'ffmpeg',
     [
@@ -247,30 +342,60 @@ const convertToMp3 = async (input, output) => {
       output
     ],
     {
-      timeout: 120000
+      timeout:
+        DOWNLOAD_TIMEOUT
     }
   )
 
-  if (!fs.existsSync(output)) {
-    throw new Error('FFmpeg non ha prodotto il file MP3.')
+  if (
+    !fs.existsSync(output)
+  ) {
+    throw new Error(
+      'FFmpeg non ha creato il file MP3.'
+    )
   }
 
-  const stat = fs.statSync(output)
+  const stat =
+    fs.statSync(output)
 
   if (!stat.size) {
-    throw new Error('MP3 generato vuoto.')
+    throw new Error(
+      'Il file MP3 è vuoto.'
+    )
   }
 
-  if (stat.size > MAX_AUDIO_SIZE) {
-    throw new Error('MP3 troppo grande per essere inviato.')
+  if (
+    stat.size > MAX_AUDIO
+  ) {
+    throw new Error(
+      'Il file MP3 è troppo grande.'
+    )
   }
 
   return fs.readFileSync(output)
 }
 
-const sendMenu = async (
-  m,
+const react = async (
   conn,
+  m,
+  emoji
+) => {
+  try {
+    await conn.sendMessage(
+      m.chat,
+      {
+        react: {
+          text: emoji,
+          key: m.key
+        }
+      }
+    )
+  } catch {}
+}
+
+const sendMenu = async (
+  conn,
+  m,
   video,
   usedPrefix
 ) => {
@@ -278,24 +403,28 @@ const sendMenu = async (
     `╭━━━〔 🎧 𝑵𝑰𝑮𝑮𝑨-𝑩𝑶𝑻 〕━━━╮\n` +
     `┃\n` +
     `┃ 🎵 *${video.title}*\n` +
-    `┃ ⏱️ ${video.duration || 'Sconosciuta'}\n` +
-    `┃ 👤 ${video.author || 'YouTube'}\n` +
+    `┃ ⏱️ *${video.duration || 'N/D'}*\n` +
+    `┃ 👤 *${video.author || 'YouTube'}*\n` +
     `┃\n` +
     `╰━━━━━━━━━━━━━━━━━━━━━━╯\n\n` +
-    `🎛️ *Seleziona il formato:*`
+    `🎛️ *Scegli il formato:*`
 
   const buttons = [
     {
-      buttonId: `${usedPrefix}playaud ${video.url}`,
+      buttonId:
+        `${usedPrefix}playaud ${video.url}`,
       buttonText: {
-        displayText: '🎵 𝗔𝗨𝗗𝗜𝗢 𝗠𝗣𝟯'
+        displayText:
+          '🎵 𝗔𝗨𝗗𝗜𝗢 𝗠𝗣𝟯'
       },
       type: 1
     },
     {
-      buttonId: `${usedPrefix}playvid ${video.url}`,
+      buttonId:
+        `${usedPrefix}playvid ${video.url}`,
       buttonText: {
-        displayText: '🎬 𝗩𝗜𝗗𝗘𝗢 𝗠𝗣𝟰'
+        displayText:
+          '🎬 𝗩𝗜𝗗𝗘𝗢 𝗠𝗣𝟰'
       },
       type: 1
     }
@@ -309,7 +438,8 @@ const sendMenu = async (
           url: video.thumbnail
         },
         caption,
-        footer: '𝑵𝑰𝑮𝑮𝑨-𝑩𝑶𝑻',
+        footer:
+          '𝑵𝑰𝑮𝑮𝑨-𝑩𝑶𝑻',
         buttons,
         headerType: 4
       },
@@ -323,7 +453,8 @@ const sendMenu = async (
     m.chat,
     {
       text: caption,
-      footer: '𝑵𝑰𝑮𝑮𝑨-𝑩𝑶𝑻',
+      footer:
+        '𝑵𝑰𝑮𝑮𝑨-𝑩𝑶𝑻',
       buttons,
       headerType: 1
     },
@@ -331,17 +462,6 @@ const sendMenu = async (
       quoted: m
     }
   )
-}
-
-const sendReact = async (conn, m, emoji) => {
-  try {
-    await conn.sendMessage(m.chat, {
-      react: {
-        text: emoji,
-        key: m.key
-      }
-    })
-  } catch {}
 }
 
 const handler = async (
@@ -353,14 +473,18 @@ const handler = async (
     command
   }
 ) => {
-  const cmd = String(command || '').toLowerCase()
-  const query = String(text || '').trim()
+  const cmd =
+    String(command || '')
+      .toLowerCase()
+
+  const query =
+    String(text || '').trim()
 
   if (!query) {
     return m.reply(
       `╭━━━〔 🎧 𝑵𝑰𝑮𝑮𝑨-𝑩𝑶𝑻 〕━━━╮\n` +
       `┃\n` +
-      `┃ ⚡ *Uso:*\n` +
+      `┃ ⚡ *Usa:*\n` +
       `┃ ${usedPrefix}play nome canzone\n` +
       `┃\n` +
       `┃ 🎵 ${usedPrefix}playaud nome canzone\n` +
@@ -370,55 +494,51 @@ const handler = async (
     )
   }
 
-  let tempInput = null
-  let tempOutput = null
+  let inputFile = null
+  let outputFile = null
 
   try {
-    const video = await getYoutube(query)
+    const video =
+      await searchYoutube(query)
 
     if (cmd === 'play') {
       return sendMenu(
-        m,
         conn,
+        m,
         video,
         usedPrefix
       )
     }
 
-    await sendReact(conn, m, '📥')
+    await react(
+      conn,
+      m,
+      '📥'
+    )
 
     const mode =
       cmd === 'playaud'
         ? 'audio'
         : 'video'
 
-    const download = await getDownload(
-      video.url,
-      mode
-    )
-
-    if (!download?.url) {
-      throw new Error(
-        'Nessun URL di download disponibile.'
+    const result =
+      await getDownload(
+        video.url,
+        mode
       )
-    }
 
-    console.log(
-      `[NIGGA-BOT] Provider: ${download.provider}`
-    )
-
-    console.log(
-      `[NIGGA-BOT] Download: ${download.url}`
-    )
-
-    const buffer = await downloadBuffer(
-      download.url
-    )
+    const buffer =
+      await downloadBuffer(
+        result.url
+      )
 
     if (cmd === 'playvid') {
-      if (buffer.length > MAX_VIDEO_SIZE) {
+      if (
+        buffer.length >
+        MAX_VIDEO
+      ) {
         throw new Error(
-          'Il video è troppo grande.'
+          'Video troppo grande.'
         )
       }
 
@@ -426,13 +546,15 @@ const handler = async (
         m.chat,
         {
           video: buffer,
-          mimetype: 'video/mp4',
-          fileName: `${clean(video.title)}.mp4`,
+          mimetype:
+            'video/mp4',
+          fileName:
+            `${clean(video.title)}.mp4`,
           caption:
             `╭━━━〔 🎬 𝑵𝑰𝑮𝑮𝑨-𝑩𝑶𝑻 〕━━━╮\n` +
             `┃\n` +
             `┃ 🎵 *${video.title}*\n` +
-            `┃ ⏱️ ${video.duration || 'N/D'}\n` +
+            `┃ ⏱️ *${video.duration || 'N/D'}*\n` +
             `┃\n` +
             `╰━━━━━━━━━━━━━━━━━━━━━━╯`
         },
@@ -441,41 +563,44 @@ const handler = async (
         }
       )
 
-      await sendReact(conn, m, '✅')
+      await react(
+        conn,
+        m,
+        '✅'
+      )
 
       return
     }
 
-    tempInput = path.join(
+    inputFile = path.join(
       os.tmpdir(),
-      `niggabot-${Date.now()}-${Math.random()
-        .toString(36)
-        .slice(2)}.bin`
+      `niggabot-${Date.now()}-input`
     )
 
-    tempOutput = path.join(
+    outputFile = path.join(
       os.tmpdir(),
-      `niggabot-${Date.now()}-${Math.random()
-        .toString(36)
-        .slice(2)}.mp3`
+      `niggabot-${Date.now()}-output.mp3`
     )
 
     fs.writeFileSync(
-      tempInput,
+      inputFile,
       buffer
     )
 
-    const audio = await convertToMp3(
-      tempInput,
-      tempOutput
-    )
+    const audio =
+      await convertMp3(
+        inputFile,
+        outputFile
+      )
 
     await conn.sendMessage(
       m.chat,
       {
         audio,
-        mimetype: 'audio/mpeg',
-        fileName: `${clean(video.title)}.mp3`,
+        mimetype:
+          'audio/mpeg',
+        fileName:
+          `${clean(video.title)}.mp3`,
         ptt: false
       },
       {
@@ -483,14 +608,22 @@ const handler = async (
       }
     )
 
-    await sendReact(conn, m, '✅')
+    await react(
+      conn,
+      m,
+      '✅'
+    )
   } catch (error) {
     console.error(
-      '[NIGGA-BOT PLAY ERROR]',
+      '[NIGGA-BOT PLAY]',
       error
     )
 
-    await sendReact(conn, m, '❌')
+    await react(
+      conn,
+      m,
+      '❌'
+    )
 
     return m.reply(
       `╭━━━〔 ❌ 𝑵𝑰𝑮𝑮𝑨-𝑩𝑶𝑻 〕━━━╮\n` +
@@ -504,19 +637,23 @@ const handler = async (
   } finally {
     try {
       if (
-        tempInput &&
-        fs.existsSync(tempInput)
+        inputFile &&
+        fs.existsSync(inputFile)
       ) {
-        fs.unlinkSync(tempInput)
+        fs.unlinkSync(
+          inputFile
+        )
       }
     } catch {}
 
     try {
       if (
-        tempOutput &&
-        fs.existsSync(tempOutput)
+        outputFile &&
+        fs.existsSync(outputFile)
       ) {
-        fs.unlinkSync(tempOutput)
+        fs.unlinkSync(
+          outputFile
+        )
       }
     } catch {}
   }
@@ -538,3 +675,4 @@ handler.command =
 handler.group = true
 
 export default handler
+
