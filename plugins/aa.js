@@ -5,38 +5,35 @@ const sleep = ms => new Promise(resolve => setTimeout(resolve, ms))
 const raidMessages = new Map()
 
 const handler = async (m, { conn, args, groupMetadata }) => {
-    const command = m.text?.trim().split(/\s+/)[0]?.toLowerCase()
+    const cmd = m.text?.trim().split(/\s+/)[0]?.toLowerCase()
 
-    if (command === '.delraid') {
-        const messages = raidMessages.get(m.chat)
+    if (cmd === '.delraid') {
+        const keys = raidMessages.get(m.chat)
 
-        if (!messages || messages.length === 0) {
-            return m.reply('❌ Non ci sono messaggi raid da eliminare.')
+        if (!keys?.length) {
+            return m.reply('❌ Nessun raid da eliminare.')
         }
 
         let deleted = 0
 
-        for (const key of messages) {
+        for (const key of keys) {
             try {
                 await conn.sendMessage(m.chat, {
-                    delete: {
-                        remoteJid: m.chat,
-                        fromMe: true,
-                        id: key.id,
-                        participant: key.participant
-                    }
+                    delete: key
                 })
 
                 deleted++
-                await sleep(300)
+                await sleep(500)
             } catch (e) {
-                console.error('[DELRAID] Errore eliminazione:', e)
+                console.error('[DELRAID] Errore:', e)
             }
         }
 
         raidMessages.delete(m.chat)
 
-        return m.reply(`✅ Eliminati ${deleted}/${messages.length} messaggi raid.`)
+        return m.reply(
+            `🗑️ Eliminazione completata.\nMessaggi eliminati: ${deleted}/${keys.length}`
+        )
     }
 
     const number = parseInt(args[0])
@@ -51,7 +48,6 @@ const handler = async (m, { conn, args, groupMetadata }) => {
 
     const link1 = 'https://chat.whatsapp.com/Gyf7BzAE1rTDomlgW7Qccr'
     const link2 = 'https://chat.whatsapp.com/DVWeJX3FPBxAr6GR8PVNhe'
-
     const botNumber = conn.user.id
 
     let meta = groupMetadata
@@ -60,7 +56,7 @@ const handler = async (m, { conn, args, groupMetadata }) => {
         try {
             meta = await conn.groupMetadata(m.chat)
         } catch (e) {
-            console.error('[RAID] Errore metadata:', e)
+            console.error('[RAID] Metadata:', e)
             return m.reply('❌ Impossibile recuperare i partecipanti.')
         }
     }
@@ -77,7 +73,7 @@ ${link1}
 
 ${link2}`
 
-    const sentMessages = []
+    const sentKeys = []
 
     for (let count = 0; count < number; count++) {
         try {
@@ -87,9 +83,7 @@ ${link2}`
                     requestPaymentMessage: {
                         currencyCodeIso4217: 'EUR',
                         amount1000: 333000,
-
                         requestFrom: botNumber,
-
                         noteMessage: {
                             extendedTextMessage: {
                                 text: testo,
@@ -98,10 +92,8 @@ ${link2}`
                                 }
                             }
                         },
-
                         expiryTimestamp:
                             Math.floor(Date.now() / 1000) + (86400 * 7),
-
                         background: {
                             placeholderArgb: 0xFF0A84FF
                         }
@@ -120,22 +112,14 @@ ${link2}`
                 }
             )
 
-            sentMessages.push({
+            sentKeys.push({
+                ...msg.key,
                 remoteJid: m.chat,
-                fromMe: true,
-                id: msg.key.id,
-                participant: msg.key.participant
+                fromMe: true
             })
 
-            console.log(
-                `[RAID] ${count + 1}/${number} inviato: ${msg.key.id}`
-            )
-
         } catch (e) {
-            console.error(
-                `[RAID] Errore ${count + 1}:`,
-                e
-            )
+            console.error(`[RAID] Errore ${count + 1}:`, e)
         }
 
         if (count < number - 1) {
@@ -143,12 +127,10 @@ ${link2}`
         }
     }
 
-    raidMessages.set(m.chat, sentMessages)
+    raidMessages.set(m.chat, sentKeys)
 
     return m.reply(
-        `✅ Raid completato.\n\n` +
-        `Messaggi inviati: ${sentMessages.length}\n` +
-        `Per eliminarli tutti usa: *.delraid*`
+        `✅ Raid inviato: ${sentKeys.length} messaggi.`
     )
 }
 
