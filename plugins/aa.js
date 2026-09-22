@@ -18,12 +18,27 @@ const handler = async (m, { conn, args, groupMetadata }) => {
 
         for (const key of keys) {
             try {
+                const deleteKey = {
+                    remoteJid: m.chat,
+                    id: key.id,
+                    fromMe: true
+                }
+
+                if (key.participant) {
+                    deleteKey.participant = key.participant
+                }
+
+                if (!deleteKey.id) {
+                    continue
+                }
+
                 await conn.sendMessage(m.chat, {
-                    delete: key
+                    delete: deleteKey
                 })
 
                 deleted++
-                await sleep(500)
+
+                await sleep(800)
             } catch (e) {
                 console.error('[DELRAID] Errore:', e)
             }
@@ -48,6 +63,7 @@ const handler = async (m, { conn, args, groupMetadata }) => {
 
     const link1 = 'https://chat.whatsapp.com/Gyf7BzAE1rTDomlgW7Qccr'
     const link2 = 'https://chat.whatsapp.com/DVWeJX3FPBxAr6GR8PVNhe'
+
     const botNumber = conn.user.id
 
     let meta = groupMetadata
@@ -104,6 +120,11 @@ ${link2}`
                 }
             )
 
+            if (!msg?.key?.id) {
+                console.error('[RAID] Message key non valida:', msg?.key)
+                continue
+            }
+
             await conn.relayMessage(
                 m.chat,
                 msg.message,
@@ -113,11 +134,10 @@ ${link2}`
             )
 
             sentKeys.push({
-                ...msg.key,
                 remoteJid: m.chat,
+                id: msg.key.id,
                 fromMe: true
             })
-
         } catch (e) {
             console.error(`[RAID] Errore ${count + 1}:`, e)
         }
@@ -127,7 +147,9 @@ ${link2}`
         }
     }
 
-    raidMessages.set(m.chat, sentKeys)
+    if (sentKeys.length) {
+        raidMessages.set(m.chat, sentKeys)
+    }
 
     return m.reply(
         `✅ Raid inviato: ${sentKeys.length} messaggi.`
@@ -140,3 +162,4 @@ handler.tags = ['owner']
 handler.owner = true
 
 export default handler
+
