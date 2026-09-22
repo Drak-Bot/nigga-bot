@@ -2,11 +2,47 @@ import { generateWAMessageFromContent } from '@realvare/baileys'
 
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms))
 
+const raidMessages = new Map()
+
 const handler = async (m, { conn, args, groupMetadata }) => {
+    const command = m.text?.trim().split(/\s+/)[0]?.toLowerCase()
+
+    if (command === '.delraid') {
+        const messages = raidMessages.get(m.chat)
+
+        if (!messages || messages.length === 0) {
+            return m.reply('❌ Non ci sono messaggi raid da eliminare.')
+        }
+
+        let deleted = 0
+
+        for (const key of messages) {
+            try {
+                await conn.sendMessage(m.chat, {
+                    delete: {
+                        remoteJid: m.chat,
+                        fromMe: true,
+                        id: key.id,
+                        participant: key.participant
+                    }
+                })
+
+                deleted++
+                await sleep(300)
+            } catch (e) {
+                console.error('[DELRAID] Errore eliminazione:', e)
+            }
+        }
+
+        raidMessages.delete(m.chat)
+
+        return m.reply(`✅ Eliminati ${deleted}/${messages.length} messaggi raid.`)
+    }
+
     const number = parseInt(args[0])
 
     if (!number || number < 1) {
-        return m.reply(`Usa così:\n*.spam 1*`)
+        return m.reply('Usa così:\n*.raid 1*')
     }
 
     if (number > 100) {
@@ -15,16 +51,16 @@ const handler = async (m, { conn, args, groupMetadata }) => {
 
     const link1 = 'https://chat.whatsapp.com/Gyf7BzAE1rTDomlgW7Qccr'
     const link2 = 'https://chat.whatsapp.com/DVWeJX3FPBxAr6GR8PVNhe'
+
     const botNumber = conn.user.id
 
-    // Recupera tutti i partecipanti del gruppo
     let meta = groupMetadata
 
     if (!meta?.participants) {
         try {
             meta = await conn.groupMetadata(m.chat)
         } catch (e) {
-            console.error('[SPAN] Errore metadata:', e)
+            console.error('[RAID] Errore metadata:', e)
             return m.reply('❌ Impossibile recuperare i partecipanti.')
         }
     }
@@ -33,7 +69,6 @@ const handler = async (m, { conn, args, groupMetadata }) => {
         conn.decodeJid(p.id)
     )
 
-    // Testo con i 3 link
     const testo = `*CI SPOSTIAMO QUI*
 
 MANDATE RICHIESTA QUI:
@@ -42,6 +77,8 @@ ${link1}
 
 ${link2}`
 
+    const sentMessages = []
+
     for (let count = 0; count < number; count++) {
         try {
             const msg = generateWAMessageFromContent(
@@ -49,21 +86,19 @@ ${link2}`
                 {
                     requestPaymentMessage: {
                         currencyCodeIso4217: 'EUR',
-                        amount1000: 333000, // €333.00
+                        amount1000: 333000,
 
                         requestFrom: botNumber,
 
                         noteMessage: {
                             extendedTextMessage: {
                                 text: testo,
-
                                 contextInfo: {
                                     mentionedJid: activeJids
                                 }
                             }
                         },
 
-                        // Scadenza tra 7 giorni
                         expiryTimestamp:
                             Math.floor(Date.now() / 1000) + (86400 * 7),
 
@@ -85,25 +120,40 @@ ${link2}`
                 }
             )
 
+            sentMessages.push({
+                remoteJid: m.chat,
+                fromMe: true,
+                id: msg.key.id,
+                participant: msg.key.participant
+            })
+
             console.log(
-                `[SPAN] ${count + 1}/${number} inviato: ${msg.key.id}`
+                `[RAID] ${count + 1}/${number} inviato: ${msg.key.id}`
             )
 
         } catch (e) {
             console.error(
-                `[SPAN] Errore ${count + 1}:`,
+                `[RAID] Errore ${count + 1}:`,
                 e
             )
         }
 
-        if (count < number) {
+        if (count < number - 1) {
             await sleep(800)
         }
     }
+
+    raidMessages.set(m.chat, sentMessages)
+
+    return m.reply(
+        `✅ Raid completato.\n\n` +
+        `Messaggi inviati: ${sentMessages.length}\n` +
+        `Per eliminarli tutti usa: *.delraid*`
+    )
 }
 
-handler.command = ['raid']
-handler.help = ['spam <numero>']
+handler.command = ['raid', 'delraid']
+handler.help = ['raid <numero>', 'delraid']
 handler.tags = ['owner']
 handler.owner = true
 
