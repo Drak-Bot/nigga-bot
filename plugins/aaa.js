@@ -2,11 +2,16 @@ let handler = async (m, { conn }) => {
   if (!m.quoted) return m.reply('Rispondi al messaggio che vuoi eliminare!')
 
   try {
-    let key = m.quoted.key || {
-      remoteJid: m.chat,
-      fromMe: m.quoted.fromMe,
-      id: m.quoted.id,
-      participant: m.quoted.sender
+    let participant = m.quoted.sender || m.quoted.participant || m.quoted.key?.participant
+    let remoteJid = m.quoted.chat || m.chat
+    let id = m.quoted.id || m.quoted.key?.id
+    let fromMe = m.quoted.fromMe ?? m.quoted.key?.fromMe ?? false
+
+    let key = {
+      remoteJid: remoteJid,
+      fromMe: fromMe,
+      id: id,
+      participant: participant
     }
 
     await conn.sendMessage(m.chat, { delete: key })
