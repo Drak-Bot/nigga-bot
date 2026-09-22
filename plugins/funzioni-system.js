@@ -22,7 +22,7 @@ let handler = async (m, { conn, command, args, isAdmin, isOwner, isROwner, usedP
   }
 
   const mentionTag = `@${m.sender.split('@')[0]}`
-  
+
   let fakeContact = null
   try {
     if (m && m.chat && typeof createFakeContact === 'function') {
@@ -117,10 +117,10 @@ let handler = async (m, { conn, command, args, isAdmin, isOwner, isROwner, usedP
 
 *🛡️ 𝐒𝐢𝐜𝐮𝐫𝐞𝐳𝐳𝐚:*
 *antilink, antispam, antibot*
-*antiporno, antigore, antitrava*
-*antitag, antiprivato, antivoip*
-*antimedia, antiviewonce, antidelete*
-*antinuke, antiwz*
+*antiraid, antiporno, antigore*
+*antitrava, antitag, antiprivato*
+*antivoip, antimedia, antiviewonce*
+*antidelete, antinuke, antiwz*
 *antiinsta, antitelegram*
 *antitiktok*
 
@@ -226,6 +226,7 @@ let handler = async (m, { conn, command, args, isAdmin, isOwner, isROwner, usedP
       if (!await requireOwner()) return
       thumbFeature = 'system'
       result = setFeature(bot, 'autoDbBackup', '𝐁𝐀𝐂𝐊𝐔𝐏 𝐃𝐀𝐓𝐀𝐁𝐀𝐒𝐄', '𝐀𝐮𝐭𝐨𝐃𝐁')
+
       if (typeof global.restartAutoDbBackupLoop === 'function') {
         global.restartAutoDbBackupLoop(conn)
       }
@@ -239,6 +240,12 @@ let handler = async (m, { conn, command, args, isAdmin, isOwner, isROwner, usedP
     case 'antibot':
       if (!await requireAdmin()) return
       result = setFeature(chat, 'antiBot', '𝐀𝐍𝐓𝐈 𝐁𝐎𝐓', '𝐀𝐧𝐭𝐢 𝐁𝐨𝐭')
+      break
+
+    case 'antiraid':
+      if (!await requireAdmin()) return
+      thumbFeature = 'antiraid'
+      result = setFeature(chat, 'antiraid', '𝐀𝐍𝐓𝐈 𝐑𝐀𝐈𝐃', '𝐀𝐧𝐭𝐢 𝐑𝐚𝐢𝐝')
       break
 
     case 'antivoip':
@@ -276,23 +283,42 @@ let handler = async (m, { conn, command, args, isAdmin, isOwner, isROwner, usedP
       if (!await requireOwner()) return
 
       const allState = [
-        chat.antiLink, chat.antispam, chat.antiBot, chat.antiporno,
-        chat.antigore, chat.antitrava, chat.antiTag, chat.antimedia,
-        chat.antidelete, chat.antiviewonce, chat.antinuke, chat.antiWhatsapp,
-        chat.antiInsta, chat.antiTelegram, chat.antiTiktok, chat.antivoip,
-        chat.welcome, chat.presentazione, chat.goodbye, bot.antiprivato,
-        chat.modoadmin, chat.ai, bot.autoDbBackup
+        chat.antiLink,
+        chat.antispam,
+        chat.antiBot,
+        chat.antiraid,
+        chat.antiporno,
+        chat.antigore,
+        chat.antitrava,
+        chat.antiTag,
+        chat.antimedia,
+        chat.antidelete,
+        chat.antiviewonce,
+        chat.antinuke,
+        chat.antiWhatsapp,
+        chat.antiInsta,
+        chat.antiTelegram,
+        chat.antiTiktok,
+        chat.antivoip,
+        chat.welcome,
+        chat.presentazione,
+        chat.goodbye,
+        bot.antiprivato,
+        chat.modoadmin,
+        chat.ai,
+        bot.autoDbBackup
       ].every(v => v === isEnable)
 
       if (allState) {
         result = box(
           '𝐓𝐔𝐓𝐓𝐄 𝐋𝐄 𝐏𝐑𝐎𝐓𝐄𝐙𝐈𝐎𝐍𝐈',
-          `${actor}*⚠️ 𝐓𝐮𝐭𝐭𝐞 𝐥𝐞 𝐟𝐮𝐧𝐳𝐢𝐨𝐧𝐢 𝐬𝐨𝐧𝐨 𝐠𝐢à ${isEnable ? '𝐚𝐭𝐭𝐢𝐯𝐞' : '𝐝𝐢𝐬𝐚𝐭𝐭𝐢𝐯𝐞'}.*`
+          `${actor}*⚠️ 𝐓𝐮𝐭𝐭𝐞 𝐥𝐞 𝐟𝐮𝐧𝐳𝐢𝐨𝐧𝐢 𝐬𝐨𝐧𝐨 𝐠𝐢à ${isEnable ? '𝐚𝐭𝐭𝐢𝐯𝐞' : '𝐝𝐢𝐬𝐚𝐭𝐭𝐢𝐯𝐚𝐭𝐞'}.*`
         )
       } else {
         chat.antiLink = isEnable
         chat.antispam = isEnable
         chat.antiBot = isEnable
+        chat.antiraid = isEnable
         chat.antiporno = isEnable
         chat.antigore = isEnable
         chat.antitrava = isEnable
@@ -313,7 +339,7 @@ let handler = async (m, { conn, command, args, isAdmin, isOwner, isROwner, usedP
         chat.modoadmin = isEnable
         chat.ai = isEnable
         bot.autoDbBackup = isEnable
-        
+
         if (typeof global.restartAutoDbBackupLoop === 'function') {
           global.restartAutoDbBackupLoop(conn)
         }
@@ -384,4 +410,5 @@ let handler = async (m, { conn, command, args, isAdmin, isOwner, isROwner, usedP
 handler.help = ['attiva <feature>', 'disattiva <feature>']
 handler.tags = ['group']
 handler.command = ['attiva', 'disattiva', 'enable', 'disable', '1', '0', 'statofunzione', 'sf']
+
 export default handler
