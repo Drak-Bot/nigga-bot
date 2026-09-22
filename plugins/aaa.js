@@ -1,21 +1,20 @@
-let handler = async (m, { conn, usedPrefix, command }) => {
+let handler = async (m, { conn }) => {
   if (!m.quoted) return m.reply('Rispondi al messaggio che vuoi eliminare!')
 
   try {
-    let delet = m.quoted.sender
-    let bang = m.quoted.id
-    let fromMe = m.quoted.fromMe
+    let key = m.quoted.key || {
+      remoteJid: m.chat,
+      fromMe: m.quoted.fromMe,
+      id: m.quoted.id,
+      participant: m.quoted.sender
+    }
 
-    await conn.sendMessage(m.chat, { 
-      delete: { remoteJid: m.chat, fromMe: fromMe, id: bang, participant: delet } 
-    })
+    await conn.sendMessage(m.chat, { delete: key })
   } catch (e) {
     console.error(e)
   }
 }
 
-handler.help = ['eliminaraid']
-handler.tags = ['group']
 handler.command = /^eliminaraid$/i
 handler.group = true
 handler.admin = true
