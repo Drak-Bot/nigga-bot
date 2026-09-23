@@ -95,11 +95,38 @@ async function downloadMedia(url, type) {
   } catch {}
 
   try {
-    const res = await fetch(`https://api.vreden.my.id/api/ytmp3?url=${encodeURIComponent(url)}`)
+    const endpoint = type === 'audio'
+      ? `https://api.vreden.my.id/api/ytmp3?url=${encodeURIComponent(url)}`
+      : `https://api.vreden.my.id/api/ytmp4?url=${encodeURIComponent(url)}`
+    const res = await fetch(endpoint)
     const json = await res.json()
-    const dlUrl = json?.result?.download?.url || json?.result?.url
-    if (dlUrl && type === 'audio') {
+    const dlUrl = json?.result?.download?.url || json?.result?.url || json?.data?.url
+    if (dlUrl) {
       return { url: dlUrl, provider: 'Vreden' }
+    }
+  } catch {}
+
+  try {
+    const endpoint = type === 'audio'
+      ? `https://itzpire.com/download/ytmp3?url=${encodeURIComponent(url)}`
+      : `https://itzpire.com/download/ytmp4?url=${encodeURIComponent(url)}`
+    const res = await fetch(endpoint)
+    const json = await res.json()
+    const dlUrl = json?.data?.download || json?.data?.url || json?.result?.url
+    if (dlUrl) {
+      return { url: dlUrl, provider: 'Itzpire' }
+    }
+  } catch {}
+
+  try {
+    const endpoint = type === 'audio'
+      ? `https://api.ryzendesu.vip/api/downloader/ytmp3?url=${encodeURIComponent(url)}`
+      : `https://api.ryzendesu.vip/api/downloader/ytmp4?url=${encodeURIComponent(url)}`
+    const res = await fetch(endpoint)
+    const json = await res.json()
+    const dlUrl = json?.url || json?.data?.url
+    if (dlUrl) {
+      return { url: dlUrl, provider: 'Ryzen' }
     }
   } catch {}
 
