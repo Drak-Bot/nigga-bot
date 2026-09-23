@@ -30,6 +30,38 @@ async function searchYouTube(query) {
   } catch {}
 
   try {
+    const res = await fetch(`https://api.siputzx.my.id/api/s/youtube?query=${encodeURIComponent(query)}`)
+    const json = await res.json()
+    if (json?.data?.length > 0) {
+      const v = json.data[0]
+      return {
+        url: v.url,
+        title: clean(v.title || 'YouTube'),
+        duration: clean(v.duration || 'N/D'),
+        thumbnail: v.thumbnail || null,
+        author: clean(v.author || 'N/D'),
+        views: v.views || 0
+      }
+    }
+  } catch {}
+
+  try {
+    const res = await fetch(`https://vid.puffyan.us/api/v1/search?q=${encodeURIComponent(query)}`)
+    const json = await res.json()
+    const video = json.find(item => item.type === 'video')
+    if (video) {
+      return {
+        url: `https://www.youtube.com/watch?v=${video.videoId}`,
+        title: clean(video.title || 'YouTube'),
+        duration: clean(String(video.lengthSeconds || '')),
+        thumbnail: video.videoThumbnails?.[0]?.url || null,
+        author: clean(video.author || 'N/D'),
+        views: video.viewCount || 0
+      }
+    }
+  } catch {}
+
+  try {
     const res = await fetch(`https://widipe.com/download/ytsearch?text=${encodeURIComponent(query)}`)
     const json = await res.json()
     if (json?.result?.length > 0) {
@@ -50,6 +82,27 @@ async function searchYouTube(query) {
 
 async function downloadMedia(url, type) {
   try {
+    const res = await fetch('https://api.cobalt.tools/api/json', {
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+        'User-Agent': 'Mozilla/5.0'
+      },
+      body: JSON.stringify({
+        url: url,
+        audioFormat: type === 'audio' ? 'mp3' : 'best',
+        videoQuality: '720'
+      })
+    })
+    const json = await res.json()
+    const dlUrl = json?.url || json?.picker?.[0]?.url
+    if (dlUrl) {
+      return { url: dlUrl, provider: 'Cobalt' }
+    }
+  } catch {}
+
+  try {
     const endpoint = type === 'audio'
       ? `https://widipe.com/download/ytmp3?url=${encodeURIComponent(url)}`
       : `https://widipe.com/download/ytmp4?url=${encodeURIComponent(url)}`
@@ -63,46 +116,25 @@ async function downloadMedia(url, type) {
 
   try {
     const endpoint = type === 'audio'
-      ? `https://api.agatz.xyz/api/ytmp3?url=${encodeURIComponent(url)}`
-      : `https://api.agatz.xyz/api/ytmp4?url=${encodeURIComponent(url)}`
+      ? `https://delirius-api-oficial.vercel.app/download/ytmp3?url=${encodeURIComponent(url)}`
+      : `https://delirius-api-oficial.vercel.app/download/ytmp4?url=${encodeURIComponent(url)}`
     const res = await fetch(endpoint)
     const json = await res.json()
-    const dlUrl = json?.data?.download || json?.data?.url || json?.result
+    const dlUrl = json?.data?.download?.url || json?.data?.link || json?.data?.dl || json?.download
     if (dlUrl) {
-      return { url: dlUrl, provider: 'Agatz' }
+      return { url: dlUrl, provider: 'Delirius' }
     }
   } catch {}
 
   try {
     const endpoint = type === 'audio'
-      ? `https://btch.us.kg/download/ytmp3?url=${encodeURIComponent(url)}`
-      : `https://btch.us.kg/download/ytmp4?url=${encodeURIComponent(url)}`
+      ? `https://api.vreden.my.id/api/ytmp3?url=${encodeURIComponent(url)}`
+      : `https://api.vreden.my.id/api/ytmp4?url=${encodeURIComponent(url)}`
     const res = await fetch(endpoint)
     const json = await res.json()
-    const dlUrl = json?.result?.url || json?.result?.download || json?.url
+    const dlUrl = json?.result?.download?.url || json?.result?.url || json?.data?.url
     if (dlUrl) {
-      return { url: dlUrl, provider: 'Btch' }
-    }
-  } catch {}
-
-  try {
-    const res = await fetch('https://api.cobalt.tools/', {
-      method: 'POST',
-      headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json',
-        'User-Agent': 'Mozilla/5.0'
-      },
-      body: JSON.stringify({
-        url: url,
-        downloadMode: type === 'audio' ? 'audio' : 'auto',
-        audioFormat: 'mp3'
-      })
-    })
-    const json = await res.json()
-    const dlUrl = json?.url || json?.picker?.[0]?.url
-    if (dlUrl) {
-      return { url: dlUrl, provider: 'Cobalt' }
+      return { url: dlUrl, provider: 'Vreden' }
     }
   } catch {}
 
