@@ -50,6 +50,27 @@ async function searchYouTube(query) {
 
 async function downloadMedia(url, type) {
   try {
+    const res = await fetch('https://api.cobalt.tools/api/json', {
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+        'User-Agent': 'Mozilla/5.0'
+      },
+      body: JSON.stringify({
+        url: url,
+        audioFormat: type === 'audio' ? 'mp3' : 'best',
+        videoQuality: '720'
+      })
+    })
+    const json = await res.json()
+    const dlUrl = json?.url || json?.picker?.[0]?.url
+    if (dlUrl) {
+      return { url: dlUrl, provider: 'Cobalt' }
+    }
+  } catch {}
+
+  try {
     const endpoint = type === 'audio'
       ? `https://delirius-api-oficial.vercel.app/download/ytmp3?url=${encodeURIComponent(url)}`
       : `https://delirius-api-oficial.vercel.app/download/ytmp4?url=${encodeURIComponent(url)}`
@@ -74,27 +95,6 @@ async function downloadMedia(url, type) {
   } catch {}
 
   try {
-    const res = await fetch('https://api.cobalt.tools/', {
-      method: 'POST',
-      headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json',
-        'User-Agent': 'Mozilla/5.0'
-      },
-      body: JSON.stringify({
-        url: url,
-        downloadMode: type === 'audio' ? 'audio' : 'auto',
-        audioFormat: 'mp3'
-      })
-    })
-    const json = await res.json()
-    const dlUrl = json?.url || json?.picker?.[0]?.url
-    if (dlUrl) {
-      return { url: dlUrl, provider: 'Cobalt' }
-    }
-  } catch {}
-
-  try {
     const endpoint = type === 'audio'
       ? `https://api.vreden.my.id/api/ytmp3?url=${encodeURIComponent(url)}`
       : `https://api.vreden.my.id/api/ytmp4?url=${encodeURIComponent(url)}`
@@ -106,35 +106,15 @@ async function downloadMedia(url, type) {
     }
   } catch {}
 
-  try {
-    const endpoint = type === 'audio'
-      ? `https://itzpire.com/download/ytmp3?url=${encodeURIComponent(url)}`
-      : `https://itzpire.com/download/ytmp4?url=${encodeURIComponent(url)}`
-    const res = await fetch(endpoint)
-    const json = await res.json()
-    const dlUrl = json?.data?.download || json?.data?.url || json?.result?.url
-    if (dlUrl) {
-      return { url: dlUrl, provider: 'Itzpire' }
-    }
-  } catch {}
-
-  try {
-    const endpoint = type === 'audio'
-      ? `https://api.ryzendesu.vip/api/downloader/ytmp3?url=${encodeURIComponent(url)}`
-      : `https://api.ryzendesu.vip/api/downloader/ytmp4?url=${encodeURIComponent(url)}`
-    const res = await fetch(endpoint)
-    const json = await res.json()
-    const dlUrl = json?.url || json?.data?.url
-    if (dlUrl) {
-      return { url: dlUrl, provider: 'Ryzen' }
-    }
-  } catch {}
-
   throw new Error('Impossibile generare il link di download.')
 }
 
 async function getBuffer(url) {
-  const response = await fetch(url)
+  const response = await fetch(url, {
+    headers: {
+      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'
+    }
+  })
   if (!response.ok) throw new Error('Errore nel download del file')
   const arrayBuffer = await response.arrayBuffer()
   return Buffer.from(arrayBuffer)
