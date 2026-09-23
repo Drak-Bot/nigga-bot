@@ -45,7 +45,7 @@ async function searchYouTube(query) {
     }
   } catch {}
 
-  throw new Error('Nessun risultato trovato o servizi di ricerca temporaneamente non disponibili.')
+  throw new Error('Nessun risultato trovato.')
 }
 
 async function downloadMedia(url, type) {
@@ -53,12 +53,23 @@ async function downloadMedia(url, type) {
     const endpoint = type === 'audio'
       ? `https://delirius-api-oficial.vercel.app/download/ytmp3?url=${encodeURIComponent(url)}`
       : `https://delirius-api-oficial.vercel.app/download/ytmp4?url=${encodeURIComponent(url)}`
-    
     const res = await fetch(endpoint)
     const json = await res.json()
-    const dlUrl = json?.data?.download?.url || json?.data?.link || json?.data?.dl
+    const dlUrl = json?.data?.download?.url || json?.data?.link || json?.data?.dl || json?.download
     if (dlUrl) {
-      return { url: dlUrl, title: json?.data?.title || 'media', provider: 'Delirius' }
+      return { url: dlUrl, provider: 'Delirius' }
+    }
+  } catch {}
+
+  try {
+    const endpoint = type === 'audio'
+      ? `https://api.siputzx.my.id/api/d/ytmp3?url=${encodeURIComponent(url)}`
+      : `https://api.siputzx.my.id/api/d/ytmp4?url=${encodeURIComponent(url)}`
+    const res = await fetch(endpoint)
+    const json = await res.json()
+    const dlUrl = json?.data?.dl || json?.data?.url || json?.dl
+    if (dlUrl) {
+      return { url: dlUrl, provider: 'Siputzx' }
     }
   } catch {}
 
@@ -79,28 +90,25 @@ async function downloadMedia(url, type) {
     const json = await res.json()
     const dlUrl = json?.url || json?.picker?.[0]?.url
     if (dlUrl) {
-      return { url: dlUrl, title: json?.filename || 'media', provider: 'Cobalt' }
+      return { url: dlUrl, provider: 'Cobalt' }
     }
   } catch {}
 
   try {
-    const endpoint = type === 'audio'
-      ? `https://api.siputzx.my.id/api/d/ytmp3?url=${encodeURIComponent(url)}`
-      : `https://api.siputzx.my.id/api/d/ytmp4?url=${encodeURIComponent(url)}`
-    const res = await fetch(endpoint)
+    const res = await fetch(`https://api.vreden.my.id/api/ytmp3?url=${encodeURIComponent(url)}`)
     const json = await res.json()
-    const dlUrl = json?.data?.dl || json?.data?.url
-    if (dlUrl) {
-      return { url: dlUrl, title: json?.data?.title || 'media', provider: 'Siputzx' }
+    const dlUrl = json?.result?.download?.url || json?.result?.url
+    if (dlUrl && type === 'audio') {
+      return { url: dlUrl, provider: 'Vreden' }
     }
   } catch {}
 
-  throw new Error('Impossibile generare il link di download dai provider disponibili.')
+  throw new Error('Impossibile generare il link di download.')
 }
 
 async function getBuffer(url) {
   const response = await fetch(url)
-  if (!response.ok) throw new Error(`Errore HTTP nel download del file: ${response.status}`)
+  if (!response.ok) throw new Error('Errore nel download del file')
   const arrayBuffer = await response.arrayBuffer()
   return Buffer.from(arrayBuffer)
 }
@@ -117,8 +125,6 @@ const handler = async (m, { conn, text, usedPrefix, command }) => {
       `┃\n` +
       `┃ 💡 Esempio:\n` +
       `┃ • ${usedPrefix}play un milione di notti\n` +
-      `┃ • ${usedPrefix}playaud [link]\n` +
-      `┃ • ${usedPrefix}playvid [link]\n` +
       `┃\n` +
       `╰━━━━━━━━━━━━━━━━━━━━━━╯`
     )
@@ -152,26 +158,48 @@ const handler = async (m, { conn, text, usedPrefix, command }) => {
         `┃ ⏱️ ${videoData.duration || 'N/D'}\n` +
         `┃ 👁️ ${videoData.views ? Number(videoData.views).toLocaleString('it-IT') : 'N/D'}\n` +
         `┃\n` +
-        `┃ 📥 *Scarica direttamente:* \n` +
-        `┃ 🎵 MP3: \`${usedPrefix}playaud${videoData.url}\`\n` +
-        `┃ 🎬 MP4: \`${usedPrefix}playvid${videoData.url}\`\n` +
+        `┃ 🎧 *Scegli il formato:* \n` +
         `┃\n` +
         `╰━━━━━━━━━━━━━━━━━━━━━━╯`
 
+      const buttons = [
+        {
+          buttonId: `${usedPrefix}playaud ${videoData.url}`,
+          buttonText: { displayText: '🎵 MP3 AUDIO' },
+          type: 1
+        },
+        {
+          buttonId: `${usedPrefix}playvid ${videoData.url}`,
+          buttonText: { displayText: '🎬 MP4 VIDEO' },
+          type: 1
+        }
+      ]
+
       if (videoData.thumbnail) {
-        await conn.sendMessage(m.chat, { image: { url: videoData.thumbnail }, caption }, { quoted: m })
+        await conn.sendMessage(m.chat, {
+          image: { url: videoData.thumbnail },
+          caption,
+          footer: '𝑩𝑶𝑻',
+          buttons,
+          headerType: 4
+        }, { quoted: m })
       } else {
-        await m.reply(caption)
+        await conn.sendMessage(m.chat, {
+          text: caption,
+          footer: '𝑩𝑶𝑻',
+          buttons,
+          headerType: 1
+        }, { quoted: m })
       }
-      
+
       await conn.sendMessage(m.chat, { react: { text: '✅', key: m.key } })
       return
     }
 
     const type = cmd === 'playaud' ? 'audio' : 'video'
-    
+
     await conn.sendMessage(m.chat, { react: { text: '📥', key: m.key } })
-    
+
     const mediaInfo = await downloadMedia(videoData.url, type)
     const buffer = await getBuffer(mediaInfo.url)
 
@@ -187,7 +215,14 @@ const handler = async (m, { conn, text, usedPrefix, command }) => {
         video: buffer,
         mimetype: 'video/mp4',
         fileName: `${clean(videoData.title || 'video')}.mp4`,
-        caption: `✅ *Download completato*\n🎵 *${videoData.title}*\n🌐 *Provider:* ${mediaInfo.provider}`
+        caption: `╭━━━〔 🎬 𝑩𝑶𝑻 〕━━━╮\n` +
+                 `┃\n` +
+                 `┃ ✅ *Download completato*\n` +
+                 `┃\n` +
+                 `┃ 🎵 ${videoData.title}\n` +
+                 `┃ 🌐 ${mediaInfo.provider}\n` +
+                 `┃\n` +
+                 `╰━━━━━━━━━━━━━━━━━━━━━━╯`
       }, { quoted: m })
     }
 
