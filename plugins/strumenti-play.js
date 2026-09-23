@@ -13,132 +13,118 @@ function isYoutubeUrl(value) {
 }
 
 async function searchYouTube(query) {
-  try {
-    const res = await fetch(`https://delirius-api-oficial.vercel.app/search/youtube?q=${encodeURIComponent(query)}`)
-    const json = await res.json()
-    if (json?.status && json?.data?.length > 0) {
-      const v = json.data[0]
-      return {
-        url: v.url,
-        title: clean(v.title || 'YouTube'),
-        duration: clean(v.timestamp || v.duration || 'N/D'),
-        thumbnail: v.image || v.thumbnail || null,
-        author: clean(v.author?.name || v.author || 'N/D'),
-        views: v.views || 0
+  const apis = [
+    async () => {
+      const res = await fetch(`https://delirius-api-oficial.vercel.app/search/youtube?q=${encodeURIComponent(query)}`)
+      const json = await res.json()
+      if (json?.status && json?.data?.length > 0) {
+        const v = json.data[0]
+        return {
+          url: v.url,
+          title: clean(v.title || 'YouTube'),
+          duration: clean(v.timestamp || v.duration || 'N/D'),
+          thumbnail: v.image || v.thumbnail || null,
+          author: clean(v.author?.name || v.author || 'N/D'),
+          views: v.views || 0
+        }
       }
+      throw new Error()
+    },
+    async () => {
+      const res = await fetch(`https://api.siputzx.my.id/api/s/youtube?query=${encodeURIComponent(query)}`)
+      const json = await res.json()
+      if (json?.data?.length > 0) {
+        const v = json.data[0]
+        return {
+          url: v.url,
+          title: clean(v.title || 'YouTube'),
+          duration: clean(v.duration || 'N/D'),
+          thumbnail: v.thumbnail || null,
+          author: clean(v.author || 'N/D'),
+          views: v.views || 0
+        }
+      }
+      throw new Error()
+    },
+    async () => {
+      const res = await fetch(`https://widipe.com/download/ytsearch?text=${encodeURIComponent(query)}`)
+      const json = await res.json()
+      if (json?.result?.length > 0) {
+        const v = json.result[0]
+        return {
+          url: v.url,
+          title: clean(v.title || 'YouTube'),
+          duration: clean(v.timestamp || 'N/D'),
+          thumbnail: v.thumbnail || null,
+          author: clean(v.author || 'N/D'),
+          views: v.views || 0
+        }
+      }
+      throw new Error()
     }
-  } catch {}
+  ]
 
-  try {
-    const res = await fetch(`https://api.siputzx.my.id/api/s/youtube?query=${encodeURIComponent(query)}`)
-    const json = await res.json()
-    if (json?.data?.length > 0) {
-      const v = json.data[0]
-      return {
-        url: v.url,
-        title: clean(v.title || 'YouTube'),
-        duration: clean(v.duration || 'N/D'),
-        thumbnail: v.thumbnail || null,
-        author: clean(v.author || 'N/D'),
-        views: v.views || 0
-      }
-    }
-  } catch {}
-
-  try {
-    const res = await fetch(`https://vid.puffyan.us/api/v1/search?q=${encodeURIComponent(query)}`)
-    const json = await res.json()
-    const video = json.find(item => item.type === 'video')
-    if (video) {
-      return {
-        url: `https://www.youtube.com/watch?v=${video.videoId}`,
-        title: clean(video.title || 'YouTube'),
-        duration: clean(String(video.lengthSeconds || '')),
-        thumbnail: video.videoThumbnails?.[0]?.url || null,
-        author: clean(video.author || 'N/D'),
-        views: video.viewCount || 0
-      }
-    }
-  } catch {}
-
-  try {
-    const res = await fetch(`https://widipe.com/download/ytsearch?text=${encodeURIComponent(query)}`)
-    const json = await res.json()
-    if (json?.result?.length > 0) {
-      const v = json.result[0]
-      return {
-        url: v.url,
-        title: clean(v.title || 'YouTube'),
-        duration: clean(v.timestamp || 'N/D'),
-        thumbnail: v.thumbnail || null,
-        author: clean(v.author || 'N/D'),
-        views: v.views || 0
-      }
-    }
-  } catch {}
+  for (const api of apis) {
+    try {
+      const result = await api()
+      if (result) return result
+    } catch {}
+  }
 
   throw new Error('Nessun risultato trovato.')
 }
 
 async function downloadMedia(url, type) {
-  try {
-    const res = await fetch('https://api.cobalt.tools/api/json', {
-      method: 'POST',
-      headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json',
-        'User-Agent': 'Mozilla/5.0'
-      },
-      body: JSON.stringify({
-        url: url,
-        audioFormat: type === 'audio' ? 'mp3' : 'best',
-        videoQuality: '720'
+  const apis = [
+    async () => {
+      const res = await fetch('https://api.cobalt.tools/api/json', {
+        method: 'POST',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+          'User-Agent': 'Mozilla/5.0'
+        },
+        body: JSON.stringify({
+          url: url,
+          audioFormat: type === 'audio' ? 'mp3' : 'best',
+          videoQuality: '720'
+        })
       })
-    })
-    const json = await res.json()
-    const dlUrl = json?.url || json?.picker?.[0]?.url
-    if (dlUrl) {
-      return { url: dlUrl, provider: 'Cobalt' }
+      const json = await res.json()
+      const dlUrl = json?.url || json?.picker?.[0]?.url
+      if (dlUrl) return { url: dlUrl, provider: 'Cobalt' }
+      throw new Error()
+    },
+    async () => {
+      const endpoint = type === 'audio'
+        ? `https://widipe.com/download/ytmp3?url=${encodeURIComponent(url)}`
+        : `https://widipe.com/download/ytmp4?url=${encodeURIComponent(url)}`
+      const res = await fetch(endpoint)
+      const json = await res.json()
+      const dlUrl = json?.result?.url || json?.result?.download || json?.url
+      if (dlUrl) return { url: dlUrl, provider: 'Widipe' }
+      throw new Error()
+    },
+    async () => {
+      const endpoint = type === 'audio'
+        ? `https://api.vreden.my.id/api/ytmp3?url=${encodeURIComponent(url)}`
+        : `https://api.vreden.my.id/api/ytmp4?url=${encodeURIComponent(url)}`
+      const res = await fetch(endpoint)
+      const json = await res.json()
+      const dlUrl = json?.result?.download?.url || json?.result?.url || json?.data?.url
+      if (dlUrl) return { url: dlUrl, provider: 'Vreden' }
+      throw new Error()
     }
-  } catch {}
+  ]
 
-  try {
-    const endpoint = type === 'audio'
-      ? `https://widipe.com/download/ytmp3?url=${encodeURIComponent(url)}`
-      : `https://widipe.com/download/ytmp4?url=${encodeURIComponent(url)}`
-    const res = await fetch(endpoint)
-    const json = await res.json()
-    const dlUrl = json?.result?.url || json?.result?.download || json?.url
-    if (dlUrl) {
-      return { url: dlUrl, provider: 'Widipe' }
-    }
-  } catch {}
+  for (const api of apis) {
+    try {
+      const result = await api()
+      if (result) return result
+    } catch {}
+  }
 
-  try {
-    const endpoint = type === 'audio'
-      ? `https://delirius-api-oficial.vercel.app/download/ytmp3?url=${encodeURIComponent(url)}`
-      : `https://delirius-api-oficial.vercel.app/download/ytmp4?url=${encodeURIComponent(url)}`
-    const res = await fetch(endpoint)
-    const json = await res.json()
-    const dlUrl = json?.data?.download?.url || json?.data?.link || json?.data?.dl || json?.download
-    if (dlUrl) {
-      return { url: dlUrl, provider: 'Delirius' }
-    }
-  } catch {}
-
-  try {
-    const endpoint = type === 'audio'
-      ? `https://api.vreden.my.id/api/ytmp3?url=${encodeURIComponent(url)}`
-      : `https://api.vreden.my.id/api/ytmp4?url=${encodeURIComponent(url)}`
-    const res = await fetch(endpoint)
-    const json = await res.json()
-    const dlUrl = json?.result?.download?.url || json?.result?.url || json?.data?.url
-    if (dlUrl) {
-      return { url: dlUrl, provider: 'Vreden' }
-    }
-  } catch {}
-
-  throw new Error('Impossibile generare il link di download.')
+  throw new Error('Impossibile generare il link di download da nessuna API.')
 }
 
 async function getBuffer(url) {
@@ -147,7 +133,7 @@ async function getBuffer(url) {
       'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'
     }
   })
-  if (!response.ok) throw new Error('Errore nel download del file')
+  if (!response.ok) throw new Error('Errore nel download del file dal server remoto.')
   const arrayBuffer = await response.arrayBuffer()
   return Buffer.from(arrayBuffer)
 }
