@@ -76,40 +76,23 @@ async function searchYouTube(query) {
 
 async function downloadMedia(url, type) {
   const apis = [
-    // 1. Delirius API
-    async () => {
-      const endpoint = type === 'audio'
-        ? `https://delirius-api-oficial.vercel.app/download/ytmp3?url=${encodeURIComponent(url)}`
-        : `https://delirius-api-oficial.vercel.app/download/ytmp4?url=${encodeURIComponent(url)}`
-      const res = await fetch(endpoint)
-      const json = await res.json()
-      const dlUrl = json?.data?.download?.url || json?.data?.link || json?.data?.dl || json?.download || json?.result?.url
-      if (dlUrl) return { url: dlUrl, provider: 'Delirius' }
-      throw new Error()
-    },
-    // 2. Vreden API
+    // Gestione basata sulla struttura JSON fornita (es. link diretto e titolo)
     async () => {
       const endpoint = type === 'audio'
         ? `https://api.vreden.my.id/api/ytmp3?url=${encodeURIComponent(url)}`
         : `https://api.vreden.my.id/api/ytmp4?url=${encodeURIComponent(url)}`
       const res = await fetch(endpoint)
       const json = await res.json()
-      const dlUrl = json?.result?.download?.url || json?.result?.url || json?.data?.url
-      if (dlUrl) return { url: dlUrl, provider: 'Vreden' }
+      
+      // Estrazione compatibile con la struttura JSON con proprietà 'link'
+      const dlUrl = json?.link || json?.result?.download?.url || json?.result?.url || json?.data?.url
+      const title = json?.title || json?.result?.title || json?.data?.title
+      
+      if (dlUrl) {
+        return { url: dlUrl, title: clean(title), provider: 'API Principale' }
+      }
       throw new Error()
     },
-    // 3. Widipe API
-    async () => {
-      const endpoint = type === 'audio'
-        ? `https://widipe.com/download/ytmp3?url=${encodeURIComponent(url)}`
-        : `https://widipe.com/download/ytmp4?url=${encodeURIComponent(url)}`
-      const res = await fetch(endpoint)
-      const json = await res.json()
-      const dlUrl = json?.result?.url || json?.result?.download || json?.url
-      if (dlUrl) return { url: dlUrl, provider: 'Widipe' }
-      throw new Error()
-    },
-    // 4. Cobalt Tools API
     async () => {
       const res = await fetch('https://api.cobalt.tools/api/json', {
         method: 'POST',
@@ -127,6 +110,16 @@ async function downloadMedia(url, type) {
       const json = await res.json()
       const dlUrl = json?.url || json?.picker?.[0]?.url
       if (dlUrl) return { url: dlUrl, provider: 'Cobalt' }
+      throw new Error()
+    },
+    async () => {
+      const endpoint = type === 'audio'
+        ? `https://widipe.com/download/ytmp3?url=${encodeURIComponent(url)}`
+        : `https://widipe.com/download/ytmp4?url=${encodeURIComponent(url)}`
+      const res = await fetch(endpoint)
+      const json = await res.json()
+      const dlUrl = json?.result?.url || json?.result?.download || json?.url
+      if (dlUrl) return { url: dlUrl, provider: 'Widipe' }
       throw new Error()
     }
   ]
@@ -241,24 +234,25 @@ const handler = async (m, { conn, text, usedPrefix, command }) => {
 
     const mediaInfo = await downloadMedia(videoData.url, type)
     const buffer = await getBuffer(mediaInfo.url)
+    const finalTitle = mediaInfo.title || videoData.title
 
     if (type === 'audio') {
       await conn.sendMessage(m.chat, {
         audio: buffer,
         mimetype: 'audio/mpeg',
-        fileName: `${clean(videoData.title || 'audio')}.mp3`,
+        fileName: `${clean(finalTitle || 'audio')}.mp3`,
         ptt: false
       }, { quoted: m })
     } else {
       await conn.sendMessage(m.chat, {
         video: buffer,
         mimetype: 'video/mp4',
-        fileName: `${clean(videoData.title || 'video')}.mp4`,
+        fileName: `${clean(finalTitle || 'video')}.mp4`,
         caption: `╭━━━〔 🎬 𝑩𝑶𝑻 〕━━━╮\n` +
                  `┃\n` +
                  `┃ ✅ *Download completato*\n` +
                  `┃\n` +
-                 `┃ 🎵 ${videoData.title}\n` +
+                 `┃ 🎵 ${finalTitle}\n` +
                  `┃ 🌐 ${mediaInfo.provider}\n` +
                  `┃\n` +
                  `╰━━━━━━━━━━━━━━━━━━━━━━╯`
